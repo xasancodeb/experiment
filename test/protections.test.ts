@@ -51,10 +51,15 @@ test("an upheld report costs a level right away", () => {
 });
 
 test("ranking is identical for positive and negative posts with the same signals", () => {
-  const createdAt = new Date().toISOString();
+  const now = Date.now();
+  const author = user();
+  const createdAt = new Date(now - 3600000).toISOString();
+  const love = post(author, { verdict: "love", createdAt, paidLink: true });
+  const skip = post(author, { verdict: "skip", createdAt, paidLink: false, url: undefined });
   const s = { helpful: 4, tried: 3, agree: 2 };
-  assert.equal(rankScore({ createdAt }, s), rankScore({ createdAt }, s));
-  assert.ok(rankScore({ createdAt }, { ...s, helpful: 10 }) > rankScore({ createdAt }, s));
+  assert.equal(rankScore(love, s, now), rankScore(skip, s, now));
+  assert.equal(topScore(s), topScore({ ...s }));
+  assert.ok(rankScore(love, { ...s, helpful: 10 }, now) > rankScore(skip, s, now));
 });
 
 test("links: shorteners, http, and IPs are refused; tracking codes are stripped", () => {

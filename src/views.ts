@@ -6,7 +6,7 @@ import { HOLD_DAYS, LIMITS, MIN_PAYOUT, TRUST_LABELS, USER_SHARE } from "./trust
 import { EARNINGS_ON, INVITE_ONLY, PUBLIC_URL } from "./config.js";
 
 export const CATEGORIES = [
-  "Food & Drink", "Beauty", "Home", "Tech", "Style", "Books & Media", "Fitness", "Kids & Family", "Travel", "Other",
+  "Winter Gear", "Beauty", "Food & Drink", "Home", "Tech", "Style", "Books & Media", "Fitness", "Kids & Family", "Travel", "Other",
 ];
 
 export const REPORT_REASONS = [

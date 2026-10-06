@@ -144,6 +144,16 @@ benefit.
 | **Age of majority** | 18 in some provinces, 19 in others (BC, NS, NB, NL and the territories) | Sign-up asks for "the age of majority where I live." |
 | **Quebec's French-language law (Bill 96)** | Businesses serving Quebec consumers need French versions of their website, terms and communications. Fines run $3,000–$30,000 a day. | **Not done yet.** Launch in an English-speaking city first and add French before marketing in Quebec. |
 
+### Winnipeg, Manitoba specifics
+| Topic | What it means for you |
+|---|---|
+| **Registering** | Through the **Manitoba Companies Office** online. A sole proprietorship is about **$45** to reserve the name plus **$60** to register. Incorporating in Manitoba is about **$395**. Processing has been slow (3–4 weeks in mid-2026); expedited service costs double and takes about 5 business days. |
+| **Sales tax** | Manitoba has GST (5%) plus its own Retail Sales Tax (RST, 7%). Taste doesn't sell anything to members, but **ask an accountant whether RST applies** to commissions or future services. |
+| **Privacy** | Manitoba has no separate private-sector privacy law, so the federal **PIPEDA** applies. That's simpler than Quebec, BC or Alberta. |
+| **Age of majority** | **18** in Manitoba. The sign-up wording already covers every province. |
+| **French** | Not required for private businesses in Manitoba. **Launching in English from Winnipeg is fine.** French is only needed before marketing in Quebec. |
+| **Free help** | **Futurpreneur Canada** (loans and mentorship for founders aged 18–39) has its Manitoba office at **North Forge Technology Exchange**, Winnipeg's non-profit startup incubator at 100 Innovation Drive. Both are worth a visit. |
+
 ### Stores and money
 - **Affiliate networks work in Canada:** Rakuten, CJ, Impact and Awin all have Canadian
   stores. The demo partner list now uses Canadian stores (Shoppers Drug Mart, Sephora,
@@ -155,13 +165,19 @@ benefit.
 
 ## Launch plan
 
-1. **Pick one niche in one English-speaking city** (French comes before Quebec):
-   skincare for sensitive skin. It has high commissions, passionate
-   people, and lots of bad products to warn about.
+1. **Start in Winnipeg with winter gear, right now (October).** Winnipeggers have
+   strong, hard-earned opinions about parkas, boots, base layers, block heaters and
+   gloves. The items cost a lot, so commissions are bigger. Canadian partners like
+   MEC, Sport Chek, Canadian Tire and Simons sell them. Everyone has a "this parka was
+   a waste of money" story, which is great "Skip it" content. **Second niche:** dry
+   winter skin (moisturizers, lip care, humidifiers), which ties straight into beauty's
+   higher commissions.
 2. **Hand-pick 50–100 founding members** with real taste and launch with `INVITE_ONLY=1`.
    They get a permanent Founding member badge and 5 invites each.
 3. **Copy Beli's growth tricks:** friend invites, weekly "most helpful" leaderboards,
-   and campus or city competitions.
+   and campus competitions. Locally, that means the **University of Manitoba**, the
+   **University of Winnipeg** and **Red River College Polytech**, e.g. "Which campus
+   knows winter best?"
 4. **Short videos** on TikTok and Reels: "Things our members told everyone to SKIP."
    Honest negatives get attention and build trust.
 5. **Grow category by category** once the first one is lively.
@@ -194,6 +210,11 @@ benefit.
 - [Bill 96 and June 1, 2025: common misconceptions (McCarthy Tétrault)](https://www.mccarthy.ca/en/insights/blogs/consumer-markets-perspectives/french-language-requirements-bill-96-and-june-1-2025-common-misconceptions)
 - [Bill 96 key changes in 2025 (TransPerfect)](https://www.transperfect.com/blog/quebecs-bill-96-key-changes-2025)
 - [Refresh your CASL knowledge (Canadian Marketing Association)](https://www.thecma.ca/topic/articles/2022/01/17/refresh-your-casl-knowledge)
+
+- [How to register a business in Manitoba (Venn)](https://www.venn.ca/resources/how-register-a-business-in-manitoba)
+- [How much it costs to incorporate in Manitoba (LawyerInfo)](https://lawyerinfo.ca/guides/manitoba/business-law-manitoba/business-formation-manitoba/how-much-does-it-cost-to-incorporate-a-business-in-manitoba/)
+- [Futurpreneur: Manitoba & Saskatchewan](https://futurpreneur.ca/en/manitoba-saskatchewan/)
+- [North Forge Technology Exchange](https://northforge.ca/we-are-north-forge/)
 
 **Market and US**
 

@@ -86,6 +86,18 @@ export function seedIfEmpty(): void {
     tried(post, 2, i === 1 ? 0 : 1);
   });
 
+  const winterPosts: P[] = [
+    ["Sorel Caribou boots", "Winter Gear", "love", true, "Five Winnipeg winters and my toes have never frozen, even waiting for the bus at -35. Heavy and clunky for driving, but nothing beats them for standing around outside.", "$220", "https://www.sportchek.ca/en/search.html?q=sorel+caribou", "Sport Chek"],
+    ["Cheap 'extreme cold' parka", "Winter Gear", "skip", false, "Rated to -40 on the tag. In reality I was cold at -20 and the zipper broke in January. Spend more once instead of twice.", "$129"],
+    ["Merino wool base layer", "Winter Gear", "love", true, "The single best upgrade for walking to work in January. Warm, doesn't get smelly, and you don't overheat once you're inside.", "$95", "https://www.mec.ca/en/search?q=merino+base+layer", "MEC"],
+    ["Block heater timer", "Winter Gear", "fine", true, "Saves plugging in all night and the car starts fine at -30. The dial is fiddly and hard to read in the dark, though.", "$30", "https://www.canadiantire.ca/en/search-results.html?q=block+heater+timer", "Canadian Tire"],
+  ];
+  winterPosts.forEach((p, i) => {
+    const post = add(rosa, 1 + i * 2, p, { paid: true });
+    helpful(post, 8 - i, crowd.slice(3));
+    tried(post, 3, i === 1 ? 0 : 1);
+  });
+
   const devPosts: P[] = [
     ["Anker 20,000mAh power bank", "Tech", "love", true, "Charges my phone 4 times. Two years of daily commuting and it still holds up. Heavier than the slim ones.", "$45", "https://www.bestbuy.ca/en-ca/search?search=anker+power+bank", "Best Buy Canada"],
     ["Cheap wireless earbuds from an ad", "Tech", "skip", false, "Bluetooth kept dropping and the case stopped charging after a month. Stick to known brands.", "$19"],

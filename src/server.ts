@@ -246,7 +246,7 @@ app.post("/signup", (req, res) => {
   if (userByEmail(v.email)) return fail("There's already an account with that email. Try logging in.");
   if (password.length < 8) return fail("Passwords need at least 8 characters.");
   if (!req.body.pledge) return fail("Please take the Taste pledge to join.");
-  if (!req.body.adult) return fail("You need to be 18 or older to join Taste.");
+  if (!req.body.adult) return fail("You need to be the age of majority where you live to join Taste.");
   if (!req.body.terms) return fail("Please agree to the Terms and Privacy Policy.");
   const now = new Date().toISOString();
   const members = data.users.filter((u) => u.role !== "admin").length;
@@ -254,6 +254,9 @@ app.post("/signup", (req, res) => {
     id: newId(), handle: v.handle, name: v.name, email: v.email, passwordHash: hashPassword(password), bio: "",
     interests: [], role: "member", phoneVerified: false, idVerified: false, banned: false, createdAt: now,
     pledgeAcceptedAt: now, foundingMember: members < FOUNDING_LIMIT,
+    // CASL: digest email only with an unticked-by-default opt-in, and we record when consent was given.
+    emailDigest: Boolean(req.body.emailDigest),
+    emailDigestConsentAt: req.body.emailDigest ? now : undefined,
   };
   data.users.push(user);
   if (invite) {
@@ -710,7 +713,7 @@ app.get("/digest", (req, res) => {
   const people = [...byAuthor.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5)
     .map(([id, helpful]) => ({ user: userById(id)!, level: trustLevel(userById(id)!), helpful }));
   const posts = [...byPost.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([id]) => postById(id)!);
-  // Production: email this to members weekly through an email provider.
+  // Production: email this weekly ONLY to members with emailDigest = true, with an unsubscribe link (CASL).
   render(req, res, "This week on Taste", views.digestPage({ people, cards: cards(posts, req.user, "/digest"), from }), { meta: { path: "/digest" } });
 });
 
@@ -736,6 +739,16 @@ app.get("/settings/export", requireUser, (req, res) => {
   };
   res.setHeader("Content-Disposition", `attachment; filename="taste-${me.handle}.json"`);
   res.type("application/json").send(JSON.stringify(exported, null, 2));
+});
+
+app.post("/settings/email", requireUser, (req, res) => {
+  const me = req.user!;
+  const on = Boolean(req.body.emailDigest);
+  if (on && !me.emailDigest) me.emailDigestConsentAt = new Date().toISOString();
+  me.emailDigest = on;
+  save();
+  setFlash(res, { kind: "ok", text: on ? "You'll get the weekly digest." : "You won't get digest emails." });
+  res.redirect("/settings");
 });
 
 app.post("/settings/delete", requireUser, (req, res) => {

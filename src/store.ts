@@ -24,6 +24,9 @@ export interface User {
   pledgeAcceptedAt: string;
   foundingMember?: boolean;
   invitedBy?: string;
+  /** Express opt-in for the weekly digest email, as Canada's anti-spam law (CASL) requires. */
+  emailDigest?: boolean;
+  emailDigestConsentAt?: string;
 }
 
 export interface Post {

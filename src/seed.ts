@@ -57,15 +57,15 @@ export function seedIfEmpty(): void {
   };
 
   const mayaPosts: P[] = [
-    ["CeraVe Moisturizing Cream", "Beauty", "love", true, "The only moisturizer that hasn't made my sensitive skin angry. Thick, no smell, and the big tub lasts me about four months. If you have oily skin it might feel heavy.", "$17", "https://www.target.com/s/cerave+moisturizing+cream", "Target"],
+    ["CeraVe Moisturizing Cream", "Beauty", "love", true, "The only moisturizer that hasn't made my sensitive skin angry. Thick, no smell, and the big tub lasts me about four months. If you have oily skin it might feel heavy.", "$17", "https://www.shoppersdrugmart.ca/search?text=cerave+moisturizing+cream", "Shoppers Drug Mart"],
     ["Viral 'glass skin' serum", "Beauty", "skip", false, "Everyone on my feed loved it, so I tried it for three weeks. Sticky, pilled under sunscreen, and did nothing my $8 serum doesn't. Save your money.", "$38"],
-    ["La Roche-Posay Anthelios SPF 50", "Beauty", "love", true, "Finally a sunscreen that doesn't sting my eyes or leave me ghost-white. Pricey but I use it every single day.", "$37", "https://www.ulta.com/p/anthelios-melt-in-milk-sunscreen", "Ulta Beauty"],
+    ["La Roche-Posay Anthelios SPF 50", "Beauty", "love", true, "Finally a sunscreen that doesn't sting my eyes or leave me ghost-white. Pricey but I use it every single day.", "$37", "https://www.sephora.com/ca/en/search?keyword=anthelios", "Sephora"],
     ["Drugstore micellar water", "Beauty", "fine", true, "Does the job for light makeup. Struggles with waterproof mascara. Fine for the price, nothing special.", "$9"],
     ["Satin pillowcase", "Home", "love", true, "Less frizz, fewer creases on my face in the morning. Cheap upgrade that actually worked for me.", "$12"],
     ["The Ordinary Niacinamide", "Beauty", "fine", false, "Helped my oil a little but broke me out the first week. Worth trying if your skin isn't super sensitive.", "$6"],
     ["Silicone makeup sponge", "Beauty", "skip", false, "Gimmick. Moves foundation around instead of blending it. Went back to a regular sponge after two days.", "$10"],
-    ["Bookshop.org gift card", "Books & Media", "love", true, "My go-to gift. It supports local bookstores and nobody has ever been disappointed by it.", "$25", "https://bookshop.org/gift-cards", "Bookshop.org"],
-    ["Vanicream Gentle Cleanser", "Beauty", "love", true, "Boring in the best way. No fragrance, no tightness after washing. A safe bet for reactive skin.", "$11", "https://www.target.com/s/vanicream+cleanser", "Target"],
+    ["Indigo gift card", "Books & Media", "love", true, "My go-to gift. Everyone finds something, and nobody has ever been disappointed by it.", "$25", "https://www.indigo.ca/en-ca/gift-cards/", "Indigo"],
+    ["Vanicream Gentle Cleanser", "Beauty", "love", true, "Boring in the best way. No fragrance, no tightness after washing. A safe bet for reactive skin.", "$11", "https://well.ca/searchresult.html?keyword=vanicream", "Well.ca"],
     ["Overnight lip mask", "Beauty", "fine", true, "Nice, smells good, but plain petroleum jelly does 90% of the same thing for a tenth of the price.", "$24"],
   ];
   mayaPosts.forEach((p, i) => {
@@ -75,7 +75,7 @@ export function seedIfEmpty(): void {
   });
 
   const rosaPosts: P[] = [
-    ["Lodge 10-inch cast iron skillet", "Food & Drink", "love", true, "Bought it four years ago for $25 and use it daily. Gets better with age. Heavy, so not for everyone.", "$25", "https://www.target.com/s/lodge+cast+iron+skillet", "Target"],
+    ["Lodge 10-inch cast iron skillet", "Food & Drink", "love", true, "Bought it four years ago for $35 and use it daily. Gets better with age. Heavy, so not for everyone.", "$35", "https://www.canadiantire.ca/en/search-results.html?q=lodge+cast+iron", "Canadian Tire"],
     ["Fancy 12-in-1 air fryer", "Food & Drink", "skip", false, "Too many buttons, a basket that's a pain to clean, and it died after 14 months. A basic two-dial model is better.", "$149"],
     ["Rao's marinara", "Food & Drink", "love", true, "Tastes like slow-cooked sauce. Expensive for a jar, but I keep two in the pantry for tired nights.", "$9"],
     ["Meal kit subscription", "Food & Drink", "fine", false, "Great for learning a few recipes. Too much packaging and too pricey to keep long-term.", "$60/week"],
@@ -87,7 +87,7 @@ export function seedIfEmpty(): void {
   });
 
   const devPosts: P[] = [
-    ["Anker 20,000mAh power bank", "Tech", "love", true, "Charges my phone 4 times. Two years of daily commuting and it still holds up. Heavier than the slim ones.", "$45", "https://www.bestbuy.com/site/searchpage.jsp?st=anker+power+bank", "Best Buy"],
+    ["Anker 20,000mAh power bank", "Tech", "love", true, "Charges my phone 4 times. Two years of daily commuting and it still holds up. Heavier than the slim ones.", "$45", "https://www.bestbuy.ca/en-ca/search?search=anker+power+bank", "Best Buy Canada"],
     ["Cheap wireless earbuds from an ad", "Tech", "skip", false, "Bluetooth kept dropping and the case stopped charging after a month. Stick to known brands.", "$19"],
     ["Kindle Paperwhite", "Books & Media", "love", true, "Read in bed without a lamp, battery lasts weeks. Made me read three times more this year.", "$150"],
   ];
@@ -95,8 +95,8 @@ export function seedIfEmpty(): void {
 
   const samPosts: P[] = [
     ["IKEA KALLAX shelf", "Home", "fine", true, "Sturdy and cheap, but assembly took 2 hours and it's everywhere. Good storage, zero personality.", "$70"],
-    ["Wayfair floor lamp", "Home", "skip", false, "Looked great in photos, wobbled out of the box and the shade arrived dented. Returned it.", "$89", "https://www.wayfair.com/lighting/sb0/floor-lamps-c215704.html", "Wayfair"],
-    ["Adjustable dumbbells", "Fitness", "love", true, "Replaced a whole rack in my tiny apartment. Clicks between weights in seconds. Worth every dollar.", "$299", "https://www.rei.com/search?q=adjustable+dumbbells", "REI"],
+    ["Wayfair floor lamp", "Home", "skip", false, "Looked great in photos, wobbled out of the box and the shade arrived dented. Returned it.", "$119", "https://www.wayfair.ca/lighting/sb0/floor-lamps-c215704.html", "Wayfair Canada"],
+    ["Adjustable dumbbells", "Fitness", "love", true, "Replaced a whole rack in my tiny apartment. Clicks between weights in seconds. Worth every dollar.", "$299", "https://www.sportchek.ca/en/search.html?q=adjustable+dumbbells", "Sport Chek"],
   ];
   samPosts.forEach((p, i) => helpful(add(sam, 2 + i * 6, p, { paid: true }), 6, crowd.slice(8)));
 
@@ -106,8 +106,8 @@ export function seedIfEmpty(): void {
   });
 
   const yourPosts: P[] = [
-    ["Brooks Ghost running shoes", "Fitness", "love", true, "My third pair. Comfortable from the first run, no blisters, last about 400 miles. Run a half size big.", "$140", "https://www.rei.com/search?q=brooks+ghost", "REI"],
-    ["Project Hail Mary", "Books & Media", "love", true, "Couldn't put it down. Funny, smart, and the friendship at its heart got me. Great audiobook too.", "$18", "https://bookshop.org/search?keywords=project+hail+mary", "Bookshop.org"],
+    ["Brooks Ghost running shoes", "Fitness", "love", true, "My third pair. Comfortable from the first run, no blisters, last about 400 miles. Run a half size big.", "$140", "https://www.sportchek.ca/en/search.html?q=brooks+ghost", "Sport Chek"],
+    ["Project Hail Mary", "Books & Media", "love", true, "Couldn't put it down. Funny, smart, and the friendship at its heart got me. Great audiobook too.", "$18", "https://www.indigo.ca/en-ca/search?q=project+hail+mary", "Indigo"],
     ["Budget fitness tracker", "Tech", "skip", false, "Step count was off by thousands and the app wanted a subscription for basic charts. Not worth it.", "$35"],
   ];
   const mine = yourPosts.map((p, i) => {

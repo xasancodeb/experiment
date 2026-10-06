@@ -1,21 +1,21 @@
 // Link checks. A link can only become a paid link if the store is a partner
 // whose affiliate terms allow a platform to share commission with members.
 //
-// Amazon is deliberately NOT a partner: its Associates agreement forbids
-// giving anyone money or rewards for using affiliate links.
+// Amazon (amazon.ca and .com) is deliberately NOT a partner: its Associates
+// agreement forbids giving anyone money or rewards for using affiliate links.
 
-/** Demo partner list. In production this comes from approved network programs. */
+/** Demo partner list of Canadian stores. In production this comes from approved network programs. */
 export const PARTNER_MERCHANTS: Record<string, string> = {
   "sephora.com": "Sephora",
-  "ulta.com": "Ulta Beauty",
-  "target.com": "Target",
-  "nordstrom.com": "Nordstrom",
-  "rei.com": "REI",
-  "bestbuy.com": "Best Buy",
-  "etsy.com": "Etsy",
-  "bookshop.org": "Bookshop.org",
-  "uniqlo.com": "Uniqlo",
-  "wayfair.com": "Wayfair",
+  "shoppersdrugmart.ca": "Shoppers Drug Mart",
+  "well.ca": "Well.ca",
+  "bestbuy.ca": "Best Buy Canada",
+  "canadiantire.ca": "Canadian Tire",
+  "sportchek.ca": "Sport Chek",
+  "mec.ca": "MEC",
+  "indigo.ca": "Indigo",
+  "simons.ca": "Simons",
+  "wayfair.ca": "Wayfair Canada",
 };
 
 /** Shorteners hide where a link really goes, so they are never allowed. */

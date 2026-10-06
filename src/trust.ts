@@ -3,7 +3,8 @@
 // Design rules:
 //  - Reach is earned through followers and helpfulness, never bought with money.
 //  - Ranking ignores the verdict, so a "Skip it" post ranks exactly like a
-//    "Love it" post with the same signals (also required by the FTC review rule).
+//    "Love it" post with the same signals. Rewarding positive reviews would be
+//    deceptive marketing under Canada's Competition Act (and the US FTC rule).
 //  - Only votes from established, verified accounts count, so fake-account
 //    rings can't vote each other up.
 import { data, version, type Post, type User } from "./store.js";

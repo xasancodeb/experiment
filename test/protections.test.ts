@@ -23,8 +23,8 @@ function user(extra: Partial<User> = {}): User {
 function post(author: User, extra: Partial<Post> = {}): Post {
   const p: Post = {
     id: newId(), authorId: author.id, title: "Thing", category: "Tech", verdict: "love", buyAgain: true,
-    body: "A perfectly ordinary honest review that is long enough to pass.", url: "https://www.target.com/p/x",
-    merchant: "Target", paidLink: true, status: "live", moderation: { source: "rules", reasons: [] },
+    body: "A perfectly ordinary honest review that is long enough to pass.", url: "https://www.bestbuy.ca/p/x",
+    merchant: "Best Buy Canada", paidLink: true, status: "live", moderation: { source: "rules", reasons: [] },
     createdAt: new Date().toISOString(), ...extra,
   };
   data.posts.push(p);
@@ -61,16 +61,18 @@ test("links: shorteners, http, and IPs are refused; tracking codes are stripped"
   assert.equal(checkLink("https://bit.ly/abc").ok, false);
   assert.equal(checkLink("http://target.com/x").ok, false);
   assert.equal(checkLink("https://127.0.0.1/x").ok, false);
-  const c = checkLink("https://www.target.com/p/x?tag=hijack-20&utm_source=ad&color=red");
+  const c = checkLink("https://www.bestbuy.ca/p/x?tag=hijack-20&utm_source=ad&color=red");
   assert.equal(c.ok, true);
   assert.equal(c.partner, true);
-  assert.equal(c.url, "https://www.target.com/p/x?color=red");
+  assert.equal(c.url, "https://www.bestbuy.ca/p/x?color=red");
 });
 
 test("links: Amazon is never a paid-link partner", () => {
-  const c = checkLink("https://www.amazon.com/dp/B000");
-  assert.equal(c.ok, true);
-  assert.equal(c.partner, false);
+  for (const url of ["https://www.amazon.ca/dp/B000", "https://www.amazon.com/dp/B000"]) {
+    const c = checkLink(url);
+    assert.equal(c.ok, true);
+    assert.equal(c.partner, false);
+  }
 });
 
 test("moderation: ads are held, contact details and links-in-text are rejected", () => {

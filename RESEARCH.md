@@ -1,7 +1,7 @@
 # Taste: research, risks, and how the prototype handles them
 
-Research done October 2026. **This is not legal advice.** Have a lawyer review the
-earnings program and terms before launch.
+Research done October 2026. **Taste is being launched from Canada.** **This is not
+legal or tax advice.** Have a Canadian lawyer and accountant review it before launch.
 
 ## The idea in one line
 
@@ -36,7 +36,15 @@ Money."* That's the reputation to avoid.
 - New members **can't earn at all** until they've built trust (see #3).
 - A public **"How we keep Taste honest"** page explains every rule in plain English.
 
-### 2. Breaking FTC rules
+### 2. Breaking advertising law (Canada first, US too)
+**Canada:** the **Competition Act** bans false or misleading advertising, and that
+includes anyone promoting a product, influencers included. The Competition Bureau has
+said that reviews must be based on **real experience**, that **connections to a business
+must be disclosed**, and that **buying fake reviews** is punished. One app paid $310,000
+of a $1.5M penalty for buying positive reviews. **Ad Standards' Influencer Marketing
+Disclosure Guidelines** (updated October 2025) set the industry standard for clear labels.
+
+**US:** if Americans use Taste, the US rules apply to them too:
 - **Fake reviews rule (effective Oct 2024):** you can't pay for reviews of a particular
   sentiment, or post reviews from people with no real experience. Penalties run up to
   ~$51,744 per violation.
@@ -116,9 +124,39 @@ benefit.
 | **No terms or privacy policy** | Can't launch, and the app stores reject apps without them. | **Draft Terms and Privacy pages**, clearly marked for lawyer review, plus a sign-up checkbox. |
 | **Phones** | Most users are on phones. | A **bottom tab bar** on mobile, like familiar social apps. |
 
+## Running Taste from Canada
+
+### Setting up the business
+| Step | What | Notes |
+|---|---|---|
+| 1 | **Register the business** | Start as a sole proprietorship (cheap, simple) or incorporate. Federal incorporation through Corporations Canada costs about $200; provinces offer their own. A corporation keeps your personal assets separate, which matters once you pay members. |
+| 2 | **Get a Business Number** from the CRA | Free. Needed for taxes, Stripe and affiliate networks. |
+| 3 | **Open a business bank account** | Keep Taste's money separate from day one. |
+| 4 | **GST/HST** | Registration is required once revenue passes **$30,000 in four consecutive quarters** (the "small supplier" rule). Commissions from US networks may be taxed differently; ask an accountant. |
+| 5 | **CRA digital platform reporting** | Since 2024, platforms that help people earn money must report some sellers' income to the CRA. **Ask an accountant whether member commissions count.** Stripe Connect collects the tax details you'd need either way. |
+
+### Laws that change how Taste works in Canada, and what the prototype does
+| Law | What it means | In the prototype |
+|---|---|---|
+| **Competition Act**, plus Ad Standards guidelines | No fake or paid-for-positive reviews; brand connections must be disclosed; paid links clearly labeled | "Paid link" labels, a brand-connection label, verdict-neutral ranking, the honesty pledge |
+| **CASL** (Canada's Anti-Spam Legislation) | Marketing emails need opt-in consent, sender details and an unsubscribe link. Referral messages have extra rules. | The weekly digest is **opt-in (unticked by default)**, consent time is recorded, and it can be turned off in Settings. **Taste never emails people on a member's behalf**: members share invite links themselves, which keeps referrals out of CASL. |
+| **PIPEDA** (federal privacy) and **Quebec Law 25** | Consent, a named Privacy Officer, access and deletion rights, breach reporting | Draft privacy policy, data download, account deletion. You still need to **name a Privacy Officer**. |
+| **Age of majority** | 18 in some provinces, 19 in others (BC, NS, NB, NL and the territories) | Sign-up asks for "the age of majority where I live." |
+| **Quebec's French-language law (Bill 96)** | Businesses serving Quebec consumers need French versions of their website, terms and communications. Fines run $3,000–$30,000 a day. | **Not done yet.** Launch in an English-speaking city first and add French before marketing in Quebec. |
+
+### Stores and money
+- **Affiliate networks work in Canada:** Rakuten, CJ, Impact and Awin all have Canadian
+  stores. The demo partner list now uses Canadian stores (Shoppers Drug Mart, Sephora,
+  Well.ca, Best Buy Canada, Canadian Tire, Sport Chek, MEC, Indigo, Simons, Wayfair
+  Canada). Each one must approve you and allow sharing commission with members.
+- **Amazon.ca has the same ban** on rewarding people for links, so it's never a paid link.
+- **Prices and payouts are in Canadian dollars.** Stripe Connect supports paying members
+  in Canada.
+
 ## Launch plan
 
-1. **Pick one niche:** skincare for sensitive skin. It has high commissions, passionate
+1. **Pick one niche in one English-speaking city** (French comes before Quebec):
+   skincare for sensitive skin. It has high commissions, passionate
    people, and lots of bad products to warn about.
 2. **Hand-pick 50–100 founding members** with real taste and launch with `INVITE_ONLY=1`.
    They get a permanent Founding member badge and 5 invites each.
@@ -130,19 +168,34 @@ benefit.
 
 ## Still needed before a real public launch
 
-- [ ] A lawyer to review the terms, earnings program, FTC compliance and tax handling
+- [ ] A Canadian lawyer to review the terms, privacy policy, earnings program and Competition Act compliance
+- [ ] A Canadian accountant for GST/HST and CRA reporting (see "Running Taste from Canada")
 - [ ] Affiliate network or brand approvals for commission sharing
-- [ ] Real phone verification, e.g. Twilio Verify (currently a demo button)
-- [ ] Real identity checks and payouts through Stripe Connect, which handles tax forms
+- [ ] Real phone verification, e.g. Twilio Verify, which works with Canadian numbers
       (currently a demo button)
+- [ ] Real identity checks and payouts through Stripe Connect, which is available in
+      Canada (currently a demo button)
+- [ ] A French version before marketing in Quebec
 - [ ] A real database (Postgres) in place of the JSON file
 - [ ] Photo uploads with image moderation
 - [ ] Sending email: password reset and the weekly digest (the digest page exists; it needs an email provider)
 - [ ] A dedicated moderator or two for launch week
-- [ ] A privacy policy and terms of service
+- [ ] Final privacy policy and terms of service (drafts exist), plus a named Privacy Officer
 - [ ] Mobile apps, after the web version proves people love it
 
 ## Sources
+
+**Canada**
+- [Competition Bureau warns about fake reviews (Norton Rose Fulbright)](https://www.nortonrosefulbright.com/en-ca/knowledge/publications/41049288/fake-reviews-competition-bureau-warns-businesses-of-stiff-penalties-associated-with-online-reviews)
+- [Competition Bureau and influencer marketing (The Fashion Law)](https://www.thefashionlaw.com/canadas-competition-bureau-to-crack-down-on-influencer-marketing-as-spending-grows-to-nearly-2-billion/)
+- [Ad Standards Influencer Marketing Disclosure Guidelines (Oct 2025)](https://adstandards.ca/wp-content/uploads/Ad-Standards-Influencer-Marketing-Disclosure-Guidelines-2025-10-08.pdf)
+- [CRA: Reporting Rules for Digital Platform Operators](https://www.canada.ca/en/revenue-agency/programs/about-canada-revenue-agency-cra/compliance/reporting-rules-digital-platforms.html)
+- [CRA tax tip for digital platform operators](https://www.canada.ca/en/revenue-agency/news/newsroom/tax-tips/tax-tips-2024/operating-digital-platform.html)
+- [Bill 96 and June 1, 2025: common misconceptions (McCarthy Tétrault)](https://www.mccarthy.ca/en/insights/blogs/consumer-markets-perspectives/french-language-requirements-bill-96-and-june-1-2025-common-misconceptions)
+- [Bill 96 key changes in 2025 (TransPerfect)](https://www.transperfect.com/blog/quebecs-bill-96-key-changes-2025)
+- [Refresh your CASL knowledge (Canadian Marketing Association)](https://www.thecma.ca/topic/articles/2022/01/17/refresh-your-casl-knowledge)
+
+**Market and US**
 
 - [LTK vs ShopMy (2026)](https://stackinfluence.com/shopmy-vs-ltk-best-affiliate-platform-2026/)
 - [ShopMy vs LTK commission ranges](https://gillian-sarah.com/shopmy-vs-ltk-2026/)

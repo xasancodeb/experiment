@@ -200,7 +200,8 @@ export function authForm(mode: "signup" | "login", values: Record<string, string
       </ul>
       <label class="check"><input type="checkbox" name="pledge" required> I promise</label>
     </fieldset>
-    <label class="check"><input type="checkbox" name="adult" required> I'm 18 or older</label>
+    <label class="check"><input type="checkbox" name="adult" required> I'm the age of majority where I live (18, or 19 in some provinces and territories)</label>
+    <label class="check"><input type="checkbox" name="emailDigest"> Email me the weekly "most helpful picks" digest. <span class="muted">Optional. Unsubscribe anytime.</span></label>
     <label class="check"><input type="checkbox" name="terms" required> I agree to the <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy Policy</a></label>` : ""}
     <button class="btn btn-big">${signup ? "Create my account" : "Log in"}</button>
   </form>
@@ -626,6 +627,13 @@ export function settingsPage(user: User): string {
     <p>Download everything Taste stores about you: profile, posts, lists, votes${EARNINGS_ON ? " and earnings" : ""}.</p>
     <a class="btn btn-small btn-ghost" href="/settings/export">Download my data</a>
   </div>
+  <div class="card">
+    <h2>Email</h2>
+    <form method="post" action="/settings/email" class="stack">
+      <label class="check"><input type="checkbox" name="emailDigest" ${user.emailDigest ? "checked" : ""}> Email me the weekly "most helpful picks" digest</label>
+      <button class="btn btn-small btn-ghost">Save</button>
+    </form>
+  </div>
   <div class="card danger-zone">
     <h2>Delete account</h2>
     <p>This permanently deletes your profile, recommendations, lists and votes. It can't be undone.${EARNINGS_ON ? " <strong>Cash out first:</strong> unpaid earnings are lost when you delete your account." : ""}</p>
@@ -670,7 +678,7 @@ export function trustPage(): string {
 
   <h2 id="earning">How earning works</h2>
   ${EARNINGS_ON ? `<ul>
-    <li>When you link to one of our partner stores, the link becomes a <strong>Paid link</strong> and is always labeled that way, as the law requires.</li>
+    <li>When you link to one of our partner stores, the link becomes a <strong>Paid link</strong> and is always labeled that way, as Canada's Competition Act and Ad Standards guidelines require.</li>
     <li>If someone buys through it, the store pays a commission. <strong>You get ${pct(USER_SHARE)}</strong>, and Taste keeps ${pct(1 - USER_SHARE)} to run the service.</li>
     <li>Earnings wait <strong>${HOLD_DAYS} days</strong> so returns can be handled, then become available. Cash out from ${money(MIN_PAYOUT)}.</li>
     <li>Buying through your own link earns nothing.</li>
@@ -688,13 +696,14 @@ export function termsPage(): string {
   <h1>Terms of Service</h1>
   ${DRAFT}
   <ol>
-    <li><strong>Who can use Taste.</strong> You must be 18 or older. One account per person.</li>
+    <li><strong>Who can use Taste.</strong> You must be the age of majority in your province or territory (18 or 19). One account per person.</li>
     <li><strong>Your posts.</strong> You own what you write. You give Taste permission to show it on the service. Only post genuine experiences you personally had.</li>
     <li><strong>Connections to brands.</strong> You must disclose if you own, work for, or received something free from a brand you post about.</li>
     <li><strong>What's not allowed.</strong> Fake reviews, spam, harassment, illegal or dangerous content, sharing private information, or trying to cheat rankings or earnings.</li>
     <li><strong>Moderation.</strong> We may hold, remove or limit posts and close accounts that break these rules.</li>
-    ${EARNINGS_ON ? `<li><strong>Earnings.</strong> Commission sharing is a thank-you, not employment. Earnings are held ${HOLD_DAYS} days, require identity verification, and are forfeited if the post is removed or the account is closed for abuse. You're responsible for your own taxes; we'll issue tax forms where required.</li>` : ""}
+    ${EARNINGS_ON ? `<li><strong>Earnings.</strong> Commission sharing is a thank-you, not employment. Earnings are held ${HOLD_DAYS} days, require identity verification, and are forfeited if the post is removed or the account is closed for abuse. Amounts are in Canadian dollars. You're responsible for reporting your own income; we report to the Canada Revenue Agency where required.</li>` : ""}
     <li><strong>No guarantees.</strong> Recommendations are members' personal opinions, not advice from Taste.</li>
+    <li><strong>Governing law.</strong> These terms are governed by the laws of your province and the federal laws of Canada that apply there.</li>
     <li><strong>Leaving.</strong> You can delete your account at any time from Settings.</li>
   </ol>
 </section>`;
@@ -709,6 +718,8 @@ export function privacyPage(): string {
     <li><strong>What we collect:</strong> your name, username, email, password (scrambled so it can't be read), what you post, who you follow, and your votes${EARNINGS_ON ? ", plus clicks on links and sales for paying earnings" : ""}.</li>
     <li><strong>What's public:</strong> your name, username, bio, recommendations and lists. Your email, phone number, reports and votes are private.</li>
     <li><strong>What we never do:</strong> sell your personal information, or show your phone number to anyone.</li>
+    <li><strong>Emails:</strong> we only send the weekly digest if you opted in, and every email has an unsubscribe link (Canada's Anti-Spam Legislation).</li>
+    <li><strong>Our privacy laws:</strong> we follow Canada's federal privacy law (PIPEDA) and, for members in Quebec, Law 25. Questions or requests go to our Privacy Officer at privacy@[your-domain].</li>
     <li><strong>Service providers:</strong> we use trusted providers for hosting, text verification${EARNINGS_ON ? ", payments" : ""}, and automated spam checks of posts.</li>
     <li><strong>Your controls:</strong> download all your data or delete your account at any time from Settings.</li>
   </ul>

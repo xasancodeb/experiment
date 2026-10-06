@@ -1,6 +1,6 @@
 // Demo content so the prototype feels alive on first run.
 // Disable with SEED_DEMO=0. Never run this against a real database.
-import { data, hashPassword, newId, save, type Post, type User } from "./store.js";
+import { data, hashPassword, newId, notify, save, type Post, type User } from "./store.js";
 import { HOLD_DAYS, USER_SHARE } from "./trust.js";
 
 const DAY = 24 * 3600 * 1000;
@@ -15,7 +15,7 @@ export function seedIfEmpty(): void {
     const u: User = {
       id: newId(), handle, name, email: `${handle}@taste.demo`, passwordHash: "", bio, interests: [],
       role: "member", phoneVerified: true, idVerified: false, banned: false, createdAt: ago(days),
-      pledgeAcceptedAt: ago(days), ...extra,
+      pledgeAcceptedAt: ago(days), foundingMember: true, ...extra,
     };
     data.users.push(u);
     return u;
@@ -49,7 +49,7 @@ export function seedIfEmpty(): void {
     return post;
   };
   const helpful = (post: Post, n: number, from = crowd) => {
-    for (const u of from.slice(0, n)) data.helpful.push({ postId: post.id, userId: u.id });
+    from.slice(0, n).forEach((u, i) => data.helpful.push({ postId: post.id, userId: u.id, createdAt: ago(i % 12, i) }));
   };
   const tried = (post: Post, agree: number, disagree: number) => {
     crowd.slice(10, 10 + agree).forEach((u) => data.tried.push({ postId: post.id, userId: u.id, agree: true }));
@@ -129,6 +129,22 @@ export function seedIfEmpty(): void {
       createdAt: new Date(created).toISOString(), availableAt: new Date(created + HOLD_DAYS * DAY).toISOString(),
     });
   });
+
+  const byTitle = (t: string) => data.posts.find((p) => p.title === t)!.id;
+  data.lists.push(
+    {
+      id: newId(), ownerId: maya.id, title: "Sensitive-skin starter kit", createdAt: ago(20),
+      description: "Everything that hasn't made my reactive skin angry. Start here.",
+      postIds: [byTitle("Vanicream Gentle Cleanser"), byTitle("CeraVe Moisturizing Cream"), byTitle("La Roche-Posay Anthelios SPF 50")],
+    },
+    {
+      id: newId(), ownerId: you.id, title: "Running gear that lasted", createdAt: ago(9),
+      description: "Stuff I'd buy again after hundreds of miles.", postIds: [mine[0].id],
+    },
+  );
+  notify(you.id, "follow", "Member 3 (@member3) started following you.", "/u/member3");
+  notify(you.id, "helpful", `Maya Okafor found your review of "Project Hail Mary" helpful.`, `/p/${mine[1].id}`);
+  notify(you.id, "tried", `Member 14 tried "Brooks Ghost running shoes" too and agrees with you.`, `/p/${mine[0].id}`);
 
   for (const f of [maya, rosa, dev]) data.follows.push({ followerId: you.id, followeeId: f.id });
   for (const u of crowd.slice(0, 15)) data.follows.push({ followerId: u.id, followeeId: maya.id });

@@ -1,8 +1,8 @@
 // Run with DATA_FILE=:memory: so nothing touches disk (see package.json).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { data, newId, type Post, type User } from "../src/store.js";
-import { levelFromStats, rankScore, LIMITS } from "../src/trust.js";
+import { data, newId, save, type Post, type User } from "../src/store.js";
+import { levelFromStats, rankScore, LIMITS, isCredibleReporter, signals, topScore } from "../src/trust.js";
 import { checkLink } from "../src/links.js";
 import { ruleCheck } from "../src/moderation.js";
 import { recordClick, recordConversion, settleEarnings } from "../src/earnings.js";
@@ -16,6 +16,7 @@ function user(extra: Partial<User> = {}): User {
     createdAt: new Date(Date.now() - 60 * DAY).toISOString(), pledgeAcceptedAt: new Date().toISOString(), ...extra,
   };
   data.users.push(u);
+  save();
   return u;
 }
 
@@ -27,6 +28,7 @@ function post(author: User, extra: Partial<Post> = {}): Post {
     createdAt: new Date().toISOString(), ...extra,
   };
   data.posts.push(p);
+  save();
   return p;
 }
 
@@ -143,4 +145,32 @@ test("earnings: non-paid links never earn", () => {
   const buyer = user();
   const p = post(author, { paidLink: false });
   assert.equal(recordConversion(recordClick(p.id, buyer.id)!, 50, 4).ok, false);
+});
+
+test("votes from brand-new or unverified accounts don't count", () => {
+  const author = user();
+  const p = post(author);
+  const fresh = user({ createdAt: new Date().toISOString() });
+  const unverified = user({ phoneVerified: false });
+  const real = user();
+  for (const u of [fresh, unverified, real]) data.helpful.push({ postId: p.id, userId: u.id });
+  data.helpful.push({ postId: p.id, userId: author.id });
+  save();
+  assert.equal(signals(p.id, author.id).helpful, 1);
+});
+
+test("people who keep filing false reports lose the power to auto-hide posts", () => {
+  const reporter = user();
+  const target = post(user());
+  assert.equal(isCredibleReporter(reporter.id), true);
+  for (let i = 0; i < 3; i++) {
+    data.reports.push({ id: newId(), postId: target.id, reporterId: reporter.id, reason: "Spam or an ad", status: "dismissed", createdAt: new Date().toISOString() });
+  }
+  save();
+  assert.equal(isCredibleReporter(reporter.id), false);
+});
+
+test("top picks reward helpfulness, and disagreement from people who tried it pulls a post down", () => {
+  assert.ok(topScore({ helpful: 10, tried: 0, agree: 0 }) > topScore({ helpful: 3, tried: 0, agree: 0 }));
+  assert.ok(topScore({ helpful: 10, tried: 6, agree: 1 }) < topScore({ helpful: 10, tried: 6, agree: 5 }));
 });

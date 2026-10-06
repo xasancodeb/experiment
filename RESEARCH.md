@@ -98,12 +98,30 @@ Wanelo and Fancy suggests shopping should feel *secondary* to the social part.
 mark posts "helpful", and say "I tried it too: agree or disagree." The money is a side
 benefit.
 
+## Other project-killers found in review, and the fixes
+
+| Risk | Why it could kill Taste | Fix in the prototype |
+|---|---|---|
+| **Nobody earns steadily** | Posts fell out of Discover within days, so good recommenders would quit. | **Top picks**: all-time most helpful, per category, with no expiry. **Lists** ("My sensitive-skin routine") that stay useful for months. **Search** plus **public pages Google can index**, with a sitemap. |
+| **The same few people get all the attention** | New members never get seen and give up. | Every 4th slot in Discover goes to a **Rising** post from a newer member. |
+| **The site was invisible to outsiders** | Visitors had to log in to see anything, so there was no Google traffic and shared links hit a wall. | Discover, top picks, search, posts, profiles and lists are **public**. |
+| **Nobody comes back** | No reason to return. | **Alerts** for new followers, helpful votes, "tried it too", approvals and earnings. A **weekly "This week on Taste"** digest of the most helpful members and picks. |
+| **Empty at launch** | An empty app feels dead. | **Invite-only mode** with 5 invites each. New members **auto-follow the person who invited them**. The first 100 get a permanent **Founding member** badge. |
+| **Can't launch without approvals** | Affiliate approval takes months and needs traffic first. | **Earnings switch**, off by default. Phase 1 runs with no money features at all. |
+| **Fake-account vote rings** | Fake accounts upvote each other into the top. | Votes only count from **phone-verified accounts at least 3 days old**. |
+| **Report brigading** | Competitors mass-report good posts to hide them. | People whose reports are mostly dismissed **lose the power to auto-hide**, and moderators see an "often reports wrongly" tag. |
+| **Hidden brand promotion** | Owners secretly review their own products. That's an FTC violation and kills trust. | A **"I have a connection to this brand"** checkbox adds a visible label. Connected posts **can never earn**. "Undisclosed connection" is a report reason. |
+| **Password guessing and signup floods** | Account takeovers and bot signups. | **Rate limits** on login and sign-up. |
+| **No way to leave** | Breaks privacy laws (GDPR and California rules) and trust. | **Download my data** and **Delete my account** in Settings. Members can also delete their own posts. |
+| **No terms or privacy policy** | Can't launch, and the app stores reject apps without them. | **Draft Terms and Privacy pages**, clearly marked for lawyer review, plus a sign-up checkbox. |
+| **Phones** | Most users are on phones. | A **bottom tab bar** on mobile, like familiar social apps. |
+
 ## Launch plan
 
 1. **Pick one niche:** skincare for sensitive skin. It has high commissions, passionate
    people, and lots of bad products to warn about.
-2. **Hand-pick 50–100 founding members** with real taste. Make them feel special with a
-   "Founding member" badge.
+2. **Hand-pick 50–100 founding members** with real taste and launch with `INVITE_ONLY=1`.
+   They get a permanent Founding member badge and 5 invites each.
 3. **Copy Beli's growth tricks:** friend invites, weekly "most helpful" leaderboards,
    and campus or city competitions.
 4. **Short videos** on TikTok and Reels: "Things our members told everyone to SKIP."
@@ -119,7 +137,8 @@ benefit.
       (currently a demo button)
 - [ ] A real database (Postgres) in place of the JSON file
 - [ ] Photo uploads with image moderation
-- [ ] Email password reset, account deletion and data export
+- [ ] Sending email: password reset and the weekly digest (the digest page exists; it needs an email provider)
+- [ ] A dedicated moderator or two for launch week
 - [ ] A privacy policy and terms of service
 - [ ] Mobile apps, after the web version proves people love it
 

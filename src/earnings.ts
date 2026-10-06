@@ -5,7 +5,8 @@
 //  - earnings are held HOLD_DAYS (covers store returns) before they can be paid
 //  - removed posts and banned accounts forfeit what hasn't been paid yet
 //  - cashing out needs a verified identity, and one identity = one payout account
-import { data, newId, postById, save, userById, type Earning } from "./store.js";
+import { data, newId, notify, postById, save, userById, type Earning } from "./store.js";
+import { EARNINGS_ON } from "./config.js";
 import { HOLD_DAYS, MIN_PAYOUT, USER_SHARE } from "./trust.js";
 
 const DAY = 24 * 3600 * 1000;
@@ -31,6 +32,7 @@ export type ConversionResult =
 
 /** Called by the affiliate network when a tracked click turns into a sale. */
 export function recordConversion(clickId: string, orderAmount: number, commission: number, now = Date.now()): ConversionResult {
+  if (!EARNINGS_ON) return { ok: false, reason: "earnings are switched off" };
   const click = data.clicks.find((c) => c.id === clickId);
   if (!click) return { ok: false, reason: "unknown click" };
   if (click.selfClick) return { ok: false, reason: "self-purchase: no commission" };
@@ -54,6 +56,7 @@ export function recordConversion(clickId: string, orderAmount: number, commissio
     availableAt: new Date(now + HOLD_DAYS * DAY).toISOString(),
   };
   data.earnings.push(earning);
+  notify(author.id, "earning", `Someone bought "${post.title}" through your recommendation. You earned $${earning.userShare.toFixed(2)} (on hold for returns).`, "/earnings");
   save();
   return { ok: true, earning };
 }

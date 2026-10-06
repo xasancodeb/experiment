@@ -22,6 +22,8 @@ export interface User {
   banned: boolean;
   createdAt: string;
   pledgeAcceptedAt: string;
+  foundingMember?: boolean;
+  invitedBy?: string;
 }
 
 export interface Post {
@@ -36,6 +38,8 @@ export interface Post {
   url?: string;
   merchant?: string;
   paidLink: boolean;
+  /** Author owns, works for, or got this free from the brand (must be disclosed). */
+  brandConnection?: boolean;
   status: PostStatus;
   moderation: { source: "rules" | "ai+rules"; reasons: string[] };
   createdAt: string;
@@ -71,15 +75,45 @@ export interface Earning {
   availableAt: string;
 }
 
+export interface List {
+  id: string;
+  ownerId: string;
+  title: string;
+  description: string;
+  postIds: string[];
+  createdAt: string;
+}
+
+export type NoticeKind = "follow" | "helpful" | "tried" | "approved" | "removed" | "earning";
+
+export interface Notice {
+  id: string;
+  userId: string;
+  kind: NoticeKind;
+  text: string;
+  link: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface Invite {
+  code: string;
+  ownerId: string;
+  usedBy?: string;
+}
+
 interface Schema {
   users: User[];
   posts: Post[];
   follows: { followerId: string; followeeId: string }[];
-  helpful: { postId: string; userId: string }[];
+  helpful: { postId: string; userId: string; createdAt?: string }[];
   tried: { postId: string; userId: string; agree: boolean }[];
   reports: Report[];
   clicks: Click[];
   earnings: Earning[];
+  lists: List[];
+  notices: Notice[];
+  invites: Invite[];
   sessions: Record<string, { userId: string; expiresAt: number }>;
 }
 
@@ -92,6 +126,9 @@ const empty = (): Schema => ({
   reports: [],
   clicks: [],
   earnings: [],
+  lists: [],
+  notices: [],
+  invites: [],
   sessions: {},
 });
 
@@ -107,7 +144,11 @@ function load(): Schema {
 
 export const data: Schema = load();
 
+/** Bumped on every write so derived values (like trust levels) can be cached safely. */
+export let version = 0;
+
 export function save(): void {
+  version++;
   if (process.env.DATA_FILE === ":memory:") return;
   fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
   const tmp = `${DATA_FILE}.tmp`;
@@ -124,6 +165,8 @@ export const userByEmail = (email: string) =>
   data.users.find((u) => u.email === email.toLowerCase().trim());
 export const postById = (id: string) => data.posts.find((p) => p.id === id);
 
+export const listById = (id: string) => data.lists.find((l) => l.id === id);
+
 export const isFollowing = (followerId: string, followeeId: string) =>
   data.follows.some((f) => f.followerId === followerId && f.followeeId === followeeId);
 
@@ -138,6 +181,17 @@ export function checkPassword(password: string, stored: string): boolean {
   const expected = Buffer.from(hashHex, "hex");
   const actual = crypto.scryptSync(password, Buffer.from(saltHex, "hex"), expected.length);
   return crypto.timingSafeEqual(expected, actual);
+}
+
+/** In-app notification. Never notify people about their own actions. */
+export function notify(userId: string, kind: NoticeKind, text: string, link: string): void {
+  data.notices.push({ id: newId(), userId, kind, text, link, read: false, createdAt: new Date().toISOString() });
+  // Keep the newest 200 per person so the file doesn't grow forever.
+  const mine = data.notices.filter((n) => n.userId === userId);
+  if (mine.length > 200) {
+    const drop = new Set(mine.slice(0, mine.length - 200).map((n) => n.id));
+    data.notices = data.notices.filter((n) => !drop.has(n.id));
+  }
 }
 
 export function createSession(userId: string): string {

@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Sway: ask your trusted friends before you decide."><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="config.js"></script><script>if(window.SWAY_CONFIG&&SWAY_CONFIG.url&&SWAY_CONFIG.key)document.write('<script src="vendor/supabase.js"><\/script>')</script></head><body>
 <title>Sway</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&display=swap">
@@ -245,6 +245,15 @@ svg{flex:none}
 .notif .unread{width:9px;height:9px;border-radius:50%;background:var(--violet);margin-top:7px}
 select.sel{height:40px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);padding:0 10px;font-weight:600}
 
+.authf{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.authf input,.plain{height:54px;padding:0 18px;border-radius:17px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;width:100%;min-width:0}
+.after{padding:12px 14px;border-radius:16px;background:var(--good-soft);color:var(--good-ink);font-size:15px;display:flex;flex-direction:column;gap:4px}
+.after.bad{background:var(--coral-soft);color:var(--coral-ink)}
+.invite{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 14px;border-radius:16px;background:var(--sunk)}
+.invite code{flex:1;min-width:0;overflow-wrap:anywhere;font:600 13.5px/1.35 var(--body);user-select:all}
+.cardimg{width:100%;max-width:340px;align-self:center;border-radius:22px;box-shadow:var(--shadow)}
+.meter{flex:none;width:64px;height:8px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--violet);border-radius:99px}
 @media (max-width:1100px){#app{grid-template-columns:220px minmax(0,1fr)}#rail{display:none}}
 @media (max-width:820px){
   #app{display:block;padding-block:12px 120px}
@@ -275,11 +284,7 @@ select.sel{height:40px;border-radius:12px;border:1.5px solid var(--line);backgro
     <div>
       <h1>Ask your people <em>before</em> you decide.</h1>
       <p class="lede">Post the dilemma. Your closest friends vote in one tap. You get a verdict in minutes, not a group chat that goes nowhere.</p>
-      <form class="join" id="joinForm">
-        <label class="sr" for="joinName">Your first name</label>
-        <input id="joinName" type="text" maxlength="24" autocomplete="given-name" placeholder="Your first name">
-        <button class="btn primary" type="submit">Start asking</button>
-      </form>
+      <div id="authBox"></div>
       <div class="promise"><span class="chip">Private circles only</span><span class="chip">No follower counts</span><span class="chip">A feed that ends</span></div>
     </div>
     <div class="try">
@@ -316,7 +321,12 @@ select.sel{height:40px;border-radius:12px;border:1.5px solid var(--line);backgro
 <script>
 (function(){
 'use strict';
-var MIN=60000,HR=3600000,DAY=86400000,KEY='sway.site.v1';
+var MIN=60000,HR=3600000,DAY=86400000,KEY='sway.site.v2';
+/* Live mode: set window.SWAY_CONFIG = {url, key} (see config.js) and load the Supabase library. Without it the site runs as a local demo. */
+var CFG=window.SWAY_CONFIG||{};
+var LIVE=!!(CFG.url&&CFG.key&&window.supabase&&window.supabase.createClient);
+var sb=LIVE?window.supabase.createClient(CFG.url,CFG.key):null;
+var ME=null,GUEST=false,PENDING=null;
 var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
 var now=function(){return Date.now()};
 var uid=function(){return Math.random().toString(36).slice(2,9)};
@@ -344,8 +354,8 @@ var BANK=[
   {by:'leo',c:'studio',q:'Is it too early to ask for a raise?',o:['Ask now','Wait for review']}
 ];
 function mkPoll(x){
-  return {id:uid(),by:x.by,circles:x.circles,q:x.q,note:x.note||'',type:x.type||'choice',opts:x.opts||[],created:x.created||now(),closes:x.closes,
-    anon:!!x.anon,live:x.live!==false,who:x.who!==false,votes:x.votes||{},comments:x.comments||[],done:!!x.done,seen:!!x.seen,decided:x.decided==null?null:x.decided,
+  return {id:x.id||uid(),by:x.by,circles:x.circles,q:x.q,note:x.note||'',type:x.type||'choice',opts:x.opts||[],created:x.created||now(),closes:x.closes,
+    anon:!!x.anon,live:x.live!==false,who:x.who!==false,votes:x.votes||{},comments:x.comments||[],done:!!x.done,seen:!!x.seen,decided:x.decided==null?null:x.decided,outcome:x.outcome||null,voted:x.voted||null,counts:null,
     w:(x.opts||[]).map(function(){return Math.random()+.25})};
 }
 function seed(){
@@ -364,15 +374,21 @@ function seed(){
       opts:[{t:'Sage slip',art:['#E3EEDC','#7F9E78']},{t:'Terracotta wrap',art:['#FBE1D6','#C8664A']}],created:t-24*MIN,closes:t+2*HR,votes:{jonah:0,priya:1,leo:0}}),
     mkPoll({by:'priya',circles:['fam'],q:'What should we get Mom for her 60th?',opts:[{t:'Weekend in Sintra'},{t:'Pottery class together'},{t:'Custom photo book'}],created:t-3*HR,closes:t+20*HR,votes:{sam:0,noor:0,ana:2}}),
     mkPoll({by:'leo',circles:['studio'],q:'Should I take the Berlin offer?',opts:[{t:'Yes, go'},{t:'Stay and negotiate'}],created:t-5*HR,closes:t+2*DAY,votes:{sam:0,theo:1,noor:0,me:0}}),
-    mkPoll({by:'ana',circles:['inner'],q:'Tattoo: wrist or ankle?',opts:[{t:'Wrist'},{t:'Ankle'}],created:t-26*HR,closes:t-2*HR,done:true,seen:false,votes:{maya:1,jonah:1,priya:0,leo:1,me:1}})
+    mkPoll({by:'ana',circles:['inner'],q:'Tattoo: wrist or ankle?',opts:[{t:'Wrist'},{t:'Ankle'}],created:t-26*HR,closes:t-2*HR,done:true,seen:false,votes:{maya:1,jonah:1,priya:0,leo:1,me:1}}),
+    mkPoll({by:'me',circles:['inner'],q:'Should I move to Lisbon?',opts:[{t:'Yes, go'},{t:'Stay put'}],created:t-9*DAY,closes:t-8*DAY,done:true,seen:true,decided:true,
+      votes:{maya:0,jonah:0,priya:1,leo:0,ana:0},outcome:{text:'Signed the lease last week. Best decision I made this year.',good:true,t:t-2*DAY}})
   ];
   s.notifs=[{id:uid(),t:t-2*HR,kind:'verdict',pid:s.polls[4].id,text:'The verdict is in on Ana’s question: Tattoo: wrist or ankle?',read:false},
     {id:uid(),t:t-24*MIN,kind:'poll',pid:s.polls[1].id,text:'Maya asked Inner Circle: Which dress for Saturday’s wedding?',read:false}];
   return s;
 }
 var S;
-try{var raw=localStorage.getItem(KEY); S=raw?JSON.parse(raw):null}catch(e){S=null}
-if(!S||S.v!==1) S=seed();
+function blank(){return {v:1,me:null,demoNote:false,simOn:false,lastFriendPoll:0,bank:0,prefs:{dl:'3h',anon:false},streak:{last:'',n:0},notifs:[],friends:{},circles:[],polls:[],loaded:false}}
+function loadState(){
+  try{var raw=localStorage.getItem(KEY); S=raw?JSON.parse(raw):null}catch(e){S=null}
+  if(!S||S.v!==1) S=LIVE?blank():seed();
+}
+if(LIVE) S=blank(); else loadState();
 var saveWarned=false;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(!saveWarned){saveWarned=true;toast('This browser is not saving changes, so they last until you close the page.')}}}
 
@@ -396,13 +412,14 @@ function voters(p){
 }
 function isClosed(p){return p.done||now()>=p.closes}
 function isOpenType(p){return p.type==='open'}
-function hasAnswered(p,id){ if(isOpenType(p)) return p.comments.some(function(c){return c.by===id}); return p.votes[id]!=null }
+function hasAnswered(p,id){ if(isOpenType(p)) return p.comments.some(function(c){return c.by===id}); return p.voted?p.voted.indexOf(id)>=0:p.votes[id]!=null }
 function myTurn(p){return !isClosed(p)&&p.by!=='me'&&!hasAnswered(p,'me')}
 function involved(p){return p.by==='me'||hasAnswered(p,'me')}
 function canSee(p){return isClosed(p)||(p.live&&(p.by==='me'||p.votes.me!=null))}
 function tally(p){
   var c=p.opts.map(function(){return 0}),total=0;
-  Object.keys(p.votes).forEach(function(k){var i=p.votes[k]; if(c[i]!=null){c[i]++;total++}});
+  if(p.counts&&p.counts.length===c.length){c=p.counts.slice();c.forEach(function(n){total+=n})}
+  else Object.keys(p.votes).forEach(function(k){var i=p.votes[k]; if(c[i]!=null){c[i]++;total++}});
   var max=Math.max.apply(null,c.concat([0]));
   var leaders=[]; c.forEach(function(n,i){if(total>0&&n===max) leaders.push(i)});
   return {c:c,total:total,leaders:leaders,pct:c.map(function(n){return total?Math.round(n/total*100):0})};
@@ -439,6 +456,22 @@ function stats(){
   return {asked:asked,voted:voted,called:decidable?Math.round(called/decidable*100)+'%':'–',took:ruled?Math.round(took/ruled*100)+'%':'–'};
 }
 function notify(kind,pid,text){S.notifs.unshift({id:uid(),t:now(),kind:kind,pid:pid,text:text,read:false}); if(S.notifs.length>40) S.notifs.length=40}
+var PAL=['#FFD7C9','#DCD3FF','#FFE7A8','#CDEBDD','#F9D1E8','#CFE4FF','#E7DFD3','#D9F1F4'];
+function colorFor(id){var h=0;for(var i=0;i<id.length;i++) h=(h*31+id.charCodeAt(i))>>>0;return PAL[h%PAL.length]}
+function newId(){return LIVE&&window.crypto&&crypto.randomUUID?crypto.randomUUID():uid()}
+function inSync(){
+  var m={};
+  S.polls.forEach(function(p){
+    if(!isClosed(p)||isOpenType(p)||p.anon||!p.who) return;
+    var mine=p.votes.me;
+    if(p.by==='me'){var t=tally(p); mine=(p.decided===true&&t.leaders.length===1)?t.leaders[0]:null}
+    if(mine==null) return;
+    Object.keys(p.votes).forEach(function(v){ if(v==='me'||!S.friends[v]) return; var x=m[v]||(m[v]={n:0,s:0}); x.n++; if(p.votes[v]===mine) x.s++ });
+  });
+  return Object.keys(m).filter(function(k){return m[k].n>=2}).map(function(k){return {id:k,pct:Math.round(m[k].s/m[k].n*100),n:m[k].n}})
+    .sort(function(a,b){return b.pct-a.pct||b.n-a.n}).slice(0,3);
+}
+function loopList(){return S.polls.filter(function(p){return p.by==='me'&&isClosed(p)&&p.decided!=null&&!p.outcome})}
 function buzz(){try{if(navigator.vibrate) navigator.vibrate(12)}catch(e){}}
 
 /* ---------- poll card ---------- */
@@ -485,19 +518,21 @@ function timeChip(p){
 }
 function cardHTML(p,big){
   var closed=isClosed(p);
-  return '<article class="card'+(big?' big':'')+'" data-card="'+p.id+'" data-big="'+(big?1:0)+'" data-sig="'+(closed?1:0)+'">'+
+  return '<article class="card'+(big?' big':'')+'" data-card="'+p.id+'" data-big="'+(big?1:0)+'" data-sig="'+cardSig(p)+'">'+
     '<div class="card-top">'+av(p.by,38)+'<div class="who"><b>'+esc(p.by==='me'?'You asked':person(p.by).n)+'</b><span>'+esc(circleNames(p))+' · '+ago(p.created)+'</span></div>'+timeChip(p)+'</div>'+
     (closed?'<div class="verdict">'+IC.check+' '+esc(verdictText(p))+'</div>':'')+
     '<button class="q" data-act="open" data-p="'+p.id+'">'+esc(p.q)+'</button>'+
     (p.note?'<p class="note">'+esc(p.note)+'</p>':'')+
     optsHTML(p)+
+    (p.outcome?'<div class="after'+(p.outcome.good?'':' bad')+'"><span class="label" style="color:inherit">What happened next</span><span>'+esc(p.outcome.text)+'</span></div>':'')+
     '<div class="card-state">'+stateHTML(p)+'</div>'+
     '<div class="card-foot">'+footHTML(p)+'</div></article>';
 }
+function cardSig(p){return (isClosed(p)?'1':'0')+(p.outcome?'o':'')}
 function patchCards(){
   $$('[data-card]').forEach(function(el){
     var p=poll(el.dataset.card); if(!p){el.remove();return}
-    var sig=isClosed(p)?'1':'0';
+    var sig=cardSig(p);
     if(el.dataset.sig!==sig||isOpenType(p)){
       if(isOpenType(p)&&el.dataset.sig===sig&&el.dataset.n===String(p.comments.length)) return;
       var tmp=document.createElement('div'); tmp.innerHTML=cardHTML(p,el.dataset.big==='1');
@@ -522,7 +557,7 @@ function freshList(){return S.polls.filter(function(p){return isClosed(p)&&invol
 function openList(){return S.polls.filter(function(p){return !isClosed(p)&&!myTurn(p)&&p.id!==holdId}).sort(function(a,b){return a.closes-b.closes})}
 function computeHomeSig(){
   var deck=turnList(); var cur=holdId||(deck[0]&&deck[0].id)||'';
-  return [cur,deck.length,freshList().map(function(p){return p.id}).join(','),openList().map(function(p){return p.id}).join(',')].join('|');
+  return [cur,deck.length,freshList().map(function(p){return p.id}).join(','),openList().map(function(p){return p.id}).join(','),loopList().map(function(p){return p.id}).join(','),S.circles.length,GUEST].join('|');
 }
 function greet(){
   var d=new Date(),h=d.getHours();
@@ -533,7 +568,9 @@ function homeHTML(){
   var cur=holdId?poll(holdId):deck[0];
   var remaining=deck.length;
   var h='<div class="head"><div><span class="small muted" style="font-weight:600">'+greet()+'</span><h1>Hi, '+esc(S.me.name)+'</h1></div></div>';
-  if(S.demoNote) h+='<div class="banner"><span style="flex:1">You are in the demo. Maya, Jonah and the others are example friends who vote on their own, so you can feel how Sway works.</span><button data-act="hideDemo">Got it</button></div>';
+  if(S.demoNote&&!LIVE) h+='<div class="banner"><span style="flex:1">You are in the demo. Maya, Jonah and the others are example friends who vote on their own, so you can feel how Sway works.</span><button data-act="hideDemo">Got it</button></div>';
+  if(LIVE&&GUEST) h+='<div class="banner"><span style="flex:1">You are voting as a guest. Add an email to keep your circles on any device.</span><button data-act="saveAccount">Save my account</button></div>';
+  if(LIVE&&S.loaded&&!S.circles.length) h+='<div class="card caught"><h3 style="font-size:22px">Start with a circle</h3><p class="muted small">Make a circle, send its invite link to a few friends, and ask your first question.</p><button class="btn primary" data-act="newCircle">Create a circle</button></div>';
   h+='<section class="sec"><span class="label">Your turn'+(remaining?' <span class="chip urgent">'+remaining+' waiting</span>':'')+'</span>';
   if(cur) h+='<div class="deck'+(remaining<=1?' single':'')+'">'+cardHTML(cur,true)+'</div>';
   else h+='<div class="card caught"><span class="ok">'+IC.check.replace('width="14" height="14"','width="26" height="26"')+'</span><h3 style="font-size:22px">You’re all caught up</h3><p class="muted small">Nobody is waiting on you. Got something on your mind?</p><button class="btn primary" data-act="ask">Ask your circles</button></div>';
@@ -543,28 +580,38 @@ function homeHTML(){
       return '<div class="card" style="flex-direction:row;align-items:center;gap:12px">'+av(p.by,38)+'<div style="flex:1;min-width:0"><b style="display:block;line-height:1.3">'+esc(p.q)+'</b><span class="small muted">'+esc(p.by==='me'?'Your question':first(p.by)+'’s question')+' · voting closed</span></div><button class="btn primary sm" data-act="reveal" data-p="'+p.id+'">Reveal</button></div>';
     }).join('')+'</section>';
   }
+  var loop=loopList();
+  if(loop.length) h+='<section class="sec"><span class="label">Close the loop</span>'+loop.map(function(p){
+      return '<div class="card" style="flex-direction:row;align-items:center;gap:12px"><div style="flex:1;min-width:0"><b style="display:block;line-height:1.3">'+esc(p.q)+'</b><span class="small muted">Your circle helped you decide. Tell them how it went.</span></div><button class="btn sm" data-act="open" data-p="'+p.id+'">Tell them</button></div>';
+    }).join('')+'</section>';
   if(open.length) h+='<section class="sec"><span class="label">Still open</span>'+open.map(function(p){return cardHTML(p,false)}).join('')+'</section>';
   h+='<p class="end">That’s everything from your circles. Sway has no endless feed.</p>';
   return h;
 }
+function inviteLink(c){return location.origin+location.pathname+'?join='+c.code}
 function circlesHTML(){
   var h='<div class="head"><div><h1>Your circles</h1><span class="small muted">Only people in a circle can see or vote on what you ask it.</span></div><button class="btn primary sm" data-act="newCircle">New circle</button></div>';
   h+=S.circles.map(function(c){
     var open=S.polls.filter(function(p){return !isClosed(p)&&p.circles.indexOf(c.id)>=0}).length;
+    var mine=!LIVE||c.owner==='me';
     return '<section class="box"><div style="display:flex;align-items:center;gap:12px"><span class="av" style="--s:48px;background:var(--violet-soft);color:var(--violet-ink);border-radius:17px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/></svg></span>'+
-      '<div style="flex:1;min-width:0"><h3 style="font-size:20px">'+esc(c.name)+'</h3><span class="small muted">'+(c.members.length+1)+' people · '+open+' open '+(open===1?'poll':'polls')+'</span></div>'+
+      '<div style="flex:1;min-width:0"><h3 style="font-size:20px">'+esc(c.name)+'</h3><span class="small muted">'+(c.members.length+1)+(c.members.length?' people':' person')+' · '+open+' open '+(open===1?'poll':'polls')+'</span></div>'+
       '<button class="btn sm" data-act="ask" data-c="'+c.id+'">Ask</button></div>'+
-      '<div>'+['me'].concat(c.members).map(function(m){return '<div class="person">'+av(m,34)+'<b>'+esc(m==='me'?S.me.name+' (you)':person(m).n)+'</b><span class="small muted">'+(m==='me'?'Owner':'Example friend')+'</span></div>'}).join('')+'</div>'+
-      '<button class="btn ghost sm" style="align-self:flex-start" data-act="delCircle" data-c="'+c.id+'">Delete circle</button></section>';
+      (LIVE?'<div class="invite"><code>'+esc(inviteLink(c))+'</code><button class="btn sm" data-act="copy" data-text="'+esc(inviteLink(c))+'">Copy invite link</button></div><span class="small muted">Friends who open this link can vote right away as a guest, then keep their account.</span>':'')+
+      '<div>'+['me'].concat(c.members).map(function(m){
+        var role=LIVE?((m==='me'?c.owner==='me':c.owner===m)?'Owner':'Member'):(m==='me'?'Owner':'Example friend');
+        return '<div class="person">'+av(m,34)+'<b>'+esc(m==='me'?S.me.name+' (you)':person(m).n)+'</b><span class="small muted">'+role+'</span></div>'}).join('')+'</div>'+
+      '<button class="btn ghost sm" style="align-self:flex-start" data-act="delCircle" data-c="'+c.id+'">'+(mine?'Delete circle':'Leave circle')+'</button></section>';
   }).join('');
   if(!S.circles.length) h+='<div class="card caught"><h3 style="font-size:22px">No circles yet</h3><p class="muted small">Make one for your closest friends, your family or your team.</p><button class="btn primary" data-act="newCircle">Create a circle</button></div>';
-  h+='<div class="banner"><span>Inviting real friends needs Sway’s online accounts, which are not connected in this version. Circles here use example friends.</span></div>';
+  if(LIVE) h+='<form class="box" data-form="joinCode"><label for="joinCodeIn"><b>Got an invite code?</b></label><div style="display:flex;gap:8px"><input class="plain" id="joinCodeIn" maxlength="12" autocomplete="off" placeholder="8-letter code" style="height:48px;text-transform:uppercase"><button class="btn sm" type="submit" style="min-height:48px">Join</button></div><span class="small muted">Circles are invite-only and never appear in search.</span></form>';
+  else h+='<div class="banner"><span>This is the demo, so circles use example friends. On the live site each circle gets an invite link your real friends can open.</span></div>';
   return h;
 }
 function activityHTML(){
   var h='<div class="head"><h1>Activity</h1>'+(S.notifs.some(function(n){return !n.read})?'<button class="btn ghost sm" data-act="readAll">Mark all read</button>':'')+'</div>';
   if(!S.notifs.length) return h+'<div class="card caught"><h3 style="font-size:22px">Nothing yet</h3><p class="muted small">Votes, new questions and verdicts will show up here.</p></div>';
-  var tone={verdict:'violet',poll:'',vote:'good',comment:''},word={verdict:'Verdict',poll:'New question',vote:'Vote',comment:'Comment'};
+  var tone={verdict:'violet',poll:'',vote:'good',comment:'',after:'good'},word={verdict:'Verdict',poll:'New question',vote:'Vote',comment:'Comment',after:'Update'};
   h+='<section class="box" style="gap:0">'+S.notifs.map(function(n){
     return '<button class="notif" data-act="notif" data-n="'+n.id+'"><span class="chip '+(tone[n.kind]||'')+'">'+word[n.kind]+'</span><span class="tx"><span>'+esc(n.text)+'</span><span class="small muted">'+ago(n.t)+'</span></span>'+(n.read?'':'<span class="unread" aria-label="Unread"></span>')+'</button>';
   }).join('')+'</section>';
@@ -579,6 +626,11 @@ function youHTML(){
   h+='<section class="sec"><span class="label">Decision diary · only you see this</span><div class="stats">'+
     '<div class="stat hot"><b>'+sk+'</b><span>day streak</span></div><div class="stat"><b>'+st.called+'</b><span>called it (voted with the winner)</span></div>'+
     '<div class="stat"><b>'+st.asked+'</b><span>questions asked</span></div><div class="stat"><b>'+st.voted+'</b><span>votes given</span></div></div></section>';
+  var sy=inSync();
+  h+='<section class="sec"><span class="label">Who thinks like you</span><div class="box" style="gap:0">'+(sy.length?sy.map(function(x){
+      return '<div class="person">'+av(x.id,34)+'<b>'+esc(person(x.id).n)+'</b><span class="meter"><i style="width:'+x.pct+'%"></i></span><span class="small" style="font-weight:700;font-variant-numeric:tabular-nums;width:44px;text-align:right">'+x.pct+'%</span></div>'}).join('')+
+      '<p class="small muted" style="padding-top:8px;border-top:1px solid var(--line)">How often each friend’s vote matched yours. Anonymous polls are never counted.</p>'
+    :'<p class="small muted">Vote on a few more questions and Sway will show which friends see things the way you do.</p>')+'</div></section>';
   h+='<section class="sec"><div class="wrap" role="tablist">'+['Asked','Voted'].map(function(t){return '<button class="pill" role="tab" aria-selected="'+(histTab===t)+'" data-act="hist" data-t="'+t+'">'+t+' · '+lists[t].length+'</button>'}).join('')+'</div>';
   h+=list.length?'<div class="box" style="gap:0">'+list.map(function(p){
       var c=isClosed(p);
@@ -588,8 +640,12 @@ function youHTML(){
   h+='<section class="sec"><span class="label">Preferences</span><div class="box" style="gap:0">'+
     '<div class="tog"><div class="tx"><b>Anonymous by default</b><span>New questions hide who voted what</span></div><button class="sw" role="switch" aria-checked="'+S.prefs.anon+'" aria-label="Anonymous by default" data-act="prefAnon"></button></div>'+
     '<div class="tog"><div class="tx"><label for="prefDl"><b>Default deadline</b></label></div><select class="sel" id="prefDl">'+DL.map(function(d){return '<option value="'+d[0]+'"'+(S.prefs.dl===d[0]?' selected':'')+'>'+d[1]+'</option>'}).join('')+'</select></div>'+
+    (LIVE?
+    (GUEST?'<div class="tog"><div class="tx"><b>Guest account</b><span>Add an email to keep your circles</span></div><button class="btn sm" data-act="saveAccount">Save account</button></div>':'')+
+    '<div class="tog"><div class="tx"><b>Log out</b><span>'+(GUEST?'A guest account cannot be recovered after logging out':'You can log back in with your email')+'</span></div><button class="btn ghost sm" data-act="logout">Log out</button></div>'
+    :
     '<div class="tog"><div class="tx"><b>Example friends are active</b><span>They vote, comment and ask while this page is open</span></div><button class="sw" role="switch" aria-checked="'+S.simOn+'" aria-label="Example friends are active" data-act="simToggle"></button></div>'+
-    '<div class="tog"><div class="tx"><b>Start over</b><span>Clears everything saved in this browser</span></div><button class="btn ghost sm" data-act="reset" id="resetBtn">Reset</button></div></div></section>';
+    '<div class="tog"><div class="tx"><b>Start over</b><span>Clears everything saved in this browser</span></div><button class="btn ghost sm" data-act="reset" id="resetBtn">Reset</button></div>')+'</div></section>';
   return h;
 }
 function railHTML(){
@@ -625,12 +681,15 @@ function sync(){
 /* ---------- actions ---------- */
 function vote(pid,i){
   var p=poll(pid); if(!p||isClosed(p)||p.by==='me'||p.votes.me===i) return;
-  var firstVote=p.votes.me==null;
+  var firstVote=p.votes.me==null,prev=p.votes.me;
   p.votes.me=i; bumpStreak(); buzz();
+  if(p.voted&&p.voted.indexOf('me')<0) p.voted.push('me');
+  if(p.counts){ if(prev!=null) p.counts[prev]--; p.counts[i]++ }
+  if(LIVE) remote(sb.from('votes').upsert({poll_id:pid,user_id:ME,choice:i,updated_at:new Date().toISOString()}).then(function(r){return r.error?r:sb.rpc('close_if_complete',{p:pid})}),p.circles);
   if(firstVote&&view==='home'&&!SH){ holdId=pid; clearTimeout(holdTimer); holdTimer=setTimeout(function(){holdId=null;sync()},1700) }
   finishIfAll(p); sync();
 }
-function finishIfAll(p){ if(!isClosed(p)&&answered(p)===voters(p).length) p.closes=now() }
+function finishIfAll(p){ if(LIVE) return; if(!isClosed(p)&&answered(p)===voters(p).length) p.closes=now() }
 function checkCloses(){
   var changed=false;
   S.polls.forEach(function(p){
@@ -647,9 +706,16 @@ function checkCloses(){
 function simStep(){
   if(!S.me) return;
   var changed=checkCloses();
-  if(S.simOn){
+  if(S.simOn&&!LIVE){
     S.polls.forEach(function(p){
-      if(isClosed(p)) return;
+      if(isClosed(p)){
+        if(p.by!=='me'&&involved(p)&&!p.outcome&&!isOpenType(p)&&now()-p.closes>40000&&Math.random()<.06){
+          var good=Math.random()<.75;
+          p.outcome={text:good?'Went with it. So glad I asked you all first.':'I chickened out in the end. Next time I will listen.',good:good,t:now()};
+          notify('after',p.id,first(p.by)+' shared what happened next: '+p.q); toast(first(p.by)+' shared what happened next','See',function(){openPoll(p.id)}); changed=true;
+        }
+        return;
+      }
       var mine=p.by==='me';
       voters(p).forEach(function(v){
         if(v==='me'||hasAnswered(p,v)||Math.random()>(mine?.2:.05)) return;
@@ -751,9 +817,11 @@ function postPoll(){
     opts=D.opts.map(function(o,i){return {t:o.t.trim()||(o.img?'Photo '+'ABCDE'[i]:''),img:o.img||undefined}}).filter(function(o){return o.t});
     if(opts.length<2){D.err=D.fmt==='photo'?'Add at least two photos or captions.':'Add at least two options.';renderAsk();return}
   }
-  var p=mkPoll({by:'me',circles:D.circles.slice(),q:q,type:D.fmt==='open'?'open':D.fmt==='photo'?'photo':'choice',opts:opts,closes:now()+dlMs(D.dl),anon:D.anon,live:D.live,who:D.who});
+  var p=mkPoll({id:newId(),by:'me',voted:LIVE?[]:null,circles:D.circles.slice(),q:q,type:D.fmt==='open'?'open':D.fmt==='photo'?'photo':'choice',opts:opts,closes:now()+dlMs(D.dl),anon:D.anon,live:D.live,who:D.who});
   S.polls.push(p); bumpStreak(); closeSheet(); location.hash='#home'; sync();
-  toast('Asked. Votes will start coming in.','View',function(){openPoll(p.id)});
+  if(LIVE) remote(sb.from('polls').insert({id:p.id,author:ME,q:p.q,note:'',type:p.type,opts:p.opts,closes_at:new Date(p.closes).toISOString(),anon:p.anon,live:p.live,who:p.who})
+    .then(function(r){return r.error?r:sb.from('poll_circles').insert(p.circles.map(function(c){return {poll_id:p.id,circle_id:c}}))}),p.circles);
+  toast(LIVE?'Asked. Your circle can vote now.':'Asked. Votes will start coming in.','View',function(){openPoll(p.id)});
 }
 function resize(file,cb){
   var fr=new FileReader(); fr.onload=function(){var im=new Image(); im.onload=function(){
@@ -766,7 +834,7 @@ function openPoll(pid){
   if(isClosed(p)&&involved(p)&&!p.seen){openReveal(pid);return}
   SH={type:'poll',pid:pid,sig:''}; refreshPollSheet(true);
 }
-function pollSheetSig(p){return [isClosed(p),p.comments.length,Object.keys(p.votes).length,p.decided].join('|')}
+function pollSheetSig(p){return [isClosed(p),p.comments.length,Object.keys(p.votes).length,(p.voted||[]).length,p.decided,!!p.outcome].join('|')}
 function refreshPollSheet(force){
   var p=poll(SH.pid); if(!p){closeSheet();return}
   var sig=pollSheetSig(p);
@@ -779,13 +847,17 @@ function refreshPollSheet(force){
   if(p.by==='me'){
     if(!closed) h+='<div class="wrap"><button class="btn sm" data-act="closeNow" data-p="'+p.id+'">Close voting now</button><button class="btn ghost sm" data-act="delPoll" data-p="'+p.id+'">Delete</button></div>';
     else if(p.decided==null&&!open) h+='<div class="box"><b>So, what did you do?</b><div class="wrap"><button class="btn primary sm" data-act="decide" data-v="1" data-p="'+p.id+'">Going with the verdict</button><button class="btn ghost sm" data-act="decide" data-v="0" data-p="'+p.id+'">Went my own way</button></div></div>';
-    else if(p.decided!=null) h+='<span class="chip good" style="align-self:flex-start">'+IC.check+' '+(p.decided?'You went with the verdict':'You went your own way')+'</span>';
+    else if(p.decided!=null){
+      h+='<span class="chip good" style="align-self:flex-start">'+IC.check+' '+(p.decided?'You went with the verdict':'You went your own way')+'</span>';
+      if(!p.outcome) h+='<form class="box" data-form="outcome"><label for="outIn"><b>How did it turn out?</b></label><span class="small muted">Your circle voted. Tell them what happened next.</span><input class="plain" id="outIn" maxlength="160" autocomplete="off" placeholder="We went, and…"><div class="wrap"><button class="btn primary sm" type="submit" data-good="1">It went well</button><button class="btn ghost sm" type="submit" data-good="0">Not great</button></div></form>';
+    }
   }
+  if(closed&&!open&&tally(p).total) h+='<button class="btn ghost sm" style="align-self:flex-start" data-act="share" data-p="'+p.id+'">'+IC.img+' Make a verdict card to share</button>';
   h+='<section class="box" style="gap:0"><div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px"><h3 style="font-size:18px">Who’s weighed in</h3><span class="chip violet">'+answered(p)+' of '+vs.length+'</span></div>'+
     vs.map(function(v){
       var a=hasAnswered(p,v),txt=a?(open?'Replied':'Voted'):(closed?'Did not vote':'Waiting');
-      if(a&&closed&&!open&&p.who&&!p.anon) txt=p.opts[p.votes[v]].t;
-      if(v==='me'&&a&&!open) txt=p.opts[p.votes.me].t;
+      if(a&&closed&&!open&&p.who&&!p.anon&&p.opts[p.votes[v]]) txt=p.opts[p.votes[v]].t;
+      if(v==='me'&&a&&!open&&p.opts[p.votes.me]) txt=p.opts[p.votes.me].t;
       return '<div class="person">'+av(v,34)+'<b>'+esc(v==='me'?'You':person(v).n)+'</b><span class="chip'+(a?' good':closed?'':' urgent')+'">'+esc(txt)+'</span></div>';
     }).join('')+
     '<p class="small muted" style="padding-top:8px;border-top:1px solid var(--line)">'+(p.anon?'Voting is anonymous. Nobody sees who picked what.':p.who?'Who picked what is revealed when voting closes.':'The asker chose to keep individual votes private.')+'</p></section>';
@@ -800,7 +872,7 @@ function openNewCircle(){
   SH={type:'circle',pick:{}};
   var h='<div class="sheet-head"><h2>New circle</h2><button class="x" data-act="close" aria-label="Close">'+IC.x+'</button></div>'+
     '<div class="field"><label class="label" for="cName">Circle name</label><input id="cName" maxlength="28" placeholder="Best friends, Family, Work…" style="border:0;background:transparent;font:700 22px/1.2 var(--display);outline:none;width:100%"></div>'+
-    '<div class="sec"><span class="label">Add example friends</span><div class="wrap">'+Object.keys(S.friends).map(function(f){return '<button class="pill" aria-pressed="false" data-act="pickFriend" data-f="'+f+'">'+esc(person(f).n)+'</button>'}).join('')+'</div></div>'+
+    (LIVE?'<p class="small muted" style="padding:0 4px">You will get an invite link to send to your friends.</p>':'<div class="sec"><span class="label">Add example friends</span><div class="wrap">'+Object.keys(S.friends).map(function(f){return '<button class="pill" aria-pressed="false" data-act="pickFriend" data-f="'+f+'">'+esc(person(f).n)+'</button>'}).join('')+'</div></div>')+
     '<p class="err" id="cErr" role="alert" hidden></p><button class="btn primary wide" data-act="makeCircle">Create circle</button>';
   showSheet(h,'New circle'); setTimeout(function(){var i=$('#cName'); if(i) i.focus()},60);
 }
@@ -815,7 +887,7 @@ function openReveal(pid){
     '<div class="stage2"><span class="label" style="color:inherit">'+esc(p.q)+'</span><h2>'+esc(verdictText(p))+(tie||open?'':'.')+'</h2>'+
     (open||!t.total?'':(tie?'':'<div class="big" id="rvNum">0%</div>')+'<div class="bars">'+p.opts.map(function(o,i){return '<div class="bar"><i data-w="'+t.pct[i]+'"></i><span>'+esc(o.t)+(p.votes.me===i?' · you':'')+'</span><span>'+t.c[i]+' · '+t.pct[i]+'%</span></div>'}).join('')+'</div>')+
     (!open&&!tie&&p.votes.me!=null?'<span class="chip" style="background:rgba(255,255,255,.2);color:inherit">'+(p.votes.me===win?'You called it':'The circle went the other way')+'</span>':'')+
-    '<div class="wrap" style="justify-content:center"><button class="btn" data-act="rvDetails" data-p="'+p.id+'">See the details</button><button class="btn ghost" data-act="rvDone">Done</button></div></div></div>';
+    '<div class="wrap" style="justify-content:center"><button class="btn" data-act="rvDetails" data-p="'+p.id+'">See the details</button>'+(!open&&t.total?'<button class="btn ghost" data-act="rvShare" data-p="'+p.id+'">Share card</button>':'')+'<button class="btn ghost" data-act="rvDone">Done</button></div></div></div>';
   document.body.appendChild(el); document.body.style.overflow='hidden';
   setTimeout(function(){
     if(!el.isConnected) return;
@@ -866,17 +938,28 @@ document.addEventListener('click',function(e){
   if(a==='makeCircle'){
     var name=$('#cName').value.trim(),mem=Object.keys(SH.pick).filter(function(k){return SH.pick[k]}),er=$('#cErr');
     if(!name){er.textContent='Give the circle a name.';er.hidden=false;return}
-    if(!mem.length){er.textContent='Add at least one friend.';er.hidden=false;return}
-    S.circles.push({id:uid(),name:name,members:mem}); closeSheet(); save(); render(); toast(name+' is ready. Ask it something.'); return }
+    if(!mem.length&&!LIVE){er.textContent='Add at least one friend.';er.hidden=false;return}
+    var nc={id:newId(),name:name,members:mem,owner:'me',code:''};
+    if(LIVE) remote(sb.from('circles').insert({id:nc.id,name:name,owner:ME}));
+    S.circles.push(nc); closeSheet(); save(); render(); toast(name+' is ready. Ask it something.'); return }
   if(a==='delCircle'){
     if(el.dataset.armed!=='1'){el.dataset.armed='1';el.textContent='Tap again to delete';return}
-    var cid=el.dataset.c; S.circles=S.circles.filter(function(c){return c.id!==cid});
+    var cid=el.dataset.c,cc=circle(cid);
+    if(LIVE&&cc) remote(cc.owner==='me'?sb.from('circles').delete().eq('id',cid):sb.from('members').delete().eq('circle_id',cid).eq('user_id',ME),[cid]);
+    S.circles=S.circles.filter(function(c){return c.id!==cid});
     S.polls=S.polls.filter(function(x){x.circles=x.circles.filter(function(c){return c!==cid}); return x.circles.length}); save(); return render() }
-  if(a==='closeNow'){p=poll(el.dataset.p); if(p){p.closes=now(); checkCloses(); sync(); $('#toasts').innerHTML=''; openReveal(p.id)} return}
+  if(a==='closeNow'){p=poll(el.dataset.p); if(p){p.closes=now(); if(LIVE) remote(sb.from('polls').update({closes_at:new Date().toISOString()}).eq('id',p.id),p.circles); checkCloses(); sync(); $('#toasts').innerHTML=''; openReveal(p.id)} return}
   if(a==='delPoll'){
     if(el.dataset.armed!=='1'){el.dataset.armed='1';el.textContent='Tap again to delete';return}
+    p=poll(el.dataset.p); if(LIVE&&p) remote(sb.from('polls').delete().eq('id',p.id),p.circles);
     S.polls=S.polls.filter(function(x){return x.id!==el.dataset.p}); closeSheet(); sync(); return render() }
-  if(a==='decide'){p=poll(el.dataset.p); if(p){p.decided=el.dataset.v==='1'; sync(); toast(p.decided?'Noted. Your circle will be glad they helped.':'Noted. It’s your call in the end.')} return}
+  if(a==='decide'){p=poll(el.dataset.p); if(p){p.decided=el.dataset.v==='1'; if(LIVE) remote(sb.from('polls').update({decided:p.decided}).eq('id',p.id),p.circles); sync(); toast(p.decided?'Noted. Your circle will be glad they helped.':'Noted. It’s your call in the end.')} return}
+  if(a==='copy') return copyText(el.dataset.text,el);
+  if(a==='share'||a==='rvShare'){var sid=el.dataset.p; if(a==='rvShare') closeReveal(); return shareCard(sid)}
+  if(a==='shareNow') return shareNow();
+  if(a==='authTab'){AUTH.tab=el.dataset.t;AUTH.err='';AUTH.msg='';return renderAuth()}
+  if(a==='logout') return logout();
+  if(a==='saveAccount') return openSaveAccount();
   /* ask sheet */
   if(!D) return;
   if(a==='tpl'){var t=TPL[+el.dataset.i]; D.q=t[1]; if(D.fmt!==t[2]){D.fmt=t[2];D.opts=fmtDefaults(t[2])} D.err=''; renderAsk(); var q=$('#askQ'); q.focus(); q.setSelectionRange(q.value.length,q.value.length); return}
@@ -897,15 +980,26 @@ document.addEventListener('input',function(e){
 document.addEventListener('change',function(e){
   var t=e.target;
   if(t.id==='prefDl'){S.prefs.dl=t.value;save()}
+  if(t.id==='nameEdit'&&LIVE&&t.value.trim()) remote(sb.from('profiles').update({name:t.value.trim()}).eq('id',ME));
   if(t.dataset.file!=null&&t.files&&t.files[0]&&D){var i=+t.dataset.file; resize(t.files[0],function(url){ if(D&&D.opts[i]){ if(url) D.opts[i].img=url; else D.err='That image could not be read. Try another one.'; renderAsk()} })}
 });
 document.addEventListener('submit',function(e){
   e.preventDefault();
   var f=e.target;
-  if(f.id==='joinForm'){ var n=$('#joinName').value.trim(); if(!n){$('#joinName').focus();return} S.me={name:n}; S.lastFriendPoll=now(); save(); boot(); return }
+  if(f.dataset.form==='demoJoin'){ var n=$('#joinName').value.trim(); if(!n){$('#joinName').focus();return} S.me={name:n}; S.lastFriendPoll=now(); save(); boot(); return }
+  if(f.dataset.form==='auth') return doAuth();
+  if(f.dataset.form==='saveAccount') return doSaveAccount();
+  if(f.dataset.form==='joinCode'){ var code=$('#joinCodeIn').value.trim(); if(!code) return;
+    sb.rpc('join_circle',{c:code}).then(function(r){ if(r.error) toast('No circle has that invite code.'); else {toast('You joined the circle.');ping();liveRefresh()} }); return }
+  if(f.dataset.form==='outcome'&&SH&&SH.type==='poll'){
+    var op=poll(SH.pid),ot=$('#outIn').value.trim(); if(!op) return; if(!ot){$('#outIn').focus();return}
+    var sub=e.submitter; op.outcome={text:ot,good:!(sub&&sub.dataset.good==='0'),t:now()};
+    if(LIVE) remote(sb.from('polls').update({outcome:op.outcome}).eq('id',op.id),op.circles);
+    sync(); toast('Shared with your circle.'); return }
   if(f.dataset.form==='say'&&SH&&SH.type==='poll'){
     var inp=$('#sayIn'),txt=inp.value.trim(),p=poll(SH.pid); if(!txt||!p) return;
     p.comments.push({by:'me',text:txt,t:now()}); inp.value='';
+    if(LIVE) remote(sb.from('comments').insert({poll_id:p.id,user_id:ME,body:txt}),p.circles);
     if(isOpenType(p)&&p.by!=='me'){bumpStreak();finishIfAll(p)}
     sync();
   }
@@ -930,14 +1024,222 @@ function tryCard(){
   draw();
 }
 
+/* ---------- verdict card image ---------- */
+var CARD=null;
+function wrapText(ctx,text,maxW){
+  var words=String(text).split(/\s+/),lines=[],line='';
+  words.forEach(function(w){var t=line?line+' '+w:w; if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w} else line=t});
+  if(line) lines.push(line); return lines;
+}
+function drawCard(p){
+  var W=1080,H=1350,c=document.createElement('canvas'); c.width=W; c.height=H;
+  var x=c.getContext('2d'),t=tally(p),tie=t.leaders.length!==1,win=tie?-1:t.leaders[0],pad=84;
+  var disp='"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif',body='"Instrument Sans",system-ui,sans-serif';
+  x.fillStyle='#5B3DF5'; x.fillRect(0,0,W,H);
+  x.globalAlpha=.16; x.fillStyle='#FFFFFF'; x.beginPath(); x.arc(W-90,150,250,0,7); x.fill(); x.fillStyle='#FF6B4A'; x.globalAlpha=.9; x.beginPath(); x.arc(W-40,300,120,0,7); x.fill(); x.globalAlpha=1;
+  x.fillStyle='#FFFFFF'; x.textBaseline='alphabetic';
+  x.font='800 64px '+disp; x.fillText('sway',pad,150);
+  x.font='700 30px '+body; x.globalAlpha=.9; x.fillText('THE CIRCLE HAS SPOKEN',pad,290); x.globalAlpha=1;
+  x.font='700 54px '+disp; var y=370; wrapText(x,p.q,W-pad*2).slice(0,3).forEach(function(l){x.fillText(l,pad,y);y+=66});
+  y+=70; x.font='800 104px '+disp; wrapText(x,verdictText(p)+(tie?'':'.'),W-pad*2).slice(0,2).forEach(function(l){x.fillText(l,pad,y);y+=112});
+  if(!tie){ x.font='800 230px '+disp; x.fillText(t.pct[win]+'%',pad-8,y+150); y+=210 }
+  var bh=78,gap=16,n=Math.min(p.opts.length,4),top=Math.max(y+30,H-200-n*(bh+gap));
+  x.font='700 34px '+body;
+  for(var i=0;i<n;i++){
+    var by=top+i*(bh+gap),bw=W-pad*2;
+    x.fillStyle='rgba(255,255,255,.16)'; rr(x,pad,by,bw,bh,24); x.fill();
+    if(t.pct[i]>0){ x.fillStyle='rgba(255,255,255,.3)'; rr(x,pad,by,Math.max(48,bw*t.pct[i]/100),bh,24); x.fill() }
+    x.fillStyle='#FFFFFF'; x.textAlign='left'; var lab=p.opts[i].t; while(x.measureText(lab).width>bw-190&&lab.length>4) lab=lab.slice(0,-2); if(lab!==p.opts[i].t) lab+='…';
+    x.fillText(lab,pad+28,by+51); x.textAlign='right'; x.fillText(t.pct[i]+'%',pad+bw-28,by+51); x.textAlign='left';
+  }
+  x.font='600 30px '+body; x.globalAlpha=.9; x.fillText('Ask your people before you decide.',pad,H-84); x.globalAlpha=1;
+  return c;
+}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function shareCard(pid){
+  var p=poll(pid); if(!p) return;
+  var go=function(){
+    CARD=drawCard(p); SH={type:'card'};
+    showSheet('<div class="sheet-head"><h2>Verdict card</h2><button class="x" data-act="close" aria-label="Close">'+IC.x+'</button></div>'+
+      '<img class="cardimg" alt="Verdict card: '+esc(p.q)+' '+esc(verdictText(p))+'" src="'+CARD.toDataURL('image/png')+'">'+
+      '<p class="small muted" style="text-align:center">The card shows the question and the result. It never shows who voted.</p>'+
+      '<button class="btn primary wide" data-act="shareNow">Share or save the picture</button>'+
+      '<p class="small muted" style="text-align:center" id="cardHint">On a phone you can also press and hold the picture to save it.</p>','Verdict card');
+  };
+  if(document.fonts&&document.fonts.load) Promise.all([document.fonts.load('800 100px "Bricolage Grotesque"'),document.fonts.load('700 30px "Instrument Sans"')]).then(go,go); else go();
+}
+function shareNow(){
+  if(!CARD) return;
+  CARD.toBlob(function(blob){
+    var file=null; try{file=new File([blob],'sway-verdict.png',{type:'image/png'})}catch(e){}
+    var hint=function(){var h=$('#cardHint'); if(h) h.textContent='If nothing was saved, press and hold (or right-click) the picture and choose Save.'};
+    var plain=function(){
+      if(file&&navigator.canShare&&navigator.canShare({files:[file]})){ navigator.share({files:[file],title:'Sway verdict'}).catch(function(){}); return }
+      try{var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='sway-verdict.png'; document.body.appendChild(a); a.click(); a.remove()}catch(e){}
+      hint();
+    };
+    /* Inside a claude.ai preview the page may only hand over a file through the viewer's own save prompt. */
+    if(window.claude&&window.claude.use) window.claude.use('downloads').then(function(d){ if(!d) return plain(); return d.save({filename:'sway-verdict.png',data:blob}).then(null,hint) },plain);
+    else plain();
+  },'image/png');
+}
+function copyText(text,el){
+  var ok=function(){var o=el.textContent; el.textContent='Copied'; setTimeout(function(){el.textContent=o},1600)};
+  var fail=function(){toast('Select the link and copy it by hand.')};
+  try{navigator.clipboard.writeText(text).then(ok,fail)}catch(e){fail()}
+}
+
+/* ---------- accounts (live mode) ---------- */
+var AUTH={tab:'signup',err:'',msg:'',busy:false,invite:null};
+function renderAuth(){
+  var box=$('#authBox'); if(!box) return;
+  var keep={}; $$('input',box).forEach(function(i){keep[i.id]=i.value});
+  var h='';
+  if(!LIVE){
+    h='<form class="join" data-form="demoJoin"><label class="sr" for="joinName">Your first name</label><input id="joinName" type="text" maxlength="24" autocomplete="given-name" placeholder="Your first name"><button class="btn primary" type="submit">Start asking</button></form>'+
+      '<p class="small muted" style="margin-top:12px">This is the demo. It saves to this browser only, and the friends in it are examples.</p>';
+  } else {
+    var tabs=(AUTH.invite?[['guest','Just vote']]:[]).concat([['signup','Sign up'],['login','Log in']]);
+    if(AUTH.invite) h+='<div class="banner" style="margin-top:22px"><span><b>'+esc(AUTH.invite.owner_name)+'</b> invited you to <b>'+esc(AUTH.invite.name)+'</b>. Join to vote on their questions.</span></div>';
+    h+='<div class="seg" role="tablist" style="margin-top:22px;max-width:440px;grid-template-columns:repeat('+tabs.length+',minmax(0,1fr))">'+tabs.map(function(t){return '<button type="button" role="tab" aria-selected="'+(AUTH.tab===t[0])+'" data-act="authTab" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>';
+    h+='<form class="authf" data-form="auth" style="max-width:440px">'+
+      (AUTH.tab!=='login'?'<label class="sr" for="auName">Your first name</label><input id="auName" type="text" maxlength="24" autocomplete="given-name" placeholder="Your first name">':'')+
+      (AUTH.tab!=='guest'?'<label class="sr" for="auEmail">Email</label><input id="auEmail" type="email" autocomplete="email" placeholder="Email"><label class="sr" for="auPw">Password</label><input id="auPw" type="password" autocomplete="'+(AUTH.tab==='signup'?'new-password':'current-password')+'" placeholder="Password'+(AUTH.tab==='signup'?' (8 or more characters)':'')+'">':'')+
+      (AUTH.err?'<p class="err" role="alert">'+esc(AUTH.err)+'</p>':'')+(AUTH.msg?'<p class="small" role="status" style="color:var(--good-ink);font-weight:600">'+esc(AUTH.msg)+'</p>':'')+
+      '<button class="btn primary" type="submit" style="min-height:56px"'+(AUTH.busy?' disabled':'')+'>'+(AUTH.busy?'One moment…':AUTH.tab==='guest'?'Join and vote':AUTH.tab==='signup'?'Create my account':'Log in')+'</button>'+
+      (AUTH.tab==='guest'?'<p class="small muted">No password needed. You can add an email later to keep your account.</p>':'')+'</form>';
+  }
+  box.innerHTML=h;
+  $$('input',box).forEach(function(i){ if(keep[i.id]!=null) i.value=keep[i.id] });
+}
+function authErr(m){AUTH.busy=false;AUTH.err=m;renderAuth()}
+function val(id){var e=$('#'+id);return e?e.value.trim():''}
+function doAuth(){
+  if(AUTH.busy) return;
+  var name=val('auName'),email=val('auEmail'),pw=$('#auPw')?$('#auPw').value:''; AUTH.err='';AUTH.msg='';
+  if(AUTH.tab!=='login'&&!name) return authErr('Enter your first name.');
+  if(AUTH.tab!=='guest'){ if(!/^\S+@\S+\.\S+$/.test(email)) return authErr('Enter a valid email address.'); if(pw.length<8) return authErr('Use a password of at least 8 characters.') }
+  AUTH.busy=true; renderAuth();
+  var call=AUTH.tab==='guest'?sb.auth.signInAnonymously({options:{data:{name:name}}}):AUTH.tab==='signup'?sb.auth.signUp({email:email,password:pw,options:{data:{name:name}}}):sb.auth.signInWithPassword({email:email,password:pw});
+  call.then(function(r){
+    if(r.error) return authErr(r.error.message||'That did not work. Try again.');
+    AUTH.busy=false;
+    if(!r.data||!r.data.session){AUTH.msg='Check your email for a confirmation link, then log in.';AUTH.tab='login';return renderAuth()}
+    enter(r.data.session.user);
+  },function(){authErr('Could not reach Sway. Check your connection and try again.')});
+}
+function enter(user){
+  if(ME===user.id) return;
+  ME=user.id; GUEST=!!user.is_anonymous; KEY='sway.live.v1.'+ME; loadState();
+  if(!S.me) S.me={name:(user.user_metadata&&user.user_metadata.name)||'Friend'};
+  boot();
+  sb.from('profiles').select('name').eq('id',ME).maybeSingle().then(function(pr){
+    if(pr.data){S.me.name=pr.data.name;return null}
+    return sb.from('profiles').insert({id:ME,name:S.me.name,color:colorFor(ME)});
+  }).then(function(){
+    if(!PENDING) return null;
+    var code=PENDING; PENDING=null; try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
+    return sb.rpc('join_circle',{c:code}).then(function(j){toast(j.error?'That invite link did not work.':'You joined the circle.'); if(!j.error) setTimeout(ping,1500)});
+  }).then(liveRefresh,liveRefresh);
+}
+function logout(){
+  Object.keys(CH).forEach(function(c){sb.removeChannel(CH[c]);delete CH[c]});
+  sb.auth.signOut().then(function(){ME=null;GUEST=false;S=blank();closeSheet();location.hash='';boot()});
+}
+function openSaveAccount(){
+  SH={type:'save'};
+  showSheet('<div class="sheet-head"><h2>Save your account</h2><button class="x" data-act="close" aria-label="Close">'+IC.x+'</button></div>'+
+    '<p class="muted">Add an email and password so you can log in on any device and keep your circles.</p>'+
+    '<form class="authf" data-form="saveAccount"><label class="sr" for="svEmail">Email</label><input id="svEmail" type="email" autocomplete="email" placeholder="Email"><label class="sr" for="svPw">Password</label><input id="svPw" type="password" autocomplete="new-password" placeholder="Password (8 or more characters)"><p class="err" id="svErr" role="alert" hidden></p><button class="btn primary" type="submit" style="min-height:56px">Save my account</button></form>','Save your account');
+}
+function doSaveAccount(){
+  var email=val('svEmail'),pw=$('#svPw').value,er=$('#svErr');
+  var bad=!/^\S+@\S+\.\S+$/.test(email)?'Enter a valid email address.':pw.length<8?'Use a password of at least 8 characters.':'';
+  if(bad){er.textContent=bad;er.hidden=false;return}
+  sb.auth.updateUser({email:email,password:pw}).then(function(r){
+    if(r.error){er.textContent=r.error.message||'That did not work. Try again.';er.hidden=false;return}
+    GUEST=!!(r.data&&r.data.user&&r.data.user.is_anonymous); closeSheet(); render();
+    toast(GUEST?'Check your email for a confirmation link to finish.':'Your account is saved.');
+  });
+}
+
+/* ---------- live data: load everything this person may see, map it to the page's own shapes ---------- */
+var CH={},refreshing=false,again=false,soonT=null,liveWarned=false;
+function mapId(u){return u===ME?'me':u}
+function liveSoon(){clearTimeout(soonT);soonT=setTimeout(liveRefresh,300)}
+function ping(circles){(circles||Object.keys(CH)).forEach(function(c){ if(CH[c]) try{CH[c].send({type:'broadcast',event:'changed',payload:{}})}catch(e){} })}
+function remote(promise,circles){
+  return Promise.resolve(promise).then(function(r){return r},function(e){return {error:e}}).then(function(r){
+    if(r&&r.error) toast('That did not save. Check your connection and try again.'); else ping(circles);
+    liveSoon(); return r;
+  });
+}
+function joinChannels(cids){
+  cids.forEach(function(c){ if(CH[c]) return; CH[c]=sb.channel('sway-'+c); CH[c].on('broadcast',{event:'changed'},liveSoon).subscribe() });
+  Object.keys(CH).forEach(function(c){ if(cids.indexOf(c)<0){sb.removeChannel(CH[c]);delete CH[c]} });
+}
+function must(r){ if(r.error) throw r.error; return r.data||[] }
+function liveRefresh(){
+  if(!ME) return; if(refreshing){again=true;return} refreshing=true;
+  var who=ME,cmap={},ids={},cids=[],friends={},rows=[],pm={},st={},cm={},myName=null;
+  sb.from('members').select('circle_id,user_id,circles(id,name,owner,code)').then(function(r){
+    must(r).forEach(function(m){ if(!m.circles) return;
+      var c=cmap[m.circle_id]||(cmap[m.circle_id]={id:m.circles.id,name:m.circles.name,code:m.circles.code,owner:mapId(m.circles.owner),members:[]});
+      if(m.user_id!==who) c.members.push(m.user_id); ids[m.user_id]=1 });
+    cids=Object.keys(cmap); ids[who]=1;
+    return sb.from('profiles').select('id,name,color').in('id',Object.keys(ids));
+  }).then(function(r){
+    must(r).forEach(function(p){ if(p.id===who) myName=p.name; else friends[p.id]={n:p.name,c:p.color||colorFor(p.id)} });
+    return cids.length?sb.from('poll_circles').select('circle_id,polls(*)').in('circle_id',cids):{data:[]};
+  }).then(function(r){
+    must(r).forEach(function(x){ if(!x.polls) return; var p=pm[x.polls.id]; if(!p){p=pm[x.polls.id]={row:x.polls,circles:[]};rows.push(p)} p.circles.push(x.circle_id) });
+    var pids=rows.map(function(p){return p.row.id});
+    return pids.length?Promise.all([sb.rpc('poll_states',{ids:pids}),sb.from('comments').select('poll_id,user_id,body,created_at').in('poll_id',pids).order('created_at')]):[{data:[]},{data:[]}];
+  }).then(function(rs){
+    must(rs[0]).forEach(function(x){st[x.poll_id]=x});
+    must(rs[1]).forEach(function(c){(cm[c.poll_id]||(cm[c.poll_id]=[])).push({by:mapId(c.user_id),text:c.body,t:Date.parse(c.created_at)})});
+    if(who!==ME) return;
+    var old={},firstLoad=!S.loaded; S.polls.forEach(function(p){old[p.id]=p});
+    var next=rows.map(function(x){
+      var r=x.row,v=st[r.id]||{},o=old[r.id],votes={},closes=Date.parse(r.closes_at),past=closes<=now();
+      if(v.choices) Object.keys(v.choices).forEach(function(u){votes[mapId(u)]=v.choices[u]});
+      if(v.my_choice!=null) votes.me=v.my_choice;
+      var p={id:r.id,by:mapId(r.author),circles:x.circles,q:r.q,note:r.note||'',type:r.type,opts:r.opts||[],created:Date.parse(r.created_at),closes:closes,
+        anon:r.anon,live:r.live,who:r.who,votes:votes,voted:(v.voted||[]).map(mapId),counts:v.counts||null,comments:cm[r.id]||[],decided:r.decided,outcome:r.outcome||null,
+        done:o?o.done:(firstLoad&&past),seen:o?o.seen:(firstLoad&&past),w:[]};
+      var nm=p.by==='me'?'':(friends[p.by]?friends[p.by].n.split(' ')[0]:'Someone');
+      if(!firstLoad){
+        if(!o&&p.by!=='me'&&!past){ notify('poll',p.id,nm+' asked: '+p.q); toast(nm+' asked a question','Vote',function(){location.hash='#home';openPoll(p.id)}) }
+        if(o&&p.by==='me'&&p.voted.length>(o.voted||[]).length){ notify('vote',p.id,p.voted.length+' of '+voters(p).length+' have voted on: '+p.q); toast('New vote · '+p.voted.length+' in') }
+        if(o&&p.by!=='me'&&p.outcome&&!o.outcome){ notify('after',p.id,nm+' shared what happened next: '+p.q); toast(nm+' shared what happened next','See',function(){openPoll(p.id)}) }
+      }
+      return p;
+    });
+    if(myName) S.me.name=myName;
+    S.friends=friends; S.circles=cids.map(function(k){return cmap[k]}); S.polls=next; S.loaded=true; liveWarned=false;
+    joinChannels(cids); checkCloses(); sync();
+  }).then(null,function(){ if(!liveWarned){liveWarned=true;toast('Could not reach Sway. Trying again shortly.')} })
+  .then(function(){refreshing=false; if(again){again=false;liveRefresh()}});
+}
+
 /* ---------- boot ---------- */
 var started=false;
 function boot(){
   $('#landing').hidden=!!S.me; $('#app').hidden=!S.me;
-  if(!S.me){ if(!started) tryCard(); started=true; return }
+  if(!S.me){ renderAuth(); if(!started) tryCard(); started=true; return }
   started=true; checkCloses(); save(); render();
 }
-boot();
+if(LIVE){
+  PENDING=(new URLSearchParams(location.search).get('join')||'').trim().toUpperCase()||null;
+  sb.auth.getSession().then(function(r){
+    var ses=r.data&&r.data.session;
+    if(ses) return enter(ses.user);
+    boot();
+    if(PENDING) sb.rpc('circle_preview',{c:PENDING}).then(function(x){ if(x.data&&x.data[0]){AUTH.invite=x.data[0];AUTH.tab='guest';renderAuth()} });
+  },function(){boot()});
+  setInterval(function(){ if(ME&&!document.hidden) liveRefresh() },20000);
+  document.addEventListener('visibilitychange',function(){ if(ME&&!document.hidden) liveRefresh() });
+} else boot();
 setInterval(function(){ if(S.me){tickClocks(); if(checkCloses()) sync()} },1000);
 setInterval(simStep,2600);
 })();

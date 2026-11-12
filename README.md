@@ -10,6 +10,7 @@ post a dilemma to a circle of friends, they vote in one tap, and you get a verdi
 | `index.html` | The whole site (landing page and app) |
 | `config.js` | Two settings that switch on real accounts |
 | `supabase/schema.sql` | The database tables and privacy rules |
+| `supabase/upgrade-2.sql` | Adds predictions, hot takes and nudges to the database |
 | `vendor/` | The Supabase browser library (v2.45.4), bundled so the site has no outside script dependencies |
 
 ## Two modes
@@ -26,6 +27,8 @@ invite link can vote straight away as a guest and add an email later.
 
 1. Create a free project at supabase.com.
 2. Open the project's SQL editor, paste in all of `supabase/schema.sql`, and run it once.
+   Then do the same with `supabase/upgrade-2.sql` (predictions, hot takes and nudges).
+   Until that second file has been run, those three features stay hidden and everything else works.
 3. In the project's authentication settings, allow anonymous sign-ins (this is
    what lets invited friends vote as guests). For quick testing you can also
    turn off email confirmation.

@@ -245,6 +245,12 @@ svg{flex:none}
 .notif .unread{width:9px;height:9px;border-radius:50%;background:var(--violet);margin-top:7px}
 select.sel{height:40px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);padding:0 10px;font-weight:600}
 
+.callit{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:18px;background:var(--violet-soft)}
+.callit .label{color:var(--violet-ink)}
+.pill.sm{min-height:38px;padding:0 13px;font-size:13.5px}
+.callit .say input{height:44px;font-size:15px}.callit .say button{width:44px;height:44px}
+.rvtake{background:rgba(255,255,255,.16);border-radius:16px;padding:10px 14px;text-align:left;width:100%;font-weight:600;overflow-wrap:anywhere}
+.rvtake span{display:block;font-weight:400;opacity:.9;font-size:13.5px}
 .authf{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .authf input,.plain{height:54px;padding:0 18px;border-radius:17px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;width:100%;min-width:0}
 .after{padding:12px 14px;border-radius:16px;background:var(--good-soft);color:var(--good-ink);font-size:15px;display:flex;flex-direction:column;gap:4px}
@@ -321,12 +327,14 @@ select.sel{height:40px;border-radius:12px;border:1.5px solid var(--line);backgro
 <script>
 (function(){
 'use strict';
-var MIN=60000,HR=3600000,DAY=86400000,KEY='sway.site.v2';
+var MIN=60000,HR=3600000,DAY=86400000,KEY='sway.site.v3';
 /* Live mode: set window.SWAY_CONFIG = {url, key} (see config.js) and load the Supabase library. Without it the site runs as a local demo. */
 var CFG=window.SWAY_CONFIG||{};
 var LIVE=!!(CFG.url&&CFG.key&&window.supabase&&window.supabase.createClient);
 var sb=LIVE?window.supabase.createClient(CFG.url,CFG.key):null;
 var ME=null,GUEST=false,PENDING=null;
+/* HAS2: predictions, hot takes and nudges are available (always in the demo; in live mode once supabase/upgrade-2.sql has been run). */
+var HAS2=!LIVE;
 var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
 var now=function(){return Date.now()};
 var uid=function(){return Math.random().toString(36).slice(2,9)};
@@ -344,6 +352,7 @@ var IC={
 
 /* ---------- state ---------- */
 var CANNED=['Go with your gut on this one.','I voted fast. Zero doubt.','Honestly could go either way.','Whatever you pick, tell us how it goes.','Sleep on it, then do the brave thing.'];
+var TAKES=['Not even close.','Trust me on this one.','You already know the answer.','Future you says thanks.','I will die on this hill.'];
 var REPLIES=['Do it. You would regret not trying.','Give it one more week before you decide.','What would you tell me if I asked you this?','Only if it makes Monday-you happier.'];
 var BANK=[
   {by:'sam',c:'fam',q:'Should I adopt the second cat?',o:['Yes, obviously','One is plenty']},
@@ -355,7 +364,7 @@ var BANK=[
 ];
 function mkPoll(x){
   return {id:x.id||uid(),by:x.by,circles:x.circles,q:x.q,note:x.note||'',type:x.type||'choice',opts:x.opts||[],created:x.created||now(),closes:x.closes,
-    anon:!!x.anon,live:x.live!==false,who:x.who!==false,votes:x.votes||{},comments:x.comments||[],done:!!x.done,seen:!!x.seen,decided:x.decided==null?null:x.decided,outcome:x.outcome||null,voted:x.voted||null,counts:null,
+    anon:!!x.anon,live:x.live!==false,who:x.who!==false,votes:x.votes||{},comments:x.comments||[],done:!!x.done,seen:!!x.seen,decided:x.decided==null?null:x.decided,outcome:x.outcome||null,voted:x.voted||null,counts:null,guesses:x.guesses||{},takes:x.takes||{},nudgedBy:null,nudgedTo:[],
     w:(x.opts||[]).map(function(){return Math.random()+.25})};
 }
 function seed(){
@@ -374,9 +383,9 @@ function seed(){
       opts:[{t:'Sage slip',art:['#E3EEDC','#7F9E78']},{t:'Terracotta wrap',art:['#FBE1D6','#C8664A']}],created:t-24*MIN,closes:t+2*HR,votes:{jonah:0,priya:1,leo:0}}),
     mkPoll({by:'priya',circles:['fam'],q:'What should we get Mom for her 60th?',opts:[{t:'Weekend in Sintra'},{t:'Pottery class together'},{t:'Custom photo book'}],created:t-3*HR,closes:t+20*HR,votes:{sam:0,noor:0,ana:2}}),
     mkPoll({by:'leo',circles:['studio'],q:'Should I take the Berlin offer?',opts:[{t:'Yes, go'},{t:'Stay and negotiate'}],created:t-5*HR,closes:t+2*DAY,votes:{sam:0,theo:1,noor:0,me:0}}),
-    mkPoll({by:'ana',circles:['inner'],q:'Tattoo: wrist or ankle?',opts:[{t:'Wrist'},{t:'Ankle'}],created:t-26*HR,closes:t-2*HR,done:true,seen:false,votes:{maya:1,jonah:1,priya:0,leo:1,me:1}}),
+    mkPoll({by:'ana',circles:['inner'],q:'Tattoo: wrist or ankle?',opts:[{t:'Wrist'},{t:'Ankle'}],created:t-26*HR,closes:t-2*HR,done:true,seen:false,votes:{maya:1,jonah:1,priya:0,leo:1,me:1},guesses:{maya:1,jonah:0,priya:0,leo:1},takes:{maya:'Ankle. You can hide it at work.',priya:'Wrist or nothing.'}}),
     mkPoll({by:'me',circles:['inner'],q:'Should I move to Lisbon?',opts:[{t:'Yes, go'},{t:'Stay put'}],created:t-9*DAY,closes:t-8*DAY,done:true,seen:true,decided:true,
-      votes:{maya:0,jonah:0,priya:1,leo:0,ana:0},outcome:{text:'Signed the lease last week. Best decision I made this year.',good:true,t:t-2*DAY}})
+      votes:{maya:0,jonah:0,priya:1,leo:0,ana:0},guesses:{maya:0,jonah:0,priya:0,leo:0},takes:{jonah:'Go. We will visit.'},outcome:{text:'Signed the lease last week. Best decision I made this year.',good:true,t:t-2*DAY}})
   ];
   s.notifs=[{id:uid(),t:t-2*HR,kind:'verdict',pid:s.polls[4].id,text:'The verdict is in on Ana’s question: Tattoo: wrist or ankle?',read:false},
     {id:uid(),t:t-24*MIN,kind:'poll',pid:s.polls[1].id,text:'Maya asked Inner Circle: Which dress for Saturday’s wedding?',read:false}];
@@ -451,7 +460,7 @@ function stats(){
   S.polls.forEach(function(p){
     if(p.by==='me'){asked++; if(p.decided!=null){ruled++; if(p.decided===true) took++}}
     else if(hasAnswered(p,'me')){voted++;
-      if(isClosed(p)&&!isOpenType(p)){var t=tally(p); if(t.leaders.length===1){decidable++; if(p.votes.me===t.leaders[0]) called++}}}
+      if(isClosed(p)&&!isOpenType(p)){var w=winner(p); if(w>=0){decidable++; var pick=(p.guesses&&p.guesses.me!=null)?p.guesses.me:p.votes.me; if(pick===w) called++}}}
   });
   return {asked:asked,voted:voted,called:decidable?Math.round(called/decidable*100)+'%':'–',took:ruled?Math.round(took/ruled*100)+'%':'–'};
 }
@@ -470,6 +479,13 @@ function inSync(){
   });
   return Object.keys(m).filter(function(k){return m[k].n>=2}).map(function(k){return {id:k,pct:Math.round(m[k].s/m[k].n*100),n:m[k].n}})
     .sort(function(a,b){return b.pct-a.pct||b.n-a.n}).slice(0,3);
+}
+function winner(p){var t=tally(p);return t.leaders.length===1?t.leaders[0]:-1}
+function callers(p){var w=winner(p),g=p.guesses||{}; if(w<0) return []; return Object.keys(g).filter(function(k){return g[k]===w})}
+function takesOf(p){
+  if(p.takesList) return p.takesList;
+  var m=p.takes||{},hide=p.anon||!p.who;
+  return Object.keys(m).filter(function(k){return m[k]&&p.votes[k]!=null}).map(function(k){return {by:hide&&k!=='me'?null:k,c:p.votes[k],t:m[k]}});
 }
 function loopList(){return S.polls.filter(function(p){return p.by==='me'&&isClosed(p)&&p.decided!=null&&!p.outcome})}
 function buzz(){try{if(navigator.vibrate) navigator.vibrate(12)}catch(e){}}
@@ -521,14 +537,23 @@ function cardHTML(p,big){
   return '<article class="card'+(big?' big':'')+'" data-card="'+p.id+'" data-big="'+(big?1:0)+'" data-sig="'+cardSig(p)+'">'+
     '<div class="card-top">'+av(p.by,38)+'<div class="who"><b>'+esc(p.by==='me'?'You asked':person(p.by).n)+'</b><span>'+esc(circleNames(p))+' · '+ago(p.created)+'</span></div>'+timeChip(p)+'</div>'+
     (closed?'<div class="verdict">'+IC.check+' '+esc(verdictText(p))+'</div>':'')+
+    (p.nudgedBy&&myTurn(p)?'<span class="chip urgent" style="align-self:flex-start">'+esc(first(p.nudgedBy))+' nudged you. They are waiting.</span>':'')+
     '<button class="q" data-act="open" data-p="'+p.id+'">'+esc(p.q)+'</button>'+
     (p.note?'<p class="note">'+esc(p.note)+'</p>':'')+
-    optsHTML(p)+
+    optsHTML(p)+callHTML(p)+
     (p.outcome?'<div class="after'+(p.outcome.good?'':' bad')+'"><span class="label" style="color:inherit">What happened next</span><span>'+esc(p.outcome.text)+'</span></div>':'')+
     '<div class="card-state">'+stateHTML(p)+'</div>'+
     '<div class="card-foot">'+footHTML(p)+'</div></article>';
 }
-function cardSig(p){return (isClosed(p)?'1':'0')+(p.outcome?'o':'')}
+function cardSig(p){var g=(p.guesses||{}).me;return (isClosed(p)?'1':'0')+(p.outcome?'o':'')+(p.votes.me!=null?'v':'')+(g==null?'':g)+((p.takes||{}).me?'t':'')+(holdId===p.id?'h':'')+(p.nudgedBy?'n':'')+(HAS2?'2':'')}
+function callHTML(p){
+  if(!HAS2||isClosed(p)||isOpenType(p)||p.by==='me'||p.votes.me==null) return '';
+  var g=(p.guesses||{}).me,mt=(p.takes||{}).me||'';
+  return '<div class="callit"><span class="label">Call it: which one will win?</span><div class="wrap">'+p.opts.map(function(o,i){
+      return '<button class="pill sm" aria-pressed="'+(g===i)+'" data-act="guess" data-p="'+p.id+'" data-i="'+i+'">'+esc(o.t)+'</button>'}).join('')+'</div>'+
+    '<form class="say" data-form="take" data-p="'+p.id+'"><input aria-label="Your hot take" maxlength="100" autocomplete="off" placeholder="Add a one-line hot take for the reveal" value="'+esc(mt)+'"><button type="submit" aria-label="Save hot take">'+IC.check.replace('width="14" height="14"','width="18" height="18"')+'</button></form>'+
+    (holdId===p.id&&turnList().length?'<button class="btn sm" data-act="nextCard" style="align-self:flex-start">Next question</button>':'')+'</div>';
+}
 function patchCards(){
   $$('[data-card]').forEach(function(el){
     var p=poll(el.dataset.card); if(!p){el.remove();return}
@@ -536,7 +561,9 @@ function patchCards(){
     if(el.dataset.sig!==sig||isOpenType(p)){
       if(isOpenType(p)&&el.dataset.sig===sig&&el.dataset.n===String(p.comments.length)) return;
       var tmp=document.createElement('div'); tmp.innerHTML=cardHTML(p,el.dataset.big==='1');
-      var fresh=tmp.firstChild; fresh.dataset.n=String(p.comments.length); fresh.style.animation='none'; el.replaceWith(fresh); return;
+      var fresh=tmp.firstChild; fresh.dataset.n=String(p.comments.length); fresh.style.animation='none';
+      var oi=$('[data-form="take"] input',el),ni2=$('[data-form="take"] input',fresh); if(oi&&ni2){ni2.value=oi.value; var foc=document.activeElement===oi}
+      el.replaceWith(fresh); if(foc) ni2.focus(); return;
     }
     var st=optStates(p);
     $$('.opt',el).forEach(function(b,i){
@@ -611,7 +638,7 @@ function circlesHTML(){
 function activityHTML(){
   var h='<div class="head"><h1>Activity</h1>'+(S.notifs.some(function(n){return !n.read})?'<button class="btn ghost sm" data-act="readAll">Mark all read</button>':'')+'</div>';
   if(!S.notifs.length) return h+'<div class="card caught"><h3 style="font-size:22px">Nothing yet</h3><p class="muted small">Votes, new questions and verdicts will show up here.</p></div>';
-  var tone={verdict:'violet',poll:'',vote:'good',comment:'',after:'good'},word={verdict:'Verdict',poll:'New question',vote:'Vote',comment:'Comment',after:'Update'};
+  var tone={verdict:'violet',poll:'',vote:'good',comment:'',after:'good',nudge:'urgent'},word={verdict:'Verdict',poll:'New question',vote:'Vote',comment:'Comment',after:'Update',nudge:'Nudge'};
   h+='<section class="box" style="gap:0">'+S.notifs.map(function(n){
     return '<button class="notif" data-act="notif" data-n="'+n.id+'"><span class="chip '+(tone[n.kind]||'')+'">'+word[n.kind]+'</span><span class="tx"><span>'+esc(n.text)+'</span><span class="small muted">'+ago(n.t)+'</span></span>'+(n.read?'':'<span class="unread" aria-label="Unread"></span>')+'</button>';
   }).join('')+'</section>';
@@ -624,7 +651,7 @@ function youHTML(){
   var list=lists[histTab].slice().sort(function(a,b){return b.created-a.created});
   var h='<div style="display:flex;align-items:center;gap:16px">'+av('me',72)+'<div style="flex:1;min-width:0"><label class="sr" for="nameEdit">Your name</label><input class="nameedit" id="nameEdit" maxlength="24" value="'+esc(S.me.name)+'"><span class="chip" style="margin-top:8px">'+IC.lock+' Only your circles can see you</span></div></div>';
   h+='<section class="sec"><span class="label">Decision diary · only you see this</span><div class="stats">'+
-    '<div class="stat hot"><b>'+sk+'</b><span>day streak</span></div><div class="stat"><b>'+st.called+'</b><span>called it (voted with the winner)</span></div>'+
+    '<div class="stat hot"><b>'+sk+'</b><span>day streak</span></div><div class="stat"><b>'+st.called+'</b><span>called it (picked the winner)</span></div>'+
     '<div class="stat"><b>'+st.asked+'</b><span>questions asked</span></div><div class="stat"><b>'+st.voted+'</b><span>votes given</span></div></div></section>';
   var sy=inSync();
   h+='<section class="sec"><span class="label">Who thinks like you</span><div class="box" style="gap:0">'+(sy.length?sy.map(function(x){
@@ -686,8 +713,29 @@ function vote(pid,i){
   if(p.voted&&p.voted.indexOf('me')<0) p.voted.push('me');
   if(p.counts){ if(prev!=null) p.counts[prev]--; p.counts[i]++ }
   if(LIVE) remote(sb.from('votes').upsert({poll_id:pid,user_id:ME,choice:i,updated_at:new Date().toISOString()}).then(function(r){return r.error?r:sb.rpc('close_if_complete',{p:pid})}),p.circles);
-  if(firstVote&&view==='home'&&!SH){ holdId=pid; clearTimeout(holdTimer); holdTimer=setTimeout(function(){holdId=null;sync()},1700) }
+  if(firstVote&&view==='home'&&!SH){ holdId=pid; clearTimeout(holdTimer); holdTimer=setTimeout(function(){holdId=null;sync()},HAS2?15000:1700) }
   finishIfAll(p); sync();
+}
+function releaseHold(ms){clearTimeout(holdTimer);holdTimer=setTimeout(function(){holdId=null;sync()},ms)}
+function guess(pid,i){
+  var p=poll(pid); if(!p||isClosed(p)||p.votes.me==null) return;
+  if(!p.guesses) p.guesses={}; p.guesses.me=i; buzz();
+  if(LIVE) remote(sb.from('votes').update({guess:i}).eq('poll_id',pid).eq('user_id',ME));
+  if(holdId===pid) releaseHold(1100);
+  sync();
+}
+function saveTake(pid,text){
+  var p=poll(pid); if(!p||isClosed(p)||p.votes.me==null) return;
+  if(!p.takes) p.takes={}; p.takes.me=text;
+  if(LIVE) remote(sb.from('votes').update({take:text||null}).eq('poll_id',pid).eq('user_id',ME));
+  sync(); toast(text?'Saved. Everyone sees it at the reveal.':'Hot take removed.');
+}
+function nudge(pid,u){
+  var p=poll(pid); if(!p||isClosed(p)||p.by!=='me') return;
+  if(!p.nudgedTo) p.nudgedTo=[]; if(p.nudgedTo.indexOf(u)>=0) return;
+  p.nudgedTo.push(u);
+  if(LIVE) remote(sb.from('nudges').insert({poll_id:pid,to_user:u,from_user:ME}),p.circles);
+  sync(); toast('Nudged '+first(u)+'.');
 }
 function finishIfAll(p){ if(LIVE) return; if(!isClosed(p)&&answered(p)===voters(p).length) p.closes=now() }
 function checkCloses(){
@@ -718,10 +766,12 @@ function simStep(){
       }
       var mine=p.by==='me';
       voters(p).forEach(function(v){
-        if(v==='me'||hasAnswered(p,v)||Math.random()>(mine?.2:.05)) return;
+        if(v==='me'||hasAnswered(p,v)||Math.random()>((p.nudgedTo||[]).indexOf(v)>=0?.75:mine?.2:.05)) return;
         changed=true;
         if(isOpenType(p)){ p.comments.push({by:v,text:REPLIES[Math.floor(Math.random()*REPLIES.length)],t:now()}) }
-        else { var r=Math.random()*p.w.reduce(function(a,b){return a+b},0),k=0; while(k<p.w.length-1&&(r-=p.w[k])>0) k++; p.votes[v]=k }
+        else { var r=Math.random()*p.w.reduce(function(a,b){return a+b},0),k=0; while(k<p.w.length-1&&(r-=p.w[k])>0) k++; p.votes[v]=k;
+          if(!p.guesses) p.guesses={}; if(!p.takes) p.takes={};
+          p.guesses[v]=Math.random()<.6?k:Math.floor(Math.random()*p.opts.length); if(Math.random()<.35) p.takes[v]=TAKES[Math.floor(Math.random()*TAKES.length)] }
         if(mine){ var who=p.anon?'Someone':first(v); notify('vote',p.id,who+(isOpenType(p)?' replied to: ':' voted on: ')+p.q); toast(who+(isOpenType(p)?' replied':' just voted')+' · '+answered(p)+' of '+voters(p).length+' in') }
         finishIfAll(p);
       });
@@ -776,7 +826,7 @@ function fmtDefaults(f){
 }
 function openAsk(circleId){
   if(!S.circles.length){toast('Create a circle first, so there is someone to ask.');location.hash='#circles';return}
-  D={q:'',fmt:'yesno',opts:fmtDefaults('yesno'),circles:[circleId||S.circles[0].id],dl:S.prefs.dl,anon:S.prefs.anon,live:true,who:true,err:''};
+  D={q:'',fmt:'yesno',opts:fmtDefaults('yesno'),circles:[circleId||S.circles[0].id],dl:S.prefs.dl,anon:S.prefs.anon,live:false,who:true,err:''};
   SH={type:'ask'}; renderAsk(); setTimeout(function(){var q=$('#askQ'); if(q) q.focus()},60);
 }
 var TPL=[['Should I…?','Should I ','yesno'],['Outfit check','Which outfit should I wear?','photo'],['Help me pick','Which one should I get?','choice'],['Talk me out of it','Talk me out of ','open']];
@@ -834,7 +884,7 @@ function openPoll(pid){
   if(isClosed(p)&&involved(p)&&!p.seen){openReveal(pid);return}
   SH={type:'poll',pid:pid,sig:''}; refreshPollSheet(true);
 }
-function pollSheetSig(p){return [isClosed(p),p.comments.length,Object.keys(p.votes).length,(p.voted||[]).length,p.decided,!!p.outcome].join('|')}
+function pollSheetSig(p){return [isClosed(p),p.comments.length,Object.keys(p.votes).length,(p.voted||[]).length,p.decided,!!p.outcome,(p.nudgedTo||[]).length,cardSig(p),takesOf(p).length,HAS2].join('|')}
 function refreshPollSheet(force){
   var p=poll(SH.pid); if(!p){closeSheet();return}
   var sig=pollSheetSig(p);
@@ -858,9 +908,17 @@ function refreshPollSheet(force){
       var a=hasAnswered(p,v),txt=a?(open?'Replied':'Voted'):(closed?'Did not vote':'Waiting');
       if(a&&closed&&!open&&p.who&&!p.anon&&p.opts[p.votes[v]]) txt=p.opts[p.votes[v]].t;
       if(v==='me'&&a&&!open&&p.opts[p.votes.me]) txt=p.opts[p.votes.me].t;
-      return '<div class="person">'+av(v,34)+'<b>'+esc(v==='me'?'You':person(v).n)+'</b><span class="chip'+(a?' good':closed?'':' urgent')+'">'+esc(txt)+'</span></div>';
+      var nb='';
+      if(HAS2&&!a&&!closed&&!open&&p.by==='me'&&v!=='me') nb=(p.nudgedTo||[]).indexOf(v)>=0?'<span class="chip">Nudged</span>':'<button class="btn ghost sm" data-act="nudge" data-p="'+p.id+'" data-u="'+v+'">Nudge</button>';
+      return '<div class="person">'+av(v,34)+'<b>'+esc(v==='me'?'You':person(v).n)+'</b>'+nb+'<span class="chip'+(a?' good':closed?'':' urgent')+'">'+esc(txt)+'</span></div>';
     }).join('')+
     '<p class="small muted" style="padding-top:8px;border-top:1px solid var(--line)">'+(p.anon?'Voting is anonymous. Nobody sees who picked what.':p.who?'Who picked what is revealed when voting closes.':'The asker chose to keep individual votes private.')+'</p></section>';
+  if(closed&&!open){
+    var cl=callers(p),tk=takesOf(p);
+    if(cl.length) h+='<section class="box"><h3 style="font-size:18px">Called it</h3><div class="wrap">'+cl.map(function(c){return '<span class="chip good">'+esc(first(c))+'</span>'}).join('')+'</div><span class="small muted">They predicted the winner before the reveal.</span></section>';
+    if(tk.length) h+='<section class="sec"><h3 style="font-size:18px;padding:0 4px">Hot takes</h3>'+tk.map(function(x){
+        return '<div class="bubble">'+av(x.by||'me',32,!x.by)+'<p>'+(x.by?'<b>'+esc(first(x.by))+'</b> ':'')+esc(x.t)+(p.opts[x.c]?' <span class="chip" style="min-height:22px;font-size:12px">'+esc(p.opts[x.c].t)+'</span>':'')+'</p></div>'}).join('')+'</section>';
+  }
   h+='<section class="sec"><h3 style="font-size:18px;padding:0 4px">'+(open?'Replies':'Comments')+' · '+p.comments.length+'</h3>'+
     (p.comments.length?p.comments.map(function(c){return '<div class="bubble">'+av(c.by,32)+'<p><b>'+esc(first(c.by))+'</b> '+esc(c.text)+'</p></div>'}).join(''):'<p class="muted small" style="padding:0 4px">Be the first to say something.</p>')+
     '<form class="say" data-form="say"><label class="sr" for="sayIn">'+(open?'Your reply':'Add a comment')+'</label><input id="sayIn" maxlength="200" autocomplete="off" placeholder="'+(open?'Write your reply…':'Add a comment for the circle…')+'"><button type="submit" aria-label="Send">'+IC.up+'</button></form></section>';
@@ -886,7 +944,7 @@ function openReveal(pid){
   el.innerHTML='<canvas></canvas><div class="rv"><div class="stage1"><div class="rings"><i></i><i></i><i></i></div><span class="label" style="color:inherit">The circle has spoken</span><p style="font:700 22px/1.2 var(--display)">'+esc(p.q)+'</p></div>'+
     '<div class="stage2"><span class="label" style="color:inherit">'+esc(p.q)+'</span><h2>'+esc(verdictText(p))+(tie||open?'':'.')+'</h2>'+
     (open||!t.total?'':(tie?'':'<div class="big" id="rvNum">0%</div>')+'<div class="bars">'+p.opts.map(function(o,i){return '<div class="bar"><i data-w="'+t.pct[i]+'"></i><span>'+esc(o.t)+(p.votes.me===i?' · you':'')+'</span><span>'+t.c[i]+' · '+t.pct[i]+'%</span></div>'}).join('')+'</div>')+
-    (!open&&!tie&&p.votes.me!=null?'<span class="chip" style="background:rgba(255,255,255,.2);color:inherit">'+(p.votes.me===win?'You called it':'The circle went the other way')+'</span>':'')+
+    rvExtras(p,open,tie,win)+
     '<div class="wrap" style="justify-content:center"><button class="btn" data-act="rvDetails" data-p="'+p.id+'">See the details</button>'+(!open&&t.total?'<button class="btn ghost" data-act="rvShare" data-p="'+p.id+'">Share card</button>':'')+'<button class="btn ghost" data-act="rvDone">Done</button></div></div></div>';
   document.body.appendChild(el); document.body.style.overflow='hidden';
   setTimeout(function(){
@@ -897,6 +955,17 @@ function openReveal(pid){
     if(!tie&&t.total&&!open) confetti($('canvas',el));
     var b=$('[data-act="rvDone"]',el); if(b) b.focus();
   },1500);
+}
+function rvExtras(p,open,tie,win){
+  if(open) return '';
+  var chip=function(t){return '<span class="chip" style="background:rgba(255,255,255,.2);color:inherit">'+t+'</span>'},out=[],vs=voters(p);
+  var mine=(p.guesses&&p.guesses.me!=null)?p.guesses.me:p.votes.me,cl=callers(p);
+  if(vs.length>1&&answered(p)===vs.length) out.push(chip('Full house: everyone voted'));
+  if(!tie&&mine!=null) out.push(chip(mine===win?'You called it':'You did not see this coming'));
+  if(cl.length) out.push(chip(cl.length+(cl.length===1?' person':' people')+' called it'));
+  var h=out.length?'<div class="wrap" style="justify-content:center">'+out.join('')+'</div>':'';
+  takesOf(p).slice(0,3).forEach(function(x){h+='<div class="rvtake">“'+esc(x.t)+'”<span>'+esc((x.by?first(x.by)+' · ':'')+(p.opts[x.c]?p.opts[x.c].t:''))+'</span></div>'});
+  return h;
 }
 function closeReveal(){var el=$('#reveal'); if(el) el.remove(); document.body.style.overflow=''; sync(); render()}
 function confetti(cv){
@@ -919,6 +988,9 @@ document.addEventListener('click',function(e){
   var a=el.dataset.act,p;
   if(a==='scrim'){ if(e.target===el) closeSheet(); return }
   if(a==='vote') return vote(el.dataset.p,+el.dataset.i);
+  if(a==='guess') return guess(el.dataset.p,+el.dataset.i);
+  if(a==='nudge') return nudge(el.dataset.p,el.dataset.u);
+  if(a==='nextCard'){clearTimeout(holdTimer);holdId=null;return sync()}
   if(a==='open') return openPoll(el.dataset.p);
   if(a==='reveal') return openReveal(el.dataset.p);
   if(a==='ask') return openAsk(el.dataset.c);
@@ -973,6 +1045,7 @@ document.addEventListener('click',function(e){
 });
 document.addEventListener('input',function(e){
   var t=e.target;
+  if(t.closest&&t.closest('[data-form="take"]')&&holdId) releaseHold(20000);
   if(t.id==='askQ'&&D) D.q=t.value;
   else if(t.dataset.opt!=null&&D&&D.opts[+t.dataset.opt]) D.opts[+t.dataset.opt].t=t.value;
   else if(t.id==='nameEdit'){var v=t.value.trim(); if(v){S.me.name=v;save()}}
@@ -987,6 +1060,7 @@ document.addEventListener('submit',function(e){
   e.preventDefault();
   var f=e.target;
   if(f.dataset.form==='demoJoin'){ var n=$('#joinName').value.trim(); if(!n){$('#joinName').focus();return} S.me={name:n}; S.lastFriendPoll=now(); save(); boot(); return }
+  if(f.dataset.form==='take') return saveTake(f.dataset.p,$('input',f).value.trim());
   if(f.dataset.form==='auth') return doAuth();
   if(f.dataset.form==='saveAccount') return doSaveAccount();
   if(f.dataset.form==='joinCode'){ var code=$('#joinCodeIn').value.trim(); if(!code) return;
@@ -1199,6 +1273,12 @@ function liveRefresh(){
     var pids=rows.map(function(p){return p.row.id});
     return pids.length?Promise.all([sb.rpc('poll_states',{ids:pids}),sb.from('comments').select('poll_id,user_id,body,created_at').in('poll_id',pids).order('created_at')]):[{data:[]},{data:[]}];
   }).then(function(rs){
+    var sts=must(rs[0]); if(sts.length&&sts[0].my_guess!==undefined) HAS2=true;
+    if(!HAS2) return [rs[0],rs[1],{data:[]}];
+    return sb.from('nudges').select('poll_id,to_user,from_user').then(function(n){return [rs[0],rs[1],n.error?{data:[]}:n]},function(){return [rs[0],rs[1],{data:[]}]});
+  }).then(function(rs){
+    var nb={},nt={};
+    must(rs[2]).forEach(function(n){ if(n.to_user===who) nb[n.poll_id]=mapId(n.from_user); else (nt[n.poll_id]||(nt[n.poll_id]=[])).push(n.to_user) });
     must(rs[0]).forEach(function(x){st[x.poll_id]=x});
     must(rs[1]).forEach(function(c){(cm[c.poll_id]||(cm[c.poll_id]=[])).push({by:mapId(c.user_id),text:c.body,t:Date.parse(c.created_at)})});
     if(who!==ME) return;
@@ -1209,11 +1289,17 @@ function liveRefresh(){
       if(v.my_choice!=null) votes.me=v.my_choice;
       var p={id:r.id,by:mapId(r.author),circles:x.circles,q:r.q,note:r.note||'',type:r.type,opts:r.opts||[],created:Date.parse(r.created_at),closes:closes,
         anon:r.anon,live:r.live,who:r.who,votes:votes,voted:(v.voted||[]).map(mapId),counts:v.counts||null,comments:cm[r.id]||[],decided:r.decided,outcome:r.outcome||null,
-        done:o?o.done:(firstLoad&&past),seen:o?o.seen:(firstLoad&&past),w:[]};
+        done:o?o.done:(firstLoad&&past),seen:o?o.seen:(firstLoad&&past),w:[],
+        guesses:{},takes:{},takesList:null,nudgedBy:nb[r.id]||null,nudgedTo:nt[r.id]||[]};
+      if(v.guesses) Object.keys(v.guesses).forEach(function(u){p.guesses[mapId(u)]=v.guesses[u]});
+      if(v.my_guess!=null) p.guesses.me=v.my_guess;
+      if(v.my_take) p.takes.me=v.my_take;
+      if(v.takes) p.takesList=v.takes.map(function(x){return {by:x.u?mapId(x.u):null,c:x.c,t:x.t}});
       var nm=p.by==='me'?'':(friends[p.by]?friends[p.by].n.split(' ')[0]:'Someone');
       if(!firstLoad){
         if(!o&&p.by!=='me'&&!past){ notify('poll',p.id,nm+' asked: '+p.q); toast(nm+' asked a question','Vote',function(){location.hash='#home';openPoll(p.id)}) }
         if(o&&p.by==='me'&&p.voted.length>(o.voted||[]).length){ notify('vote',p.id,p.voted.length+' of '+voters(p).length+' have voted on: '+p.q); toast('New vote · '+p.voted.length+' in') }
+        if(p.nudgedBy&&!(o&&o.nudgedBy)&&!past&&v.my_choice==null){ notify('nudge',p.id,nm+' is waiting on your vote: '+p.q); toast(nm+' nudged you','Vote',function(){location.hash='#home';openPoll(p.id)}) }
         if(o&&p.by!=='me'&&p.outcome&&!o.outcome){ notify('after',p.id,nm+' shared what happened next: '+p.q); toast(nm+' shared what happened next','See',function(){openPoll(p.id)}) }
       }
       return p;

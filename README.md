@@ -45,6 +45,10 @@ invite link can vote straight away as a guest and add an email later.
 
 ## Status
 
-The demo mode and the screens of the live mode were tested in a browser. The
-database rules were tested in a local Postgres with three pretend users. The
-live mode has not yet been run against a real Supabase project.
+The demo mode was tested in a browser. The database rules were tested in a
+local Postgres with three pretend users. The live mode was run against the
+connected Supabase project with two real browser sessions: email sign-up,
+log out and log in, creating a circle, joining from an invite link as a guest,
+asking a sealed question, voting, automatic closing, the verdict reveal,
+comments, and the "what happened next" update all worked, with live updates
+between the two sessions.

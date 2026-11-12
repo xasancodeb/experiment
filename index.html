@@ -1139,7 +1139,10 @@ function enter(user){
   }).then(function(){
     if(!PENDING) return null;
     var code=PENDING; PENDING=null; try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
-    return sb.rpc('join_circle',{c:code}).then(function(j){toast(j.error?'That invite link did not work.':'You joined the circle.'); if(!j.error) setTimeout(ping,1500)});
+    return sb.rpc('join_circle',{c:code}).then(function(j){
+      /* Keep the invite until the database has answered, so a reload or a dropped connection mid-join does not lose it. */
+      if(!j.error||/No circle/.test(j.error.message||'')) try{localStorage.removeItem('sway.pendingJoin')}catch(e){}
+      toast(j.error?'That invite link did not work.':'You joined the circle.'); if(!j.error) setTimeout(ping,1500)});
   }).then(liveRefresh,liveRefresh);
 }
 function logout(){
@@ -1231,6 +1234,7 @@ function boot(){
 }
 if(LIVE){
   PENDING=(new URLSearchParams(location.search).get('join')||'').trim().toUpperCase()||null;
+  try{ if(PENDING) localStorage.setItem('sway.pendingJoin',PENDING); else PENDING=localStorage.getItem('sway.pendingJoin')||null }catch(e){}
   sb.auth.getSession().then(function(r){
     var ses=r.data&&r.data.session;
     if(ses) return enter(ses.user);

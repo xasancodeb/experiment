@@ -1,9 +1,12 @@
 -- Sway upgrade 2: predictions ("call it"), hot takes and nudges.
--- Run this once in the Supabase SQL editor, after schema.sql. It is safe to run on a database with data.
+-- Run this in the Supabase SQL editor, after schema.sql. It is safe to run on a database with data,
+-- and safe to run more than once.
 
 alter table public.votes
   add column if not exists guess int check (guess is null or guess >= 0),
   add column if not exists take text check (take is null or char_length(take) <= 120);
+
+alter table public.polls add column if not exists early boolean not null default false;
 
 -- A prediction must point at an option that exists, like the vote itself.
 drop policy if exists votes_insert on public.votes;
@@ -76,3 +79,17 @@ language sql stable security definer set search_path = public as $$
   where p.id = any (ids) and can_see_poll(p.id);
 $$;
 revoke execute on function public.poll_states(uuid[]) from anon;
+
+-- A poll runs until its deadline. Only when the asker switched on "end early" does it
+-- end 30 seconds after every member who can vote has voted. The short delay lets the
+-- last voter call the winner and add a hot take, and gives everyone a countdown.
+create or replace function public.close_if_complete(p uuid) returns void
+language sql security definer set search_path = public as $$
+  update polls set closes_at = now() + interval '30 seconds'
+  where id = p and early and closes_at > now() + interval '30 seconds' and type <> 'open' and can_see_poll(p)
+    and (select count(*) from votes where poll_id = p) > 0
+    and (select count(*) from votes where poll_id = p) >=
+        (select count(distinct m.user_id) from poll_circles pc join members m on m.circle_id = pc.circle_id
+         where pc.poll_id = p and m.user_id <> polls.author);
+$$;
+revoke execute on function public.close_if_complete(uuid) from anon;

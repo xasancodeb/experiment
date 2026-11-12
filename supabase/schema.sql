@@ -40,6 +40,7 @@ create table public.polls (
   anon boolean not null default false,
   live boolean not null default true,
   who boolean not null default true,
+  early boolean not null default false,
   decided boolean,
   outcome jsonb,
   created_at timestamptz not null default now()
@@ -213,11 +214,13 @@ language sql stable security definer set search_path = public as $$
   where p.id = any (ids) and can_see_poll(p.id);
 $$;
 
--- Close a poll early once every member who can vote has voted.
+-- A poll runs until its deadline. Only when the asker switched on "end early" does it
+-- end 30 seconds after every member who can vote has voted. The short delay lets the
+-- last voter call the winner and add a hot take, and gives everyone a countdown.
 create function public.close_if_complete(p uuid) returns void
 language sql security definer set search_path = public as $$
-  update polls set closes_at = now()
-  where id = p and closes_at > now() and type <> 'open' and can_see_poll(p)
+  update polls set closes_at = now() + interval '30 seconds'
+  where id = p and early and closes_at > now() + interval '30 seconds' and type <> 'open' and can_see_poll(p)
     and (select count(*) from votes where poll_id = p) > 0
     and (select count(*) from votes where poll_id = p) >=
         (select count(distinct m.user_id) from poll_circles pc join members m on m.circle_id = pc.circle_id

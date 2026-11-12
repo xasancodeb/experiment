@@ -364,7 +364,7 @@ var BANK=[
 ];
 function mkPoll(x){
   return {id:x.id||uid(),by:x.by,circles:x.circles,q:x.q,note:x.note||'',type:x.type||'choice',opts:x.opts||[],created:x.created||now(),closes:x.closes,
-    anon:!!x.anon,live:x.live!==false,who:x.who!==false,votes:x.votes||{},comments:x.comments||[],done:!!x.done,seen:!!x.seen,decided:x.decided==null?null:x.decided,outcome:x.outcome||null,voted:x.voted||null,counts:null,guesses:x.guesses||{},takes:x.takes||{},nudgedBy:null,nudgedTo:[],
+    anon:!!x.anon,live:x.live!==false,who:x.who!==false,early:!!x.early,votes:x.votes||{},comments:x.comments||[],done:!!x.done,seen:!!x.seen,decided:x.decided==null?null:x.decided,outcome:x.outcome||null,voted:x.voted||null,counts:null,guesses:x.guesses||{},takes:x.takes||{},nudgedBy:null,nudgedTo:[],
     w:(x.opts||[]).map(function(){return Math.random()+.25})};
 }
 function seed(){
@@ -498,6 +498,7 @@ function optStates(p){
 }
 function stateHTML(p){
   if(isClosed(p)) return '';
+  if(p.early&&!isOpenType(p)&&p.closes-now()<=31000&&answered(p)===voters(p).length) return IC.clock+' Everyone is in. The verdict drops in a few seconds.';
   if(p.by==='me') return p.live?'':IC.lock+' Results are sealed for voters until it closes.';
   if(isOpenType(p)) return '';
   if(p.votes.me!=null&&!p.live) return IC.lock+' Your vote is in. Results stay sealed until it closes.';
@@ -712,7 +713,7 @@ function vote(pid,i){
   p.votes.me=i; bumpStreak(); buzz();
   if(p.voted&&p.voted.indexOf('me')<0) p.voted.push('me');
   if(p.counts){ if(prev!=null) p.counts[prev]--; p.counts[i]++ }
-  if(LIVE) remote(sb.from('votes').upsert({poll_id:pid,user_id:ME,choice:i,updated_at:new Date().toISOString()}).then(function(r){return r.error?r:sb.rpc('close_if_complete',{p:pid})}),p.circles);
+  if(LIVE) remote(sb.from('votes').upsert({poll_id:pid,user_id:ME,choice:i,updated_at:new Date().toISOString()}).then(function(r){return (r.error||!p.early)?r:sb.rpc('close_if_complete',{p:pid})}),p.circles);
   if(firstVote&&view==='home'&&!SH){ holdId=pid; clearTimeout(holdTimer); holdTimer=setTimeout(function(){holdId=null;sync()},HAS2?15000:1700) }
   finishIfAll(p); sync();
 }
@@ -737,7 +738,7 @@ function nudge(pid,u){
   if(LIVE) remote(sb.from('nudges').insert({poll_id:pid,to_user:u,from_user:ME}),p.circles);
   sync(); toast('Nudged '+first(u)+'.');
 }
-function finishIfAll(p){ if(LIVE) return; if(!isClosed(p)&&answered(p)===voters(p).length) p.closes=now() }
+function finishIfAll(p){ if(LIVE||!p.early) return; if(!isClosed(p)&&answered(p)===voters(p).length) p.closes=Math.min(p.closes,now()+30000) }
 function checkCloses(){
   var changed=false;
   S.polls.forEach(function(p){
@@ -826,7 +827,7 @@ function fmtDefaults(f){
 }
 function openAsk(circleId){
   if(!S.circles.length){toast('Create a circle first, so there is someone to ask.');location.hash='#circles';return}
-  D={q:'',fmt:'yesno',opts:fmtDefaults('yesno'),circles:[circleId||S.circles[0].id],dl:S.prefs.dl,anon:S.prefs.anon,live:false,who:true,err:''};
+  D={q:'',fmt:'yesno',opts:fmtDefaults('yesno'),circles:[circleId||S.circles[0].id],dl:S.prefs.dl,anon:S.prefs.anon,live:false,who:true,early:false,err:''};
   SH={type:'ask'}; renderAsk(); setTimeout(function(){var q=$('#askQ'); if(q) q.focus()},60);
 }
 var TPL=[['Should I…?','Should I ','yesno'],['Outfit check','Which outfit should I wear?','photo'],['Help me pick','Which one should I get?','choice'],['Talk me out of it','Talk me out of ','open']];
@@ -854,7 +855,8 @@ function renderAsk(){
   h+='<div class="box" style="gap:0">'+
     '<div class="tog"><div class="tx"><b>Anonymous voting</b><span>Nobody sees who picked what</span></div><button class="sw" role="switch" aria-checked="'+D.anon+'" aria-label="Anonymous voting" data-act="dTog" data-k="anon"></button></div>'+
     '<div class="tog"><div class="tx"><b>Live results</b><span>'+(D.live?'Voters see the tally after they vote':'Sealed until voting closes')+'</span></div><button class="sw" role="switch" aria-checked="'+D.live+'" aria-label="Live results" data-act="dTog" data-k="live"></button></div>'+
-    '<div class="tog"><div class="tx"><b>Show who voted what</b><span>'+(D.anon?'Off while voting is anonymous':'Visible after voting closes')+'</span></div><button class="sw" role="switch" aria-checked="'+(D.who&&!D.anon)+'" aria-label="Show who voted what" data-act="dTog" data-k="who"'+(D.anon?' disabled':'')+'></button></div></div>';
+    '<div class="tog"><div class="tx"><b>Show who voted what</b><span>'+(D.anon?'Off while voting is anonymous':'Visible after voting closes')+'</span></div><button class="sw" role="switch" aria-checked="'+(D.who&&!D.anon)+'" aria-label="Show who voted what" data-act="dTog" data-k="who"'+(D.anon?' disabled':'')+'></button></div>'+
+    (D.fmt!=='open'&&(HAS2||!LIVE)?'<div class="tog"><div class="tx"><b>End early when everyone has voted</b><span>'+(D.early?'Ends 30 seconds after the last vote':'Off: it runs until the deadline, so late joiners can still vote')+'</span></div><button class="sw" role="switch" aria-checked="'+D.early+'" aria-label="End early when everyone has voted" data-act="dTog" data-k="early"></button></div>':'')+'</div>';
   h+=(D.err?'<p class="err" role="alert">'+esc(D.err)+'</p>':'')+
     '<button class="btn primary wide" data-act="post" style="min-height:58px">'+(n?'Ask '+n+(n===1?' person':' people'):'Pick a circle')+' '+IC.up+'</button>';
   showSheet(h,'New question');
@@ -867,9 +869,9 @@ function postPoll(){
     opts=D.opts.map(function(o,i){return {t:o.t.trim()||(o.img?'Photo '+'ABCDE'[i]:''),img:o.img||undefined}}).filter(function(o){return o.t});
     if(opts.length<2){D.err=D.fmt==='photo'?'Add at least two photos or captions.':'Add at least two options.';renderAsk();return}
   }
-  var p=mkPoll({id:newId(),by:'me',voted:LIVE?[]:null,circles:D.circles.slice(),q:q,type:D.fmt==='open'?'open':D.fmt==='photo'?'photo':'choice',opts:opts,closes:now()+dlMs(D.dl),anon:D.anon,live:D.live,who:D.who});
+  var p=mkPoll({id:newId(),by:'me',voted:LIVE?[]:null,circles:D.circles.slice(),q:q,type:D.fmt==='open'?'open':D.fmt==='photo'?'photo':'choice',opts:opts,closes:now()+dlMs(D.dl),anon:D.anon,live:D.live,who:D.who,early:D.fmt!=='open'&&D.early});
   S.polls.push(p); bumpStreak(); closeSheet(); location.hash='#home'; sync();
-  if(LIVE) remote(sb.from('polls').insert({id:p.id,author:ME,q:p.q,note:'',type:p.type,opts:p.opts,closes_at:new Date(p.closes).toISOString(),anon:p.anon,live:p.live,who:p.who})
+  if(LIVE) remote(sb.from('polls').insert(Object.assign({id:p.id,author:ME,q:p.q,note:'',type:p.type,opts:p.opts,closes_at:new Date(p.closes).toISOString(),anon:p.anon,live:p.live,who:p.who},p.early?{early:true}:{}))
     .then(function(r){return r.error?r:sb.from('poll_circles').insert(p.circles.map(function(c){return {poll_id:p.id,circle_id:c}}))}),p.circles);
   toast(LIVE?'Asked. Your circle can vote now.':'Asked. Votes will start coming in.','View',function(){openPoll(p.id)});
 }
@@ -1288,7 +1290,7 @@ function liveRefresh(){
       if(v.choices) Object.keys(v.choices).forEach(function(u){votes[mapId(u)]=v.choices[u]});
       if(v.my_choice!=null) votes.me=v.my_choice;
       var p={id:r.id,by:mapId(r.author),circles:x.circles,q:r.q,note:r.note||'',type:r.type,opts:r.opts||[],created:Date.parse(r.created_at),closes:closes,
-        anon:r.anon,live:r.live,who:r.who,votes:votes,voted:(v.voted||[]).map(mapId),counts:v.counts||null,comments:cm[r.id]||[],decided:r.decided,outcome:r.outcome||null,
+        anon:r.anon,live:r.live,who:r.who,early:!!r.early,votes:votes,voted:(v.voted||[]).map(mapId),counts:v.counts||null,comments:cm[r.id]||[],decided:r.decided,outcome:r.outcome||null,
         done:o?o.done:(firstLoad&&past),seen:o?o.seen:(firstLoad&&past),w:[],
         guesses:{},takes:{},takesList:null,nudgedBy:nb[r.id]||null,nudgedTo:nt[r.id]||[]};
       if(v.guesses) Object.keys(v.guesses).forEach(function(u){p.guesses[mapId(u)]=v.guesses[u]});

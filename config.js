@@ -4,6 +4,6 @@
 // "anon" key here. The anon key is designed to be public; never put the
 // "service_role" key in this file.
 window.SWAY_CONFIG = {
-  url: "",
-  key: ""
+  url: "https://tsxoecarlbekrgjxrjyu.supabase.co",
+  key: "sb_publishable_NlokWgaBme8RQi5HDIowXQ_NCydn25C"
 };

@@ -1,4 +1,5 @@
--- Sway upgrade 2: predictions ("call it"), hot takes and nudges.
+-- Sway upgrade 2: predictions ("call it"), hot takes, nudges, the end-early switch,
+-- the tiebreaker and shareable question links.
 -- Run this in the Supabase SQL editor, after schema.sql. It is safe to run on a database with data,
 -- and safe to run more than once.
 
@@ -7,6 +8,11 @@ alter table public.votes
   add column if not exists take text check (take is null or char_length(take) <= 120);
 
 alter table public.polls add column if not exists early boolean not null default false;
+
+-- Tiebreaker: on a tie the asker hands the deciding vote to one friend.
+alter table public.polls
+  add column if not exists tb_user uuid references auth.users on delete set null,
+  add column if not exists tb_choice int;
 
 -- A prediction must point at an option that exists, like the vote itself.
 drop policy if exists votes_insert on public.votes;
@@ -93,3 +99,31 @@ language sql security definer set search_path = public as $$
          where pc.poll_id = p and m.user_id <> polls.author);
 $$;
 revoke execute on function public.close_if_complete(uuid) from anon;
+
+-- The friend holding the deciding vote picks the winner of a tied, closed poll. Once only.
+create or replace function public.cast_tiebreak(p uuid, c int) returns void
+language sql security definer set search_path = public as $$
+  update polls set tb_choice = c
+  where id = p and tb_user = auth.uid() and tb_choice is null and closes_at <= now()
+    and c >= 0 and c < jsonb_array_length(opts);
+$$;
+
+-- What a shared question link shows before someone signs in: the question, its option
+-- labels, who asked and in which circle. Only answers when the invite code belongs to a
+-- circle the question was actually asked in.
+create or replace function public.poll_preview(code_in text, poll_in uuid)
+returns table (question text, options jsonb, asker_name text, circle_name text, closes_at timestamptz)
+language sql stable security definer set search_path = public as $$
+  select p.q,
+         (select coalesce(jsonb_agg(x.o ->> 't' order by x.ord), '[]'::jsonb)
+          from jsonb_array_elements(p.opts) with ordinality as x(o, ord)),
+         coalesce(pr.name, 'A friend'), ci.name, p.closes_at
+  from circles ci
+  join poll_circles pc on pc.circle_id = ci.id
+  join polls p on p.id = pc.poll_id
+  left join profiles pr on pr.id = p.author
+  where ci.code = upper(trim(code_in)) and p.id = poll_in;
+$$;
+
+revoke execute on function public.cast_tiebreak(uuid, int) from anon;
+grant execute on function public.poll_preview(text, uuid) to anon, authenticated;

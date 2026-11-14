@@ -625,6 +625,7 @@ function rowHTML(p){
   if(p.by==='me') sub='Your question · '+circleNames(p);
   else if(isOpenType(p)) sub=first(p.by)+' · you replied';
   else sub=first(p.by)+' · you picked '+(p.opts[p.votes.me]?p.opts[p.votes.me].t:'an option');
+  if(p.early&&!isOpenType(p)&&p.closes-now()<=31000&&n===vs.length) sub='Everyone is in. The verdict drops in a few seconds.';
   return '<button class="rowcard" data-row="'+p.id+'" data-act="open" data-p="'+p.id+'"><span class="r1">'+av(p.by,38)+'<span class="tt"><b>'+esc(p.q)+'</b><span>'+esc(sub)+'</span></span>'+timeChip(p)+'</span>'+
     '<span class="r1"><span class="prog" style="flex:1"><i style="width:'+(vs.length?Math.round(n/vs.length*100):0)+'%"></i></span><span class="small muted" style="font-weight:600">'+n+' of '+vs.length+(isOpenType(p)?' replied':' voted')+'</span></span></button>';
 }
@@ -833,6 +834,7 @@ function checkCloses(){
       else p.seen=true;
     }
   });
+  if(changed&&LIVE) liveSoon();
   return changed;
 }
 function simStep(){
@@ -1060,7 +1062,22 @@ function openNewCircle(){
 }
 
 /* ---------- verdict reveal ---------- */
+function applyState(p,v){
+  var votes={};
+  if(v.choices) Object.keys(v.choices).forEach(function(u){votes[mapId(u)]=v.choices[u]});
+  if(v.my_choice!=null) votes.me=v.my_choice;
+  p.votes=votes; p.voted=(v.voted||[]).map(mapId); p.counts=v.counts||null;
+  if(v.guesses){p.guesses={};Object.keys(v.guesses).forEach(function(u){p.guesses[mapId(u)]=v.guesses[u]})}
+  if(v.takes) p.takesList=v.takes.map(function(x){return {by:x.u?mapId(x.u):null,c:x.c,t:x.t}});
+}
+/* Sealed results only reach this browser once the poll has closed, so fetch them before the reveal plays. */
 function openReveal(pid){
+  var p=poll(pid); if(!p) return;
+  if(!LIVE||isOpenType(p)||p.counts) return playReveal(pid);
+  var go=function(){playReveal(pid)};
+  sb.rpc('poll_states',{ids:[pid]}).then(function(r){ var q=poll(pid); if(q&&r.data&&r.data[0]) applyState(q,r.data[0]); go() },go);
+}
+function playReveal(pid){
   var p=poll(pid); if(!p) return;
   closeSheet(); p.seen=true; S.notifs.forEach(function(n){if(n.pid===pid&&n.kind==='verdict') n.read=true}); save();
   var t=tally(p),open=isOpenType(p),win=winner(p),tie=win<0;
@@ -1433,6 +1450,7 @@ function doSaveAccount(){
 
 /* ---------- live data: load everything this person may see, map it to the page's own shapes ---------- */
 var CH={},refreshing=false,again=false,soonT=null,liveWarned=false;
+var PROBED=false;
 function mapId(u){return u===ME?'me':u}
 function liveSoon(){clearTimeout(soonT);soonT=setTimeout(liveRefresh,300)}
 function ping(circles){(circles||Object.keys(CH)).forEach(function(c){ if(CH[c]) try{CH[c].send({type:'broadcast',event:'changed',payload:{}})}catch(e){} })}
@@ -1449,6 +1467,8 @@ function joinChannels(cids){
 function must(r){ if(r.error) throw r.error; return r.data||[] }
 function liveRefresh(){
   if(!ME) return; if(refreshing){again=true;return} refreshing=true;
+  /* Ask once whether the database has the upgrade, so its features show even before this person has any questions. */
+  if(!HAS2&&!PROBED){PROBED=true; sb.from('nudges').select('poll_id').then(function(r){ if(!r.error){HAS2=true; if(S.me) render()} },function(){})}
   var who=ME,cmap={},ids={},cids=[],friends={},rows=[],pm={},st={},cm={},myName=null;
   sb.from('members').select('circle_id,user_id,circles(id,name,owner,code)').then(function(r){
     must(r).forEach(function(m){ if(!m.circles) return;

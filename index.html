@@ -402,6 +402,7 @@ div.opt{cursor:default}
   .band{grid-template-columns:1fr;padding:28px 22px;border-radius:28px}.trust{grid-template-columns:1fr}
   .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin:0 -16px 8px;padding:8px 16px;background:var(--bg)}
 }
+.say1{font-size:17px;color:var(--ink2);margin-top:6px}
 .foot{text-align:center;color:var(--ink2);font-size:13.5px}
 .callit{display:flex;flex-direction:column;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
 .callit .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
@@ -425,14 +426,12 @@ div.opt{cursor:default}
   .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .top .brand{font-size:24px}
   .nav{position:fixed;z-index:30;top:auto;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));
-    flex-direction:row;align-items:center;justify-content:space-around;gap:0;height:68px;padding:0 8px;border-radius:26px;background:var(--nav);box-shadow:0 16px 36px rgba(20,17,27,.3)}
+    flex-direction:row;align-items:center;justify-content:space-around;gap:0;height:72px;padding:0 8px;border-radius:26px;background:var(--nav);box-shadow:0 16px 36px rgba(20,17,27,.3)}
   .nav .brand{display:none}
-  .nav a{min-height:44px;padding:0 12px;color:var(--on-nav2);font-size:13px;gap:6px;position:relative}
+  .nav a{min-height:52px;min-width:56px;padding:4px 6px;color:var(--on-nav2);font-size:11px;font-weight:700;gap:3px;position:relative;flex-direction:column;justify-content:center;border-radius:16px}
   .nav a:hover{background:transparent}
-  .nav a span.tx{display:none}
   .nav a[aria-current="page"]{background:rgba(255,255,255,.14);color:var(--on-nav)}
-  .nav a[aria-current="page"] span.tx{display:inline}
-  .nav a .dot{position:absolute;top:2px;right:0;min-width:18px;height:18px;font-size:11px;margin:0}
+  .nav a .dot{position:absolute;top:0;right:4px;min-width:18px;height:18px;font-size:11px;margin:0}
   .nav .ask{order:0;margin:0;width:52px;min-height:52px;padding:0;border-radius:18px}
   .nav .ask span{display:none}
   .nav a:nth-of-type(1){order:-2}.nav a:nth-of-type(2){order:-1}.nav a:nth-of-type(3){order:1}.nav a:nth-of-type(4){order:2}
@@ -467,14 +466,14 @@ div.opt{cursor:default}
     </div>
   </section>
   <section class="how" aria-label="How Sway works">
-    <article><span class="n"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><h3>Ask in 15 seconds</h3><p class="muted">Yes or no, a few options, two photos, or an open question. Pick a circle and a deadline. Done.</p></article>
+    <article><span class="n"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><h3>Ask in 15 seconds</h3><p class="muted">Yes or no, a few options, two photos, or an open question. Pick who to ask. Done.</p></article>
     <article><span class="n"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><h3>Friends vote in one tap</h3><p class="muted">Only the circle you chose can see it. Go anonymous when it is tender, or seal results until the end.</p></article>
     <article><span class="n"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span><h3>Get the verdict</h3><p class="muted">When time is up, Sway reveals the winner and the breakdown. Then tell your friends what you did.</p></article>
   </section>
   <section class="band" aria-label="The reveal">
     <div>
       <h2>The wait is half the fun.</h2>
-      <p>Answers stay sealed while your friends vote. When time runs out, everyone sees the verdict at the same moment. Call the winner before it drops and find out who knows you best.</p>
+      <p>Answers stay sealed while your friends vote. When time runs out, everyone sees the verdict at the same moment.</p>
     </div>
     <div class="mock" aria-hidden="true">
       <small>The circle has spoken</small>
@@ -486,7 +485,7 @@ div.opt{cursor:default}
   </section>
   <section class="trust" aria-label="Why it feels safe">
     <div><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg></span><h3>Only your people</h3><p class="muted">Circles are invite-only. Nothing is public, nothing can be searched, and there are no followers to perform for.</p></div>
-    <div><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.2A9.6 9.6 0 0 1 12 6c5 0 8.5 4.5 9.5 6-.5.8-1.6 2.2-3.1 3.5M6.5 7.6C4.6 8.9 3.2 10.8 2.5 12c1 1.5 4.5 6 9.5 6 1.6 0 3-.4 4.3-1.1"/></svg></span><h3>Ask the hard ones</h3><p class="muted">Hide who voted, or hide that it was you who asked. Some questions are easier when nobody knows whose they are.</p></div>
+    <div><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.2A9.6 9.6 0 0 1 12 6c5 0 8.5 4.5 9.5 6-.5.8-1.6 2.2-3.1 3.5M6.5 7.6C4.6 8.9 3.2 10.8 2.5 12c1 1.5 4.5 6 9.5 6 1.6 0 3-.4 4.3-1.1"/></svg></span><h3>Honest answers</h3><p class="muted">Hide who voted for what, so friends can tell you the truth without it getting awkward.</p></div>
     <div><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><h3>It ends</h3><p class="muted">No endless feed. You answer what is waiting, see “all caught up”, and get on with your day.</p></div>
   </section>
   <p class="foot">Private by design. Your questions are only ever seen by the circle you choose.</p>
@@ -515,7 +514,7 @@ div.opt{cursor:default}
 <script>
 (function(){
 'use strict';
-var MIN=60000,HR=3600000,DAY=86400000,KEY='sway.site.v7';
+var MIN=60000,HR=3600000,DAY=86400000,KEY='sway.site.v8';
 /* Live mode: set window.SWAY_CONFIG = {url, key} (see config.js) and load the Supabase library. Without it the site runs as a local demo. */
 var CFG=window.SWAY_CONFIG||{};
 var LIVE=!!(CFG.url&&CFG.key&&window.supabase&&window.supabase.createClient);
@@ -534,6 +533,11 @@ function applyTheme(){
 function setTheme(t){THEME=t; try{localStorage.setItem('sway.theme',t)}catch(e){} applyTheme()}
 applyTheme();
 /* HAS2: predictions, hot takes and nudges are available (always in the demo; in live mode once supabase/upgrade-2.sql has been run). */
+/* EXTRAS: Sway ships with the core only (ask, vote, reveal, comments, circles, notifications).
+   Everything else (calling the winner, hot takes, nudges, tiebreaker, plans, match mode, anonymous asking,
+   awards, recap, streak, follow-ups, example venue offers) is built and kept, but hidden unless
+   config.js sets extras: true. */
+var EXTRAS=CFG.extras===true;
 var HAS2=!LIVE;
 /* HAS3: plans, match mode and anonymous asking (live mode: once supabase/upgrade-3.sql has been run). */
 var HAS3=!LIVE,NOMY=false;
@@ -602,8 +606,10 @@ function seed(){
     mkPoll({by:'me',circles:['inner'],q:'Should I move to Lisbon?',opts:[{t:'Yes, go'},{t:'Stay put'}],created:t-9*DAY,closes:t-8*DAY,done:true,seen:true,decided:true,
       votes:{maya:0,jonah:0,priya:1,leo:0,ana:0},guesses:{maya:0,jonah:0,priya:0,leo:0},takes:{jonah:'Go. We will visit.'},outcome:{text:'Signed the lease last week. Best decision I made this year.',good:true,t:t-2*DAY}})
   ];
-  s.notifs=[{id:uid(),t:t-2*HR,kind:'verdict',pid:s.polls[4].id,text:'The verdict is in on Ana’s question: Tattoo: wrist or ankle?',read:false},
-    {id:uid(),t:t-24*MIN,kind:'poll',pid:s.polls[1].id,text:'Maya asked Inner Circle: Which dress for Saturday’s wedding?',read:false}];
+  if(!EXTRAS) s.polls=s.polls.filter(function(p){return !(p.type==='match'||p.plan||p.opts.some(function(o){return o.offer})||p.q.indexOf('Movie night')===0)});
+  var byQ=function(start){return s.polls.filter(function(p){return p.q.indexOf(start)===0})[0]};
+  s.notifs=[{id:uid(),t:t-2*HR,kind:'verdict',pid:byQ('Tattoo').id,text:'The verdict is in on Ana’s question: Tattoo: wrist or ankle?',read:false},
+    {id:uid(),t:t-24*MIN,kind:'poll',pid:byQ('Which dress').id,text:'Maya asked Inner Circle: Which dress for Saturday’s wedding?',read:false}];
   return s;
 }
 var S;
@@ -727,14 +733,14 @@ function winner(p){
 }
 function tied(p){var t=tally(p);return isClosed(p)&&!isOpenType(p)&&!isMatch(p)&&t.total>0&&t.leaders.length>1}
 /* Ties that need someone: my own tied question with nobody picked yet, or a tie where I hold the deciding vote. */
-function tieList(){return HAS2?S.polls.filter(function(p){return tied(p)&&winner(p)<0&&((p.by==='me'&&!p.tb)||(p.tb&&p.tb.by==='me'))}):[]}
+function tieList(){return EXTRAS&&HAS2?S.polls.filter(function(p){return tied(p)&&winner(p)<0&&((p.by==='me'&&!p.tb)||(p.tb&&p.tb.by==='me'))}):[]}
 function callers(p){var w=winner(p),g=p.guesses||{}; if(w<0) return []; return Object.keys(g).filter(function(k){return g[k]===w})}
 function takesOf(p){
   if(p.takesList) return p.takesList;
   var m=p.takes||{},hide=p.anon||!p.who;
   return Object.keys(m).filter(function(k){return m[k]&&p.votes[k]!=null}).map(function(k){return {by:hide&&k!=='me'?null:k,c:p.votes[k],t:m[k]}});
 }
-function loopList(){return S.polls.filter(function(p){return p.by==='me'&&isClosed(p)&&p.decided!=null&&!p.outcome})}
+function loopList(){return !EXTRAS?[]:S.polls.filter(function(p){return p.by==='me'&&isClosed(p)&&p.decided!=null&&!p.outcome})}
 function buzz(){try{if(navigator.vibrate) navigator.vibrate(12)}catch(e){}}
 
 /* ---------- poll card ---------- */
@@ -837,7 +843,7 @@ function cardHTML(p,big){
 function cardSig(p){var g=(p.guesses||{}).me;return (isClosed(p)?'1':'0')+(p.tb?'b'+p.tb.choice:'')+(p.outcome?'o':'')+(p.votes.me!=null?'v':'')+(g==null?'':g)+((p.takes||{}).me?'t':'')+(holdId===p.id?'h':'')+(p.nudgedBy?'n':'')+(HAS2?'2':'')+(TAKEOPEN[p.id]?'k':'')+(isMatch(p)?JSON.stringify(PK[p.id]||0)+(PKEDIT[p.id]?'e':'')+JSON.stringify((p.picks||{}).me||0):'')}
 var TAKEOPEN={};
 function callHTML(p){
-  if(!HAS2||isClosed(p)||isOpenType(p)||isMatch(p)||p.by==='me'||p.votes.me==null) return '';
+  if(!EXTRAS||!HAS2||isClosed(p)||isOpenType(p)||isMatch(p)||p.by==='me'||p.votes.me==null) return '';
   var g=(p.guesses||{}).me,mt=(p.takes||{}).me||'';
   return '<div class="callit"><div class="row"><span class="label">Call it</span>'+p.opts.map(function(o,i){
       return '<button class="pill sm" aria-pressed="'+(g===i)+'" data-act="guess" data-p="'+p.id+'" data-i="'+i+'">'+esc(o.t)+'</button>'}).join('')+'</div>'+
@@ -914,14 +920,16 @@ function homeHTML(){
   var deck=turnList(),fresh=freshList(),open=openList();
   var cur=holdId?poll(holdId):deck[0];
   var remaining=deck.length;
-  var h='<div class="head"><div><span class="small muted" style="font-weight:600">'+greet()+'</span><h1>Hi, '+esc(S.me.name)+'</h1></div></div>';
+  var nT=deck.length,nR=fresh.length;
+  var say=nT?(nT===1?'One question is waiting for your vote.':nT+' questions are waiting for your vote.'):nR?(nR===1?'A result is ready for you.':nR+' results are ready for you.'):'You’re all caught up.';
+  var h='<div class="head"><div><span class="small muted" style="font-weight:600">'+greet()+'</span><h1>Hi, '+esc(S.me.name)+'</h1><p class="say1">'+say+'</p></div></div>';
   if(S.demoNote&&!LIVE) h+='<div class="banner"><span style="flex:1">You are in the demo. Maya, Jonah and the others are example friends who vote on their own, so you can feel how Sway works.</span><button data-act="hideDemo">Got it</button></div>';
   if(LIVE&&GUEST) h+='<div class="banner"><span style="flex:1">You are voting as a guest. Add an email to keep your circles on any device.</span><button data-act="saveAccount">Save my account</button></div>';
   if(LIVE&&!S.loaded) return h+'<div class="skel" role="status" aria-label="Loading your circles"></div><div class="skel"></div>';
   h+=startHTML();
   if(pushPrompt()) h+='<section class="box" style="background:var(--violet-soft)"><h3 style="font-size:20px;color:var(--violet-ink)">Know the moment a friend asks</h3><p class="small" style="color:var(--violet-ink)">'+(PUSH_OK?'Get a notification when someone in your circle asks, nudges you, or a verdict lands. Nothing else, ever.':'On iPhone, add Sway to your Home Screen first: tap Share, then “Add to Home Screen”. Open it from there to turn notifications on.')+'</p><div class="wrap">'+(PUSH_OK?'<button class="btn primary sm" data-act="push">Turn on notifications</button>':'')+'<button class="btn ghost sm" data-act="pushLater">Not now</button></div></section>';
-  h+='<section class="sec"><span class="label">Your turn'+(remaining?' <span class="chip urgent">'+remaining+' waiting</span>':'')+'</span>';
-  if(cur) h+=((S.demoNote&&!LIVE)?'':tip('vote','Tap an answer to vote. That is all it takes, and you can change it until it closes.'))+'<div class="deck'+(remaining<=1?' single':'')+'">'+cardHTML(cur,true)+'</div>';
+  h+='<section class="sec">'+(remaining>1?'<span class="label">Your turn · 1 of '+remaining+'</span>':'');
+  if(cur) h+='<div class="deck'+(remaining<=1?' single':'')+'">'+cardHTML(cur,true)+'</div>';
   else h+='<div class="card caught"><span class="duo" aria-hidden="true"><i></i><i></i></span><h3 style="font-size:22px">You’re all caught up</h3><p class="muted small">Nobody is waiting on you. Got something on your mind?</p><button class="btn primary" data-act="ask">Ask your circles</button></div>';
   h+='</section>';
   var need='';
@@ -943,7 +951,7 @@ function homeHTML(){
   if(loop.length) need+=loop.map(function(p){
       return '<div class="card" style="flex-direction:row;align-items:center;gap:12px"><div style="flex:1;min-width:0"><b style="display:block;line-height:1.3">'+esc(p.q)+'</b><span class="small muted">Your circle helped you decide. Tell them how it went.</span></div><button class="btn sm" data-act="open" data-p="'+p.id+'">Tell them</button></div>';
     }).join('');
-  if(need) h+='<section class="sec"><span class="label">Needs you</span>'+((S.tips||{}).vote?tip('needs','Everything that needs you lands here: verdicts to reveal, plans to answer, ties to break.'):'')+need+'</section>';
+  if(need) h+='<section class="sec"><span class="label">'+(EXTRAS?'Needs you':'Results are in')+'</span>'+need+'</section>';
   if(open.length) h+='<section class="sec"><span class="label">Still open</span>'+open.map(rowHTML).join('')+'</section>';
   h+='<p class="end">That’s everything from your circles. Sway has no endless feed.</p>';
   return h;
@@ -967,7 +975,7 @@ function circleBody(c){
       var role=LIVE?((m==='me'?c.owner==='me':c.owner===m)?'Owner':'Member'):(m==='me'?'Owner':'Example friend');
       var kick=LIVE&&c.owner==='me'&&m!=='me'?'<button class="linkbtn" style="align-self:center;min-height:32px" data-act="kick" data-c="'+c.id+'" data-u="'+m+'">Remove</button>':'';
       return '<div class="person">'+av(m,34)+'<b>'+esc(m==='me'?S.me.name+' (you)':person(m).n)+'</b>'+kick+'<span class="small muted">'+role+'</span></div>'}).join('')+'</section>'+
-    (function(){var aw=awardsFor(c); return aw.length?'<section class="box" style="gap:0"><span class="label" style="padding-bottom:6px">This month in '+esc(c.name)+'</span>'+aw.map(function(x){return '<div class="award">'+av(x[0],30)+'<b style="flex:1;font-weight:600;font-size:15px">'+esc(x[0]==='me'?'You':person(x[0]).n)+'</b><span class="chip violet">'+x[1]+'</span></div>'}).join('')+'</section>':''})()+
+    (function(){var aw=EXTRAS?awardsFor(c):[]; return aw.length?'<section class="box" style="gap:0"><span class="label" style="padding-bottom:6px">This month in '+esc(c.name)+'</span>'+aw.map(function(x){return '<div class="award">'+av(x[0],30)+'<b style="flex:1;font-weight:600;font-size:15px">'+esc(x[0]==='me'?'You':person(x[0]).n)+'</b><span class="chip violet">'+x[1]+'</span></div>'}).join('')+'</section>':''})()+
     '<button class="btn ghost sm" style="align-self:flex-start" data-act="delCircle" data-c="'+c.id+'">'+(mine?'Delete circle':'Leave circle')+'</button>';
 }
 function openCircle(cid,quiet){
@@ -1006,12 +1014,12 @@ function youHTML(){
   var lists={Asked:S.polls.filter(function(p){return p.by==='me'}),Voted:S.polls.filter(function(p){return p.by!=='me'&&hasAnswered(p,'me')})};
   var list=lists[histTab].slice().sort(function(a,b){return b.created-a.created});
   var h='<div style="display:flex;align-items:center;gap:16px">'+av('me',72)+'<div style="flex:1;min-width:0"><label class="sr" for="nameEdit">Your name</label><input class="nameedit" id="nameEdit" maxlength="24" value="'+esc(S.me.name)+'"><span class="chip" style="margin-top:8px">'+IC.lock+' Only your circles can see you</span></div></div>';
-  h+='<button class="btn primary" data-act="recap" style="align-self:flex-start">See your Sway so far</button>';
-  h+='<section class="sec"><span class="label">Decision diary · only you see this</span><div class="stats">'+
+  if(EXTRAS) h+='<button class="btn primary" data-act="recap" style="align-self:flex-start">See your Sway so far</button>';
+  if(EXTRAS) h+='<section class="sec"><span class="label">Decision diary · only you see this</span><div class="stats">'+
     '<div class="stat hot"><b>'+sk+'</b><span>day streak</span></div><div class="stat"><b>'+st.called+'</b><span>called it (picked the winner)</span></div>'+
     '<div class="stat"><b>'+st.asked+'</b><span>questions asked</span></div><div class="stat"><b>'+st.voted+'</b><span>votes given</span></div></div></section>';
   var sy=inSync();
-  h+='<section class="sec"><span class="label">Who thinks like you</span><div class="box" style="gap:0">'+(sy.length?sy.map(function(x){
+  if(EXTRAS) h+='<section class="sec"><span class="label">Who thinks like you</span><div class="box" style="gap:0">'+(sy.length?sy.map(function(x){
       return '<div class="person">'+av(x.id,34)+'<b>'+esc(person(x.id).n)+'</b><span class="meter"><i style="width:'+x.pct+'%"></i></span><span class="small" style="font-weight:700;font-variant-numeric:tabular-nums;width:44px;text-align:right">'+x.pct+'%</span></div>'}).join('')+
       '<p class="small muted" style="padding-top:8px;border-top:1px solid var(--line)">How often each friend’s vote matched yours. Anonymous polls are never counted.</p>'
     :'<p class="small muted">Vote on a few more questions and Sway will show which friends see things the way you do.</p>')+'</div></section>';
@@ -1023,7 +1031,7 @@ function youHTML(){
   h+='</section>';
   h+='<section class="sec"><span class="label">Preferences</span><div class="box" style="gap:0">'+
     '<div class="tog"><div class="tx"><b>Appearance</b><span>'+(THEME==='auto'?'Follows this device':THEME==='dark'?'Always dark':'Always light')+'</span></div><div class="seg" role="tablist" aria-label="Appearance" style="grid-template-columns:repeat(3,auto)">'+[['auto','Auto'],['light','Light'],['dark','Dark']].map(function(t){return '<button role="tab" style="padding:0 12px;min-height:38px" aria-selected="'+(THEME===t[0])+'" data-act="themePick" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div></div>'+
-    '<div class="tog"><div class="tx"><b>Anonymous by default</b><span>New questions hide who voted what</span></div><button class="sw" role="switch" aria-checked="'+S.prefs.anon+'" aria-label="Anonymous by default" data-act="prefAnon"></button></div>'+
+    '<div class="tog"><div class="tx"><b>Hide who voted, by default</b><span>New questions count votes without showing names</span></div><button class="sw" role="switch" aria-checked="'+S.prefs.anon+'" aria-label="Anonymous by default" data-act="prefAnon"></button></div>'+
     '<div class="tog"><div class="tx"><label for="prefDl"><b>Default deadline</b></label></div><select class="sel" id="prefDl">'+DL.map(function(d){return '<option value="'+d[0]+'"'+(S.prefs.dl===d[0]?' selected':'')+'>'+d[1]+'</option>'}).join('')+'</select></div>'+
     (LIVE&&HAS4&&PUSH_OK?'<div class="tog"><div class="tx"><b>Notifications on this device</b><span>'+(pushDenied()?'Blocked in your browser’s settings for this site':'When a friend asks, nudges you, or a verdict lands')+'</span></div><button class="sw" role="switch" aria-checked="'+pushOn()+'" aria-label="Notifications on this device" data-act="push"'+(pushDenied()?' disabled':'')+'></button></div>'
       :LIVE&&HAS4&&IOS&&!STANDALONE?'<div class="tog"><div class="tx"><b>Notifications on iPhone</b><span>First add Sway to your Home Screen: tap Share, then “Add to Home Screen”. Open it from there and turn notifications on here.</span></div></div>':'')+
@@ -1037,7 +1045,7 @@ function youHTML(){
 }
 function railHTML(){
   var sk=liveStreak(),soon=S.polls.filter(function(p){return !isClosed(p)}).sort(function(a,b){return a.closes-b.closes}).slice(0,3);
-  var h='<div class="box streak"><span class="label" style="color:var(--on-nav2)">Weigh-in streak</span><b>'+sk+(sk===1?' day':' days')+'</b><span class="small muted">'+(S.streak.last===dayKey(now())?'You showed up for your people today.':'Vote or ask once today to keep it going.')+'</span></div>';
+  var h=!EXTRAS?'':'<div class="box streak"><span class="label" style="color:var(--on-nav2)">Weigh-in streak</span><b>'+sk+(sk===1?' day':' days')+'</b><span class="small muted">'+(S.streak.last===dayKey(now())?'You showed up for your people today.':'Vote or ask once today to keep it going.')+'</span></div>';
   if(soon.length) h+='<div class="box"><span class="label">Closing soon</span><div>'+soon.map(function(p){
     return '<button class="rowbtn" data-act="open" data-p="'+p.id+'"><span class="t">'+esc(p.q)+'</span>'+timeChip(p)+'</button>'}).join('')+'</div></div>';
   h+='<div class="box"><span class="label">Circles</span><div>'+S.circles.map(function(c){return '<div class="person"><b>'+esc(c.name)+'</b><span class="avs">'+c.members.slice(0,3).map(function(m){return av(m,24)}).join('')+'</span></div>'}).join('')+'</div></div>';
@@ -1059,7 +1067,7 @@ function render(){
 function chrome(){
   var t=turnList().length,u=S.notifs.filter(function(n){return !n.read}).length;
   var td=$('#turnDot'),ad=$('#actDot'); td.hidden=!t; td.textContent=t; ad.hidden=!u; ad.textContent=u;
-  var sk=liveStreak(); $('#topStreak').textContent=sk+'-day streak'; $('#topStreak').hidden=!sk;
+  var sk=liveStreak(); $('#topStreak').textContent=sk+'-day streak'; $('#topStreak').hidden=!sk||!EXTRAS;
   var wait=t+freshList().length+tieList().filter(function(p){return p.tb}).length; try{document.title=(wait?'('+wait+') ':'')+'Sway'}catch(e){}
   $('#rail').innerHTML=railHTML();
 }
@@ -1081,7 +1089,7 @@ function vote(pid,i){
   if(p.counts){ if(prev!=null) p.counts[prev]--; p.counts[i]++ }
   if(LIVE) remote(sb.from('votes').upsert({poll_id:pid,user_id:ME,choice:i,updated_at:new Date().toISOString()}).then(function(r){return (r.error||!p.early)?r:sb.rpc('close_if_complete',{p:pid})}),p.circles);
   tipDone('vote'); burst();
-  if(firstVote&&view==='home'&&!SH){ holdId=pid; clearTimeout(holdTimer); holdTimer=setTimeout(function(){holdId=null;sync()},HAS2?15000:1700) }
+  if(firstVote&&view==='home'&&!SH){ holdId=pid; clearTimeout(holdTimer); holdTimer=setTimeout(function(){holdId=null;sync()},(EXTRAS&&HAS2)?15000:1700) }
   finishIfAll(p); sync(); flourish(pid,i);
 }
 function flourish(pid,i){
@@ -1182,7 +1190,7 @@ function simStep(){
     });
     if(turnList().length<2&&now()-S.lastFriendPoll>90000&&S.bank<BANK.length){
       var b=BANK[S.bank++]; S.lastFriendPoll=now();
-      if(circle(b.c)&&circle(b.c).members.indexOf(b.realBy||b.by)>=0){
+      if((EXTRAS||!b.realBy)&&circle(b.c)&&circle(b.c).members.indexOf(b.realBy||b.by)>=0){
         var np=mkPoll({by:b.by,realBy:b.realBy,hideAsker:!!b.realBy,circles:[b.c],q:b.q,opts:b.o.map(function(t){return {t:t}}),closes:now()+[5*MIN,30*MIN,2*HR][Math.floor(Math.random()*3)],anon:b.anon,live:b.live});
         S.polls.push(np); notify('poll',np.id,first(b.by)+' asked '+circle(b.c).name+': '+b.q);
         toast(first(b.by)+' asked '+circle(b.c).name,'Vote',function(){location.hash='#home';openPoll(np.id)}); changed=true;
@@ -1239,10 +1247,9 @@ function renderAsk(){
   var people={}; D.circles.forEach(function(c){var x=circle(c); if(x) x.members.forEach(function(m){people[m]=1})});
   var n=Object.keys(people).length;
   var h='<div class="sheet-head"><h2>New question</h2><button class="x" data-act="close" aria-label="Close">'+IC.x+'</button></div>';
-  h+=tip('ask','Write it the way you would text a friend. Question, who to ask, done.');
   h+='<div class="field"><label class="label" for="askQ">What do you want to ask?</label><textarea id="askQ" rows="2" maxlength="140" placeholder="Should I…">'+esc(D.q)+'</textarea>'+
     '<div class="wrap">'+TPL.map(function(t,i){return '<button class="chip" data-act="tpl" data-i="'+i+'">'+t[0]+'</button>'}).join('')+'</div></div>';
-  h+='<div class="seg" role="tablist" aria-label="Format">'+[['yesno','Yes / No'],['choice','Options'],['photo','Photos']].concat(HAS3?[['match','Match']]:[]).concat([['open','Open']]).map(function(f){
+  h+='<div class="seg" role="tablist" aria-label="Format">'+[['yesno','Yes / No'],['choice','Options'],['photo','Photos']].concat(EXTRAS&&HAS3?[['match','Match']]:[]).concat([['open','Open']]).map(function(f){
     return '<button role="tab" aria-selected="'+(D.fmt===f[0])+'" data-act="fmt" data-f="'+f[0]+'">'+f[1]+'</button>'}).join('')+'</div>';
   if(D.fmt==='match') h+='<div class="banner"><span>Everyone says yes or no to each option on their own. Sway reveals only what you all said yes to, so nobody has to be the one who picks.</span></div>';
   if(D.fmt==='open') h+='<div class="banner"><span>Friends answer in their own words. Replies stay inside the circle.</span></div>';
@@ -1252,11 +1259,11 @@ function renderAsk(){
         (D.fmt==='photo'?(o.img?'<img class="thumb" src="'+o.img+'" alt="">':'')+'<label class="iconbtn" title="Add a photo">'+IC.img+'<span class="sr">Add a photo for option '+(i+1)+'</span><input class="sr" type="file" accept="image/*" data-file="'+i+'" id="askFile'+i+'"></label>':'')+
         '<label class="sr" for="askOpt'+i+'">Option '+(i+1)+'</label><input type="text" id="askOpt'+i+'" data-opt="'+i+'" maxlength="40" placeholder="'+(D.fmt==='photo'?'Caption':'Option '+(i+1))+'" value="'+esc(o.t)+'">'+
         (D.opts.length>2?'<button class="iconbtn" data-act="rmOpt" data-i="'+i+'" aria-label="Remove option '+(i+1)+'">'+IC.x+'</button>':'')+'</div>';
-    }).join('')+(D.opts.length<(D.fmt==='match'?8:5)&&D.fmt!=='yesno'?'<button class="dash" data-act="addOpt">+ Add option</button>':'')+(!LIVE&&(D.fmt==='choice'||D.fmt==='match')?'<button class="dash" data-act="venues">Try example places with offers</button>':'')+'</div>';
+    }).join('')+(D.opts.length<(D.fmt==='match'?8:5)&&D.fmt!=='yesno'?'<button class="dash" data-act="addOpt">+ Add option</button>':'')+(EXTRAS&&!LIVE&&(D.fmt==='choice'||D.fmt==='match')?'<button class="dash" data-act="venues">Try example places with offers</button>':'')+'</div>';
   }
   h+='<div class="sec"><span class="label">Ask</span><div class="wrap">'+S.circles.map(function(c){
     return '<button class="pill" aria-pressed="'+(D.circles.indexOf(c.id)>=0)+'" data-act="pickCircle" data-c="'+c.id+'">'+esc(c.name)+' · '+c.members.length+'</button>'}).join('')+'</div></div>';
-  var dlName=(DL.filter(function(d){return d[0]===D.dl})[0]||DL[2])[1],hid=HAS3&&D.fmt!=='open'&&D.hide&&hideOk();
+  var dlName=(DL.filter(function(d){return d[0]===D.dl})[0]||DL[2])[1],hid=EXTRAS&&HAS3&&D.fmt!=='open'&&D.hide&&hideOk();
   var sum=['Closes '+(D.dl==='tonight'?'tonight':'in '+dlName.toLowerCase())];
   if(hid) sum.push('nobody sees you asked');
   sum.push(D.fmt==='match'?'picks stay hidden':D.live?'results show while voting':'results sealed until the end');
@@ -1267,10 +1274,10 @@ function renderAsk(){
     h+='<div class="sec"><span class="label">Voting closes</span><div class="wrap">'+dlShown().map(function(d){
       return '<button class="pill" aria-pressed="'+(D.dl===d[0])+'" data-act="pickDl" data-d="'+d[0]+'">'+d[1]+'</button>'}).join('')+'</div></div>';
     h+='<div class="box" style="gap:0">'+
-      (HAS3&&D.fmt!=='open'?'<div class="tog"><div class="tx"><b>Hide that I asked</b><span>'+(hideOk()?(D.hide?'Your circle sees “Someone in your circle”. Votes become nameless too.':'For the questions you would not ask out loud'):'Needs a circle of 5 or more, so you cannot be guessed')+'</span></div><button class="sw" role="switch" aria-checked="'+(D.hide&&hideOk())+'" aria-label="Hide that I asked" data-act="dTog" data-k="hide"'+(hideOk()?'':' disabled')+'></button></div>':'')+
+      (EXTRAS&&HAS3&&D.fmt!=='open'?'<div class="tog"><div class="tx"><b>Hide that I asked</b><span>'+(hideOk()?(D.hide?'Your circle sees “Someone in your circle”. Votes become nameless too.':'For the questions you would not ask out loud'):'Needs a circle of 5 or more, so you cannot be guessed')+'</span></div><button class="sw" role="switch" aria-checked="'+(D.hide&&hideOk())+'" aria-label="Hide that I asked" data-act="dTog" data-k="hide"'+(hideOk()?'':' disabled')+'></button></div>':'')+
       '<div class="tog"><div class="tx"><b>Hide who voted for what</b><span>'+(hid?'Always on when you hide that you asked':'Votes are counted, names are not shown')+'</span></div><button class="sw" role="switch" aria-checked="'+(D.anon||hid)+'" aria-label="Hide who voted for what" data-act="dTog" data-k="anon"'+(hid?' disabled':'')+'></button></div>'+
       (D.fmt!=='match'?'<div class="tog"><div class="tx"><b>Show results while voting</b><span>'+(D.live?'Each person sees the tally after they vote':'Off: sealed until the end, then revealed to everyone')+'</span></div><button class="sw" role="switch" aria-checked="'+D.live+'" aria-label="Show results while voting" data-act="dTog" data-k="live"></button></div>':'')+
-      (D.fmt!=='open'&&(HAS2||!LIVE)?'<div class="tog"><div class="tx"><b>End early when everyone has voted</b><span>'+(D.early?'Ends 30 seconds after the last vote':'Off: it runs until the deadline, so late joiners can still vote')+'</span></div><button class="sw" role="switch" aria-checked="'+D.early+'" aria-label="End early when everyone has voted" data-act="dTog" data-k="early"></button></div>':'')+'</div>';
+      (EXTRAS&&D.fmt!=='open'&&(HAS2||!LIVE)?'<div class="tog"><div class="tx"><b>End early when everyone has voted</b><span>'+(D.early?'Ends 30 seconds after the last vote':'Off: it runs until the deadline, so late joiners can still vote')+'</span></div><button class="sw" role="switch" aria-checked="'+D.early+'" aria-label="End early when everyone has voted" data-act="dTog" data-k="early"></button></div>':'')+'</div>';
   }
   h+=(D.err?'<p class="err" role="alert">'+esc(D.err)+'</p>':'')+
     '<button class="btn primary wide" data-act="post" style="min-height:58px">'+(n?'Ask '+n+(n===1?' person':' people'):'Pick a circle')+' '+IC.up+'</button>';
@@ -1285,7 +1292,7 @@ function postPoll(){
     opts=D.opts.map(function(o,i){return {t:o.t.trim()||(o.img?'Photo '+'ABCDE'[i]:''),img:o.img||undefined,offer:o.offer||undefined}}).filter(function(o){return o.t});
     if(opts.length<2){D.err=D.fmt==='photo'?'Add at least two photos or captions.':'Add at least two options.';renderAsk();return}
   }
-  var hid=HAS3&&D.fmt!=='open'&&D.hide&&hideOk();
+  var hid=EXTRAS&&HAS3&&D.fmt!=='open'&&D.hide&&hideOk();
   var p=mkPoll({id:newId(),by:'me',voted:LIVE?[]:null,circles:D.circles.slice(),q:q,type:D.fmt==='open'?'open':D.fmt==='photo'?'photo':D.fmt==='match'?'match':'choice',opts:opts,closes:now()+dlMs(D.dl),anon:D.anon||hid,live:D.live,who:D.who,early:D.fmt!=='open'&&D.early,hideAsker:hid});
   p.pendingAt=now();
   S.polls.push(p); bumpStreak(); tipDone('ask'); closeSheet(); location.hash='#home'; sync();
@@ -1321,13 +1328,13 @@ function refreshPollSheet(force){
   if(LIVE&&!closed&&pollCircle(p)) h+='<button class="btn sm" style="align-self:flex-start" data-act="sharePoll" data-p="'+p.id+'">'+IC.up+' Share this question</button>';
   if(p.by==='me'){
     if(!closed) h+='<div class="wrap"><button class="btn sm" data-act="closeNow" data-p="'+p.id+'">Close voting now</button><button class="btn ghost sm" data-act="delPoll" data-p="'+p.id+'">Delete</button></div>';
-    else if(p.decided==null&&!open) h+='<div class="box"><b>So, what did you do?</b><div class="wrap"><button class="btn primary sm" data-act="decide" data-v="1" data-p="'+p.id+'">Going with the verdict</button><button class="btn ghost sm" data-act="decide" data-v="0" data-p="'+p.id+'">Went my own way</button></div></div>';
-    else if(p.decided!=null){
+    else if(EXTRAS&&p.decided==null&&!open) h+='<div class="box"><b>So, what did you do?</b><div class="wrap"><button class="btn primary sm" data-act="decide" data-v="1" data-p="'+p.id+'">Going with the verdict</button><button class="btn ghost sm" data-act="decide" data-v="0" data-p="'+p.id+'">Went my own way</button></div></div>';
+    else if(EXTRAS&&p.decided!=null){
       h+='<span class="chip good" style="align-self:flex-start">'+IC.check+' '+(p.decided?'You went with the verdict':'You went your own way')+'</span>';
       if(!p.outcome) h+='<form class="box" data-form="outcome"><label for="outIn"><b>How did it turn out?</b></label><span class="small muted">Your circle voted. Tell them what happened next.</span><input class="plain" id="outIn" maxlength="160" autocomplete="off" placeholder="We went, and…"><div class="wrap"><button class="btn primary sm" type="submit" data-good="1">It went well</button><button class="btn ghost sm" type="submit" data-good="0">Not great</button></div></form>';
     }
   }
-  if(HAS2&&tied(p)){
+  if(EXTRAS&&HAS2&&tied(p)){
     var tl=tally(p).leaders;
     if(p.tb&&p.tb.choice!=null) h+='<span class="chip good" style="align-self:flex-start">'+IC.check+' '+esc(p.tb.by==='me'?'You':first(p.tb.by))+' broke the tie</span>';
     else if(p.tb&&p.tb.by==='me') h+='<div class="box"><b>You have the deciding vote</b><span class="small muted">'+esc(first(p.by))+' asked you to break the tie. Whatever you pick wins.</span><div class="wrap">'+tl.map(function(i){return '<button class="btn primary sm" data-act="castTb" data-p="'+p.id+'" data-i="'+i+'">'+esc(p.opts[i].t)+'</button>'}).join('')+'</div></div>';
@@ -1348,15 +1355,15 @@ function refreshPollSheet(force){
       if(isMatch(p)&&a&&(p.picks||{})[v]&&(v==='me'||(closed&&p.who&&!p.anon))) txt=p.picks[v].length?p.picks[v].map(function(i){return p.opts[i]?p.opts[i].t:''}).join(', '):'None of these';
       if(v==='me'&&a&&!open&&!isMatch(p)&&p.opts[p.votes.me]) txt=p.opts[p.votes.me].t;
       var nb='';
-      if(HAS2&&!a&&!closed&&!open&&p.by==='me'&&!p.hideAsker&&v!=='me') nb=(p.nudgedTo||[]).indexOf(v)>=0?'<span class="chip">Nudged</span>':'<button class="btn ghost sm" data-act="nudge" data-p="'+p.id+'" data-u="'+v+'">Nudge</button>';
+      if(EXTRAS&&HAS2&&!a&&!closed&&!open&&p.by==='me'&&!p.hideAsker&&v!=='me') nb=(p.nudgedTo||[]).indexOf(v)>=0?'<span class="chip">Nudged</span>':'<button class="btn ghost sm" data-act="nudge" data-p="'+p.id+'" data-u="'+v+'">Nudge</button>';
       return '<div class="person">'+av(v,34)+'<b>'+esc(v==='me'?'You':person(v).n)+'</b>'+nb+'<span class="chip'+(a?' good':closed?'':' urgent')+'">'+esc(txt)+'</span></div>';
     }).join('')+
     '<p class="small muted" style="padding-top:8px;border-top:1px solid var(--line)">'+(p.anon?'Voting is anonymous. Nobody sees who picked what.':p.who?'Who picked what is revealed when voting closes.':'The asker chose to keep individual votes private.')+'</p></section>';
   var hp=h; h='';
   if(closed&&!open){
     var cl=callers(p),tk=takesOf(p);
-    if(cl.length) h+='<section class="box"><h3 style="font-size:18px">Called it</h3><div class="wrap">'+cl.map(function(c){return '<span class="chip good">'+esc(first(c))+'</span>'}).join('')+'</div><span class="small muted">They predicted the winner before the reveal.</span></section>';
-    if(tk.length) h+='<section class="sec"><h3 style="font-size:18px;padding:0 4px">Hot takes</h3>'+tk.map(function(x){
+    if(EXTRAS&&cl.length) h+='<section class="box"><h3 style="font-size:18px">Called it</h3><div class="wrap">'+cl.map(function(c){return '<span class="chip good">'+esc(first(c))+'</span>'}).join('')+'</div><span class="small muted">They predicted the winner before the reveal.</span></section>';
+    if(EXTRAS&&tk.length) h+='<section class="sec"><h3 style="font-size:18px;padding:0 4px">Hot takes</h3>'+tk.map(function(x){
         return '<div class="bubble">'+av(x.by||'me',32,!x.by)+'<p>'+(x.by?'<b>'+esc(first(x.by))+'</b> ':'')+esc(x.t)+(p.opts[x.c]?' <span class="chip" style="min-height:22px;font-size:12px">'+esc(p.opts[x.c].t)+'</span>':'')+'</p></div>'}).join('')+'</section>';
   }
   hr+=h; h='';
@@ -1372,7 +1379,7 @@ function refreshPollSheet(force){
   tickClocks();
 }
 function planHTML(p){
-  if(!HAS3||!isClosed(p)) return '';
+  if(!EXTRAS||!HAS3||!isClosed(p)) return '';
   var pl=p.plan,rs=p.rsvps||{};
   if(!pl) return p.by!=='me'?'':'<form class="box" data-form="plan" data-p="'+p.id+'"><label for="planWhen"><b>Lock it in</b></label><span class="small muted">Turn the verdict into a plan. Your circle can say who is in.</span>'+
     '<input class="plain" id="planWhen" maxlength="60" autocomplete="off" placeholder="When? For example: Saturday 8pm"><input class="plain" id="planNote" maxlength="100" autocomplete="off" aria-label="Anything to add" placeholder="Anything to add? (optional)"><button class="btn primary sm" type="submit" style="align-self:flex-start">Lock it in</button></form>';
@@ -1399,7 +1406,7 @@ function rsvp(pid,v){
   if(LIVE) remote(sb.from('rsvps').upsert({poll_id:pid,user_id:ME,going:v,updated_at:new Date().toISOString()}),p.circles);
   sync();
 }
-function planList(){return HAS3?S.polls.filter(function(p){return p.plan&&p.by!=='me'&&(p.rsvps||{}).me==null&&now()-(p.plan.t||p.closes)<7*DAY}):[]}
+function planList(){return EXTRAS&&HAS3?S.polls.filter(function(p){return p.plan&&p.by!=='me'&&(p.rsvps||{}).me==null&&now()-(p.plan.t||p.closes)<7*DAY}):[]}
 function openShare(o){
   SH={type:'share',o:o};
   showSheet('<div class="sheet-head"><h2>'+esc(o.title)+'</h2><button class="x" data-act="close" aria-label="Close">'+IC.x+'</button></div>'+
@@ -1474,12 +1481,12 @@ function playReveal(pid){
 function rvExtras(p,open,tie,win){
   if(open) return '';
   var chip=function(t){return '<span class="chip" style="background:rgba(255,255,255,.2);color:inherit">'+t+'</span>'},out=[],vs=voters(p);
-  var mine=(p.guesses&&p.guesses.me!=null)?p.guesses.me:p.votes.me,cl=callers(p);
+  var mine=(p.guesses&&p.guesses.me!=null)?p.guesses.me:p.votes.me,cl=EXTRAS?callers(p):[];
   if(turn(p).total>1&&allIn(p)) out.push(chip('Full house: everyone voted'));
-  if(!isMatch(p)&&!tie&&mine!=null) out.push(chip(mine===win?'You called it':'You did not see this coming'));
+  if(!isMatch(p)&&!tie&&mine!=null) out.push(chip(mine===win?'You picked the winner':'The circle went the other way'));
   if(cl.length) out.push(chip(cl.length+(cl.length===1?' person':' people')+' called it'));
   var h=out.length?'<div class="wrap" style="justify-content:center">'+out.join('')+'</div>':'';
-  takesOf(p).slice(0,3).forEach(function(x){h+='<div class="rvtake">“'+esc(x.t)+'”<span>'+esc((x.by?first(x.by)+' · ':'')+(p.opts[x.c]?p.opts[x.c].t:''))+'</span></div>'});
+  if(EXTRAS) takesOf(p).slice(0,3).forEach(function(x){h+='<div class="rvtake">“'+esc(x.t)+'”<span>'+esc((x.by?first(x.by)+' · ':'')+(p.opts[x.c]?p.opts[x.c].t:''))+'</span></div>'});
   return h;
 }
 function closeReveal(){var el=$('#reveal'); if(el) el.remove(); document.body.style.overflow=''; sync(); render()}

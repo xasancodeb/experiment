@@ -1099,7 +1099,7 @@ function refreshPollSheet(force){
   }
   if(closed&&!open&&!isMatch(p)&&tally(p).total) h+='<button class="btn ghost sm" style="align-self:flex-start" data-act="share" data-p="'+p.id+'">'+IC.img+' Make a verdict card to share</button>';
   h+=planHTML(p);
-  if(p.hideAsker) h+='<section class="box"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="font-size:18px">Asked anonymously</h3><span class="chip violet">'+turn(p).n+' of '+turn(p).total+' voted</span></div><p class="small muted">Nobody can see who asked this, who has voted, or who picked what. Only the totals are shown.</p></section>';
+  if(p.hideAsker) h+='<section class="box"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="font-size:18px">Asked anonymously</h3><span class="chip violet">'+turn(p).n+' of '+turn(p).total+' voted</span></div><p class="small muted">Nobody can see who asked this, who has voted, or who picked what. Only the totals are shown.'+(p.by==='me'?' Your name does show on anything you comment, and on your own answer to a plan.':'')+'</p></section>';
   else h+='<section class="box" style="gap:0"><div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px"><h3 style="font-size:18px">Who’s weighed in</h3><span class="chip violet">'+answered(p)+' of '+vs.length+'</span></div>'+
     vs.map(function(v){
       var a=hasAnswered(p,v),txt=a?(open?'Replied':'Voted'):(closed?'Did not vote':'Waiting');
@@ -1141,8 +1141,9 @@ function offerCodeHTML(p){
 }
 function setPlan(pid,when,note){
   var p=poll(pid); if(!p||p.by!=='me') return;
-  p.plan={when:when,note:note,t:now()}; if(!p.rsvps) p.rsvps={}; p.rsvps.me=true;
-  if(LIVE) remote(sb.from('polls').update({plan:p.plan}).eq('id',pid).then(function(r){return r.error?r:sb.from('rsvps').upsert({poll_id:pid,user_id:ME,going:true,updated_at:new Date().toISOString()})}),p.circles);
+  p.plan={when:when,note:note,t:now()}; if(!p.rsvps) p.rsvps={};
+  var auto=!p.hideAsker; if(auto) p.rsvps.me=true;
+  if(LIVE) remote(sb.from('polls').update({plan:p.plan}).eq('id',pid).then(function(r){return (r.error||!auto)?r:sb.from('rsvps').upsert({poll_id:pid,user_id:ME,going:true,updated_at:new Date().toISOString()})}),p.circles);
   sync(); toast('Locked in. Your circle can now say who is coming.');
 }
 function rsvp(pid,v){
@@ -1194,8 +1195,14 @@ function applyState(p,v){
 function openReveal(pid){
   var p=poll(pid); if(!p) return;
   if(!LIVE||isOpenType(p)||p.counts) return playReveal(pid);
-  var go=function(){playReveal(pid)};
-  sb.rpc('poll_states',{ids:[pid]}).then(function(r){ var q=poll(pid); if(q&&r.data&&r.data[0]) applyState(q,r.data[0]); go() },go);
+  var go=function(){playReveal(pid)},tries=0;
+  (function ask(){
+    sb.rpc('poll_states',{ids:[pid]}).then(function(r){
+      var q=poll(pid),v=r.data&&r.data[0]; if(q&&v) applyState(q,v);
+      if(q&&v&&!v.counts&&v.n_voted>0&&tries++<3) return setTimeout(ask,700);
+      go();
+    },go);
+  })();
 }
 function playReveal(pid){
   var p=poll(pid); if(!p) return;
@@ -1290,7 +1297,8 @@ document.addEventListener('click',function(e){
     if(LIVE&&cc) remote(cc.owner==='me'?sb.from('circles').delete().eq('id',cid):sb.from('members').delete().eq('circle_id',cid).eq('user_id',ME),[cid]);
     S.circles=S.circles.filter(function(c){return c.id!==cid});
     S.polls=S.polls.filter(function(x){x.circles=x.circles.filter(function(c){return c!==cid}); return x.circles.length}); save(); return render() }
-  if(a==='closeNow'){p=poll(el.dataset.p); if(p){p.closes=now(); if(LIVE) remote(sb.from('polls').update({closes_at:new Date().toISOString()}).eq('id',p.id),p.circles); checkCloses(); sync(); $('#toasts').innerHTML=''; openReveal(p.id)} return}
+  if(a==='closeNow'){p=poll(el.dataset.p); if(p){p.closes=now(); var cid=p.id; if(LIVE){ remote(sb.from('polls').update({closes_at:new Date().toISOString()}).eq('id',cid),p.circles).then(function(){openReveal(cid)}); checkCloses(); closeSheet(); sync(); $('#toasts').innerHTML=''; return }
+    checkCloses(); sync(); $('#toasts').innerHTML=''; openReveal(cid)} return}
   if(a==='delPoll'){
     if(el.dataset.armed!=='1'){el.dataset.armed='1';el.textContent='Tap again to delete';return}
     p=poll(el.dataset.p); if(LIVE&&p) remote(sb.from('polls').delete().eq('id',p.id),p.circles);

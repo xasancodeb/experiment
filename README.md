@@ -65,9 +65,10 @@ Tested against the connected Supabase project with real browser sessions:
   a guest taps an answer and joins, predictions, a hot take, a nudge, the end-early
   countdown, a tie, the tiebreaker, and the reveal showing who called it.
 
-Plans, match mode and anonymous asking (upgrade 3) were tested in the demo, against a
-stand-in backend, and their database rules in a local Postgres with five pretend users.
-They have not yet run against the connected project.
+- Five people, after `upgrade-3.sql`: an anonymous question in a circle of five (the
+  responses sent to a voter carried no asker id and only the voter's own id among the
+  voters), totals-only turnout, a plan with RSVPs, and a match question that ended
+  30 seconds after the last pick and revealed the one option everyone said yes to.
 
 Venue offers exist only as made-up examples in the demo. There are no venue accounts.
 

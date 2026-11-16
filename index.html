@@ -10,7 +10,7 @@
   --violet:#5B3DF5; --on-violet:#FFFFFF; --violet-soft:#ECE8FF; --violet-ink:#3B23C4;
   --coral:#FF6B4A; --coral-soft:#FFE6DE; --coral-ink:#B8391C;
   --good-soft:#E4F3EA; --good-ink:#1F6B45;
-  --nav:#1C1726; --on-nav:#FFFFFF; --on-nav2:#B9B3C4; --shadow:0 18px 40px rgba(28,23,38,.10); --glow:0 10px 26px rgba(91,61,245,.30);
+  --nav:#1C1726; --on-nav:#FFFFFF; --on-nav2:#B9B3C4; --shadow:0 18px 40px rgba(28,23,38,.10); --glow:0 10px 26px rgba(91,61,245,.30); --hair:rgba(28,23,38,.07); --lift:0 1px 2px rgba(28,23,38,.04),0 14px 30px -20px rgba(28,23,38,.28);
   --display:'Bricolage Grotesque','Avenir Next','Segoe UI',sans-serif;
   --body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
@@ -20,7 +20,7 @@
   --violet:#8F7AFF; --on-violet:#14111B; --violet-soft:#2B2350; --violet-ink:#C9BEFF;
   --coral:#FF7D5F; --coral-soft:#40221B; --coral-ink:#FFB7A4;
   --good-soft:#1A3327; --good-ink:#8ED9AE;
-  --nav:#2A2436; --on-nav:#FFFFFF; --on-nav2:#B0A9BD; --shadow:0 18px 40px rgba(0,0,0,.45); --glow:0 10px 26px rgba(143,122,255,.22);
+  --nav:#2A2436; --on-nav:#FFFFFF; --on-nav2:#B0A9BD; --shadow:0 18px 40px rgba(0,0,0,.45); --glow:0 10px 26px rgba(143,122,255,.22); --hair:rgba(255,255,255,.08); --lift:0 14px 30px -20px rgba(0,0,0,.6);
   color-scheme:dark } }
 :root[data-theme="dark"]{
   --bg:#14111B; --surface:#1F1A29; --sunk:#2A2436; --line:#383047;
@@ -28,7 +28,7 @@
   --violet:#8F7AFF; --on-violet:#14111B; --violet-soft:#2B2350; --violet-ink:#C9BEFF;
   --coral:#FF7D5F; --coral-soft:#40221B; --coral-ink:#FFB7A4;
   --good-soft:#1A3327; --good-ink:#8ED9AE;
-  --nav:#2A2436; --on-nav:#FFFFFF; --on-nav2:#B0A9BD; --shadow:0 18px 40px rgba(0,0,0,.45); --glow:0 10px 26px rgba(143,122,255,.22);
+  --nav:#2A2436; --on-nav:#FFFFFF; --on-nav2:#B0A9BD; --shadow:0 18px 40px rgba(0,0,0,.45); --glow:0 10px 26px rgba(143,122,255,.22); --hair:rgba(255,255,255,.08); --lift:0 14px 30px -20px rgba(0,0,0,.6);
   color-scheme:dark }
 
 *{box-sizing:border-box}
@@ -317,6 +317,91 @@ div.opt{cursor:default}
 @keyframes float{50%{translate:0 -8px}}
 .try .card{position:relative;z-index:1}
 @media (max-width:820px){.try .ghost{display:none}.head h1{font-size:32px}}
+.themebtn{width:44px;height:44px;border-radius:50%;background:var(--surface);color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.themebtn:active{transform:rotate(180deg)}
+.landtop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nav .themebtn{margin:10px 0 0 6px}
+/* circles, drawn as circles: the name in the middle, the people orbiting it */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 14px}
+.ctile{position:relative;display:block;width:100%;aspect-ratio:1;container-type:inline-size;border-radius:50%;transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.ctile:hover{transform:scale(1.03)}.ctile:active{transform:scale(.97)}
+.ctile .disc{position:absolute;inset:11%;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:13%;text-align:center;
+  background:color-mix(in srgb,var(--tint) 15%,var(--surface));box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--tint) 38%,transparent)}
+.ctile .disc b{font:800 19px/1.05 var(--display);font-size:clamp(15px,11cqw,24px);letter-spacing:-.02em;text-wrap:balance;overflow-wrap:anywhere;color:var(--ink)}
+.ctile .disc span{font-size:12.5px;font-weight:600;color:var(--ink2)}
+.ctile .orbit{position:absolute;inset:0;animation:spin 110s linear infinite}
+.ctile .sat{position:absolute;left:50%;top:50%;width:0;height:0;transform:rotate(var(--a)) translateY(-39cqw)}
+.ctile .sat .av{position:absolute;left:0;top:0;margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);box-shadow:0 0 0 3px var(--bg);animation:unspin 110s linear infinite}
+.ctile .badge{position:absolute;left:50%;bottom:1%;transform:translateX(-50%);z-index:2}
+.ctile.new .disc{background:transparent;box-shadow:none;border:2px dashed var(--line);color:var(--ink2)}
+.ctile.new .disc b{color:var(--ink2);font-size:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* each face turns the other way so it stays upright while the ring moves */
+@keyframes unspin{from{transform:rotate(calc(-1*var(--a)))}to{transform:rotate(calc(-1*var(--a) - 360deg))}}
+@media (max-width:820px){.nav .themebtn{display:none}}
+@media (min-width:821px){.top .themebtn{display:none}}
+/* ---- depth: every surface gets a hairline and a soft lift, so nothing sits flat on the page ---- */
+.card,.box,.rowcard,.stat,.field,.how article,.morebtn,.optin{border:1px solid var(--hair);box-shadow:var(--lift)}
+.box.streak,.stat.hot{border-color:transparent}
+.deck .card,.try .card{box-shadow:var(--shadow)}
+.btn.primary{background-image:linear-gradient(rgba(255,255,255,.16),rgba(255,255,255,0) 60%)}
+/* ---- type ---- */
+.label{font-size:12px;letter-spacing:.09em}
+.q{letter-spacing:-.025em}
+.card.big .q{font-size:30px;line-height:1.1}
+.av{font-family:var(--display);font-weight:800;letter-spacing:-.02em;box-shadow:inset 0 0 0 1.5px rgba(28,23,38,.10)}
+.avs .av{box-shadow:0 0 0 2px var(--surface),inset 0 0 0 1.5px rgba(28,23,38,.10)}
+/* ---- options carry a letter, like a ballot ---- */
+.key{position:relative;flex:none;width:28px;height:28px;border-radius:9px;background:var(--sunk);color:var(--ink2);font:800 13px/1 var(--display);display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}
+.opt.mine .key,.opt.lead .key{background:var(--violet);color:var(--on-violet)}
+.opts.photo .key{width:24px;height:24px;border-radius:8px;font-size:12px}
+/* ---- glass: the floating bar, notices and the dimmed backdrop ---- */
+.toast{background:color-mix(in srgb,var(--nav) 86%,transparent);-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);border:1px solid rgba(255,255,255,.10)}
+.scrim{-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+/* ---- first-visit tips: quiet, never alarming ---- */
+.tip{background:var(--violet-soft);box-shadow:none;color:var(--violet-ink)}
+.tip::before{background:var(--violet)}
+.tip button{color:var(--violet-ink);text-decoration:underline}
+/* ---- activity ---- */
+.nico{flex:none;width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--sunk);color:var(--ink)}
+.nico.v{background:var(--violet);color:var(--on-violet)}.nico.g{background:var(--good-soft);color:var(--good-ink)}.nico.c{background:var(--coral-soft);color:var(--coral-ink)}.nico.l{background:var(--violet-soft);color:var(--violet-ink)}
+.notif{align-items:center}
+.notif .tx>span:first-child{font-weight:600}
+.notif.read .tx>span:first-child{font-weight:400;color:var(--ink2)}
+/* ---- circles: faces ride the rim, above the disc ---- */
+.ctile .disc{inset:14%;z-index:0;padding:11%}
+.ctile .orbit{z-index:1;pointer-events:none}
+.ctile .sat{transform:rotate(var(--a)) translateY(-36cqw)}
+.ctile .badge{position:static;transform:none;margin-top:4px;min-height:24px;font-size:12px}
+.ctile .disc span.chip{color:var(--coral-ink)}
+/* ---- landing: more of a product page ---- */
+.band{border-radius:36px;background:var(--nav);color:var(--on-nav);padding:44px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr);gap:40px;align-items:center}
+.band h2{font-size:clamp(30px,4.4vw,48px);font-weight:800;letter-spacing:-.035em;line-height:1.02}
+.band p{color:var(--on-nav2);font-size:18px;max-width:42ch;margin-top:14px}
+.mock{border-radius:28px;background:#5B3DF5;color:#FFFFFF;padding:26px;display:flex;flex-direction:column;gap:12px;transform:rotate(2deg);box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+.mock small{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;opacity:.9}
+.mock b{font:800 34px/1 var(--display);letter-spacing:-.03em}
+.mock .n{font:800 76px/1 var(--display);letter-spacing:-.05em}
+.mock .bar{position:relative;overflow:hidden;border-radius:12px;background:rgba(255,255,255,.16);padding:10px 12px;font-weight:700;display:flex;justify-content:space-between}
+.mock .bar i{position:absolute;inset:0 auto 0 0;background:rgba(255,255,255,.26)}
+.mock .bar span{position:relative}
+.trust{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.trust div{display:flex;flex-direction:column;gap:6px}
+.trust h3{font-size:20px}
+.trust .ico{width:44px;height:44px;border-radius:15px;background:var(--surface);border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;color:var(--violet-ink);margin-bottom:6px}
+@media (min-width:821px){
+  .nav .themebtn{width:auto;height:48px;border-radius:16px;background:transparent;justify-content:flex-start;gap:12px;padding:0 15px;margin:14px 0 0;color:var(--ink2);font-weight:600}
+  .nav .themebtn:hover{background:var(--sunk)}
+  .nav .themebtn::after{content:"Light / dark"}
+  .nav .themebtn:active{transform:none}
+}
+@media (max-width:820px){
+  .nav{background:color-mix(in srgb,var(--nav) 84%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);border:1px solid rgba(255,255,255,.10)}
+  .sheet::before{content:"";flex:none;align-self:center;width:42px;height:5px;border-radius:99px;background:var(--line);margin-bottom:-4px}
+  .card.big .q{font-size:26px}
+  .band{grid-template-columns:1fr;padding:28px 22px;border-radius:28px}.trust{grid-template-columns:1fr}
+  .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin:0 -16px 8px;padding:8px 16px;background:color-mix(in srgb,var(--bg) 72%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+}
 .foot{text-align:center;color:var(--ink2);font-size:13.5px}
 .callit{display:flex;flex-direction:column;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
 .callit .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
@@ -363,7 +448,10 @@ div.opt{cursor:default}
 <canvas id="fx" aria-hidden="true"></canvas>
 <div id="boot"><div class="brand"><svg width="44" height="44" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="30" fill="#1C1726"/><circle cx="40" cy="50" r="22" fill="#5B3DF5"/><circle cx="58" cy="44" r="22" fill="#FF6B4A" fill-opacity=".92"/><path d="M44 62c8 2 17-3 19-12" stroke="#F5F1EA" stroke-width="5" stroke-linecap="round" fill="none"/></svg>sway</div></div>
 <div id="landing" hidden>
-  <div class="brand"><svg width="36" height="36" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="30" fill="#1C1726"/><circle cx="40" cy="50" r="22" fill="#5B3DF5"/><circle cx="58" cy="44" r="22" fill="#FF6B4A" fill-opacity=".92"/><path d="M44 62c8 2 17-3 19-12" stroke="#F5F1EA" stroke-width="5" stroke-linecap="round" fill="none"/></svg>sway</div>
+  <div class="landtop">
+    <div class="brand"><svg width="36" height="36" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="30" fill="#1C1726"/><circle cx="40" cy="50" r="22" fill="#5B3DF5"/><circle cx="58" cy="44" r="22" fill="#FF6B4A" fill-opacity=".92"/><path d="M44 62c8 2 17-3 19-12" stroke="#F5F1EA" stroke-width="5" stroke-linecap="round" fill="none"/></svg>sway</div>
+  <button class="themebtn" data-act="theme" aria-label="Switch between light and dark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor" stroke="none"/></svg></button>
+  </div>
   <section class="hero">
     <div>
       <h1>Ask your people <em>before<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 12c60-9 120-9 172-4s82 6 120-2"/></svg></em> you decide.</h1>
@@ -383,13 +471,31 @@ div.opt{cursor:default}
     <article><span class="n"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><h3>Friends vote in one tap</h3><p class="muted">Only the circle you chose can see it. Go anonymous when it is tender, or seal results until the end.</p></article>
     <article><span class="n"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span><h3>Get the verdict</h3><p class="muted">When time is up, Sway reveals the winner and the breakdown. Then tell your friends what you did.</p></article>
   </section>
+  <section class="band" aria-label="The reveal">
+    <div>
+      <h2>The wait is half the fun.</h2>
+      <p>Answers stay sealed while your friends vote. When time runs out, everyone sees the verdict at the same moment. Call the winner before it drops and find out who knows you best.</p>
+    </div>
+    <div class="mock" aria-hidden="true">
+      <small>The circle has spoken</small>
+      <b>Sage slip wins.</b>
+      <span class="n">80%</span>
+      <div class="bar"><i style="width:80%"></i><span>Sage slip</span><span>4</span></div>
+      <div class="bar"><i style="width:20%"></i><span>Terracotta wrap</span><span>1</span></div>
+    </div>
+  </section>
+  <section class="trust" aria-label="Why it feels safe">
+    <div><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg></span><h3>Only your people</h3><p class="muted">Circles are invite-only. Nothing is public, nothing can be searched, and there are no followers to perform for.</p></div>
+    <div><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.2A9.6 9.6 0 0 1 12 6c5 0 8.5 4.5 9.5 6-.5.8-1.6 2.2-3.1 3.5M6.5 7.6C4.6 8.9 3.2 10.8 2.5 12c1 1.5 4.5 6 9.5 6 1.6 0 3-.4 4.3-1.1"/></svg></span><h3>Ask the hard ones</h3><p class="muted">Hide who voted, or hide that it was you who asked. Some questions are easier when nobody knows whose they are.</p></div>
+    <div><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><h3>It ends</h3><p class="muted">No endless feed. You answer what is waiting, see “all caught up”, and get on with your day.</p></div>
+  </section>
   <p class="foot">Private by design. Your questions are only ever seen by the circle you choose.</p>
 </div>
 
 <div id="app" hidden>
   <header class="top">
     <div class="brand"><svg width="32" height="32" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="30" fill="#1C1726"/><circle cx="40" cy="50" r="22" fill="#5B3DF5"/><circle cx="58" cy="44" r="22" fill="#FF6B4A" fill-opacity=".92"/><path d="M44 62c8 2 17-3 19-12" stroke="#F5F1EA" stroke-width="5" stroke-linecap="round" fill="none"/></svg>sway</div>
-    <span class="chip violet" id="topStreak"></span>
+    <span style="display:flex;align-items:center;gap:8px"><span class="chip violet" id="topStreak"></span><button class="themebtn" data-act="theme" aria-label="Switch between light and dark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor" stroke="none"/></svg></button></span>
   </header>
   <nav class="nav" aria-label="Main">
     <div class="brand"><svg width="36" height="36" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="30" fill="#1C1726"/><circle cx="40" cy="50" r="22" fill="#5B3DF5"/><circle cx="58" cy="44" r="22" fill="#FF6B4A" fill-opacity=".92"/><path d="M44 62c8 2 17-3 19-12" stroke="#F5F1EA" stroke-width="5" stroke-linecap="round" fill="none"/></svg>sway</div>
@@ -398,6 +504,7 @@ div.opt{cursor:default}
     <a href="#activity" data-nav="activity"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg><span class="tx">Activity</span><span class="dot" id="actDot" hidden></span></a>
     <a href="#you" data-nav="you"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.8 4-5.6 7.5-5.6s6.3 1.8 7.5 5.6"/></svg><span class="tx">You</span></a>
     <button class="btn primary ask" data-act="ask" aria-label="Ask a question"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Ask</span></button>
+    <button class="themebtn" data-act="theme" aria-label="Switch between light and dark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor" stroke="none"/></svg></button>
   </nav>
   <main id="main"></main>
   <aside id="rail" aria-label="At a glance"></aside>
@@ -414,6 +521,18 @@ var CFG=window.SWAY_CONFIG||{};
 var LIVE=!!(CFG.url&&CFG.key&&window.supabase&&window.supabase.createClient);
 var sb=LIVE?window.supabase.createClient(CFG.url,CFG.key):null;
 var ME=null,GUEST=false,PENDING=null;
+/* Appearance: 'auto' follows the device; 'light' and 'dark' are the person's own choice, remembered on this device. */
+var THEME='auto',THEMESET=false;
+try{THEME=localStorage.getItem('sway.theme')||'auto'}catch(e){}
+function isDark(){return THEME==='dark'||(THEME==='auto'&&(document.documentElement.getAttribute('data-theme')==='dark'||(!document.documentElement.getAttribute('data-theme')&&!!window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)))}
+function applyTheme(){
+  var r=document.documentElement;
+  if(THEME==='auto'){ if(THEMESET){r.removeAttribute('data-theme');THEMESET=false} }
+  else {r.setAttribute('data-theme',THEME);THEMESET=true}
+  var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content',isDark()?'#14111B':'#F5F1EA');
+}
+function setTheme(t){THEME=t; try{localStorage.setItem('sway.theme',t)}catch(e){} applyTheme()}
+applyTheme();
 /* HAS2: predictions, hot takes and nudges are available (always in the demo; in live mode once supabase/upgrade-2.sql has been run). */
 var HAS2=!LIVE;
 /* HAS3: plans, match mode and anonymous asking (live mode: once supabase/upgrade-3.sql has been run). */
@@ -644,17 +763,17 @@ function matchHTML(p){
     var t=tally(p),m=matches(p);
     return '<div class="opts">'+p.opts.map(function(o,i){
       var all=m.indexOf(i)>=0;
-      return '<div class="opt show'+(all?' lead':'')+((mine||[]).indexOf(i)>=0?' mine':'')+'" style="--pct:'+t.pct[i]+'%"><span class="fill"></span><span class="lbl">'+esc(o.t)+offerLine(o)+'</span><span class="tick">'+IC.check+'</span><span class="pct">'+(all?'Everyone':t.c[i]+' of '+t.total)+'</span></div>'}).join('')+'</div>';
+      return '<div class="opt show'+(all?' lead':'')+((mine||[]).indexOf(i)>=0?' mine':'')+'" style="--pct:'+t.pct[i]+'%"><span class="fill"></span><span class="key">'+'ABCDEFGH'[i]+'</span><span class="lbl">'+esc(o.t)+offerLine(o)+'</span><span class="tick">'+IC.check+'</span><span class="pct">'+(all?'Everyone':t.c[i]+' of '+t.total)+'</span></div>'}).join('')+'</div>';
   }
   if(p.by==='me') return '<div class="opts">'+p.opts.map(function(o){return '<div class="opt"><span class="lbl">'+esc(o.t)+offerLine(o)+'</span></div>'}).join('')+'</div>';
   if(mine!=null&&!PKEDIT[p.id]) return '<div class="wrap">'+(mine.length?mine.map(function(i){return '<span class="chip good">'+IC.check+' '+esc(p.opts[i]?p.opts[i].t:'')+'</span>'}).join(''):'<span class="chip">None of these</span>')+'</div><button class="linkbtn" data-act="editPicks" data-p="'+p.id+'">Change my picks</button>';
   var d=PK[p.id]||(PK[p.id]=p.opts.map(function(o,i){return mine?mine.indexOf(i)>=0:false})),n=d.filter(Boolean).length;
   return '<div class="opts">'+p.opts.map(function(o,i){
-      return '<button class="opt'+(d[i]?' mine':'')+'" data-act="pick" data-p="'+p.id+'" data-i="'+i+'" aria-pressed="'+!!d[i]+'"><span class="fill"></span><span class="lbl">'+esc(o.t)+offerLine(o)+'</span><span class="tick">'+IC.check+'</span><span class="pct" style="font-size:14px">'+(d[i]?'Yes':'')+'</span></button>'}).join('')+
+      return '<button class="opt'+(d[i]?' mine':'')+'" data-act="pick" data-p="'+p.id+'" data-i="'+i+'" aria-pressed="'+!!d[i]+'"><span class="fill"></span><span class="key">'+'ABCDEFGH'[i]+'</span><span class="lbl">'+esc(o.t)+offerLine(o)+'</span><span class="tick">'+IC.check+'</span><span class="pct" style="font-size:14px">'+(d[i]?'Yes':'')+'</span></button>'}).join('')+
     '</div><button class="btn primary" data-act="sendPicks" data-p="'+p.id+'">'+(n?'Send my picks · '+n+' yes':'None of these work for me')+'</button>';
 }
 var TINTS=['#5B3DF5','#FF6B4A','#1F9D6B','#D98A00','#C2408F','#2A7BD6'];
-function cdot(p){var c=p.circles[0]; if(!c) return ''; var h=0; for(var i=0;i<c.length;i++) h=(h*31+c.charCodeAt(i))>>>0; return '<i class="cdot" style="background:'+TINTS[h%TINTS.length]+'"></i>'}
+function cdot(p){var c=p.circles[0]; return c?'<i class="cdot" style="background:'+tintFor(c)+'"></i>':''}
 /* One-time pointers for a first visit. Each disappears for good once dismissed or once the person has done the thing. */
 function tip(key,text){ if(!S.tips) S.tips={}; return S.tips[key]?'':'<div class="tip"><span>'+text+'</span><button data-act="tip" data-k="'+key+'">Got it</button></div>' }
 function tipDone(key){ if(!S.tips) S.tips={}; S.tips[key]=true }
@@ -692,7 +811,7 @@ function optsHTML(p){
   var st=optStates(p),dis=(isClosed(p)||p.by==='me')?' disabled':'',photo=p.type==='photo';
   return '<div class="opts'+(photo?' photo':'')+'">'+p.opts.map(function(o,i){
     var s=st[i],cls='opt'+(s.show?' show':'')+(s.mine?' mine':'')+(s.lead?' lead':'');
-    var inner='<span class="fill"></span><span class="lbl">'+esc(o.t)+offerLine(o)+'</span><span class="tick">'+IC.check+'</span><span class="pct">'+(s.show?s.pct+'%':'')+'</span>';
+    var inner='<span class="fill"></span><span class="key">'+'ABCDEFGH'[i]+'</span><span class="lbl">'+esc(o.t)+offerLine(o)+'</span><span class="tick">'+IC.check+'</span><span class="pct">'+(s.show?s.pct+'%':'')+'</span>';
     if(photo) inner='<span class="ph">'+(o.img?'<img src="'+o.img+'" alt="">':(o.art?art(o.art):''))+'</span><span class="meta">'+inner+'</span>';
     return '<button class="'+cls+'" style="--pct:'+s.pct+'%" data-act="vote" data-p="'+p.id+'" data-i="'+i+'"'+dis+' aria-pressed="'+s.mine+'">'+inner+'</button>';
   }).join('')+'</div>';
@@ -785,7 +904,7 @@ function startHTML(){
 }
 function computeHomeSig(){ var tp=S.tips||{};
   var deck=turnList(); var cur=holdId||(deck[0]&&deck[0].id)||'';
-  return [cur,deck.length,freshList().map(function(p){return p.id}).join(','),openList().map(function(p){return p.id}).join(','),loopList().map(function(p){return p.id}).join(','),S.circles.length,GUEST,S.loaded,HAS3,pushPrompt(),!!tp.vote,!!tp.needs,planList().map(function(p){return p.id}).join(','),tieList().map(function(p){return p.id}).join(','),startFlags().join(''),!!S.startDone,S.circles.map(function(c){return c.code}).join('')].join('|');
+  return [cur,deck.length,freshList().map(function(p){return p.id}).join(','),openList().map(function(p){return p.id}).join(','),loopList().map(function(p){return p.id}).join(','),S.circles.length,GUEST,S.loaded,HAS3,pushPrompt(),!!tp.vote,!!tp.needs,!!S.demoNote,planList().map(function(p){return p.id}).join(','),tieList().map(function(p){return p.id}).join(','),startFlags().join(''),!!S.startDone,S.circles.map(function(c){return c.code}).join('')].join('|');
 }
 function greet(){
   var d=new Date(),h=d.getHours();
@@ -802,7 +921,7 @@ function homeHTML(){
   h+=startHTML();
   if(pushPrompt()) h+='<section class="box" style="background:var(--violet-soft)"><h3 style="font-size:20px;color:var(--violet-ink)">Know the moment a friend asks</h3><p class="small" style="color:var(--violet-ink)">'+(PUSH_OK?'Get a notification when someone in your circle asks, nudges you, or a verdict lands. Nothing else, ever.':'On iPhone, add Sway to your Home Screen first: tap Share, then “Add to Home Screen”. Open it from there to turn notifications on.')+'</p><div class="wrap">'+(PUSH_OK?'<button class="btn primary sm" data-act="push">Turn on notifications</button>':'')+'<button class="btn ghost sm" data-act="pushLater">Not now</button></div></section>';
   h+='<section class="sec"><span class="label">Your turn'+(remaining?' <span class="chip urgent">'+remaining+' waiting</span>':'')+'</span>';
-  if(cur) h+=tip('vote','Tap an answer to vote. That is all it takes, and you can change it until it closes.')+'<div class="deck'+(remaining<=1?' single':'')+'">'+cardHTML(cur,true)+'</div>';
+  if(cur) h+=((S.demoNote&&!LIVE)?'':tip('vote','Tap an answer to vote. That is all it takes, and you can change it until it closes.'))+'<div class="deck'+(remaining<=1?' single':'')+'">'+cardHTML(cur,true)+'</div>';
   else h+='<div class="card caught"><span class="duo" aria-hidden="true"><i></i><i></i></span><h3 style="font-size:22px">You’re all caught up</h3><p class="muted small">Nobody is waiting on you. Got something on your mind?</p><button class="btn primary" data-act="ask">Ask your circles</button></div>';
   h+='</section>';
   var need='';
@@ -824,40 +943,61 @@ function homeHTML(){
   if(loop.length) need+=loop.map(function(p){
       return '<div class="card" style="flex-direction:row;align-items:center;gap:12px"><div style="flex:1;min-width:0"><b style="display:block;line-height:1.3">'+esc(p.q)+'</b><span class="small muted">Your circle helped you decide. Tell them how it went.</span></div><button class="btn sm" data-act="open" data-p="'+p.id+'">Tell them</button></div>';
     }).join('');
-  if(need) h+='<section class="sec"><span class="label">Needs you</span>'+tip('needs','Everything that needs you lands here: verdicts to reveal, plans to answer, ties to break.')+need+'</section>';
+  if(need) h+='<section class="sec"><span class="label">Needs you</span>'+((S.tips||{}).vote?tip('needs','Everything that needs you lands here: verdicts to reveal, plans to answer, ties to break.'):'')+need+'</section>';
   if(open.length) h+='<section class="sec"><span class="label">Still open</span>'+open.map(rowHTML).join('')+'</section>';
   h+='<p class="end">That’s everything from your circles. Sway has no endless feed.</p>';
   return h;
 }
 function inviteLink(c){return location.origin+location.pathname+'?join='+c.code}
+function tintFor(id){var h=0; for(var i=0;i<id.length;i++) h=(h*31+id.charCodeAt(i))>>>0; return TINTS[h%TINTS.length]}
+function circleTile(c){
+  var open=S.polls.filter(function(p){return !isClosed(p)&&p.circles.indexOf(c.id)>=0}).length;
+  var ppl=['me'].concat(c.members),show=ppl.slice(0,7),n=show.length;
+  return '<button class="ctile" style="--tint:'+tintFor(c.id)+'" data-act="openCircle" data-c="'+c.id+'" aria-label="'+esc(c.name)+', '+ppl.length+(ppl.length===1?' person':' people')+(open?', '+open+' open':'')+'">'+
+    '<span class="orbit" aria-hidden="true">'+show.map(function(m,i){return '<span class="sat" style="--a:'+Math.round(i*360/n)+'deg">'+av(m,32)+'</span>'}).join('')+'</span>'+
+    '<span class="disc"><b>'+esc(c.name)+'</b><span>'+ppl.length+(ppl.length===1?' person':' people')+'</span></span>'+
+    (open?'<span class="chip urgent badge">'+open+' open</span>':'')+'</button>';
+}
+function circleBody(c){
+  var open=S.polls.filter(function(p){return !isClosed(p)&&p.circles.indexOf(c.id)>=0}).length;
+  var mine=!LIVE||c.owner==='me';
+  return '<div style="display:flex;align-items:center;gap:12px"><span class="small muted" style="flex:1">'+(c.members.length+1)+(c.members.length?' people':' person')+' · '+open+' open '+(open===1?'question':'questions')+'</span><button class="btn primary sm" data-act="ask" data-c="'+c.id+'">Ask this circle</button></div>'+
+    (LIVE&&c.code?'<div class="invite"><code>'+esc(inviteLink(c))+'</code><button class="btn sm" data-act="copy" data-text="'+esc(inviteLink(c))+'">Copy invite link</button></div><span class="small muted">Friends who open this link can vote right away as a guest, then keep their account.</span>':'')+
+    '<section class="box" style="gap:0">'+['me'].concat(c.members).map(function(m){
+      var role=LIVE?((m==='me'?c.owner==='me':c.owner===m)?'Owner':'Member'):(m==='me'?'Owner':'Example friend');
+      var kick=LIVE&&c.owner==='me'&&m!=='me'?'<button class="linkbtn" style="align-self:center;min-height:32px" data-act="kick" data-c="'+c.id+'" data-u="'+m+'">Remove</button>':'';
+      return '<div class="person">'+av(m,34)+'<b>'+esc(m==='me'?S.me.name+' (you)':person(m).n)+'</b>'+kick+'<span class="small muted">'+role+'</span></div>'}).join('')+'</section>'+
+    (function(){var aw=awardsFor(c); return aw.length?'<section class="box" style="gap:0"><span class="label" style="padding-bottom:6px">This month in '+esc(c.name)+'</span>'+aw.map(function(x){return '<div class="award">'+av(x[0],30)+'<b style="flex:1;font-weight:600;font-size:15px">'+esc(x[0]==='me'?'You':person(x[0]).n)+'</b><span class="chip violet">'+x[1]+'</span></div>'}).join('')+'</section>':''})()+
+    '<button class="btn ghost sm" style="align-self:flex-start" data-act="delCircle" data-c="'+c.id+'">'+(mine?'Delete circle':'Leave circle')+'</button>';
+}
+function openCircle(cid,quiet){
+  var c=circle(cid); if(!c){ if(SH&&SH.type==='circle') closeSheet(); return }
+  var sc=quiet&&$('.sheet')?$('.sheet').scrollTop:0;
+  SH={type:'circle',cid:cid};
+  showSheet('<div class="sheet-head"><h2 style="display:flex;align-items:center;gap:10px"><i class="cdot" style="width:14px;height:14px;margin:0;background:'+tintFor(c.id)+'"></i>'+esc(c.name)+'</h2><button class="x" data-act="close" aria-label="Close">'+IC.x+'</button></div>'+circleBody(c),c.name);
+  if(quiet){$('.scrim').style.animation='none';$('.sheet').style.animation='none';$('.sheet').scrollTop=sc}
+}
 function circlesHTML(){
-  var h='<div class="head"><div><h1>Your circles</h1><span class="small muted">Only people in a circle can see or vote on what you ask it.</span></div><button class="btn primary sm" data-act="newCircle">New circle</button></div>';
-  h+=S.circles.map(function(c){
-    var open=S.polls.filter(function(p){return !isClosed(p)&&p.circles.indexOf(c.id)>=0}).length;
-    var mine=!LIVE||c.owner==='me';
-    return '<section class="box"><div style="display:flex;align-items:center;gap:12px"><span class="av" style="--s:48px;background:var(--violet-soft);color:var(--violet-ink);border-radius:17px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/></svg></span>'+
-      '<div style="flex:1;min-width:0"><h3 style="font-size:20px">'+esc(c.name)+'</h3><span class="small muted">'+(c.members.length+1)+(c.members.length?' people':' person')+' · '+open+' open '+(open===1?'poll':'polls')+'</span></div>'+
-      '<button class="btn sm" data-act="ask" data-c="'+c.id+'">Ask</button></div>'+
-      (LIVE&&c.code?'<div class="invite"><code>'+esc(inviteLink(c))+'</code><button class="btn sm" data-act="copy" data-text="'+esc(inviteLink(c))+'">Copy invite link</button></div><span class="small muted">Friends who open this link can vote right away as a guest, then keep their account.</span>':'')+
-      '<div>'+['me'].concat(c.members).map(function(m){
-        var role=LIVE?((m==='me'?c.owner==='me':c.owner===m)?'Owner':'Member'):(m==='me'?'Owner':'Example friend');
-        var kick=LIVE&&c.owner==='me'&&m!=='me'?'<button class="linkbtn" style="align-self:center;min-height:32px" data-act="kick" data-c="'+c.id+'" data-u="'+m+'">Remove</button>':'';
-        return '<div class="person">'+av(m,34)+'<b>'+esc(m==='me'?S.me.name+' (you)':person(m).n)+'</b>'+kick+'<span class="small muted">'+role+'</span></div>'}).join('')+'</div>'+
-      (function(){var aw=awardsFor(c); return aw.length?'<div><span class="label">This month in '+esc(c.name)+'</span>'+aw.map(function(x){return '<div class="award">'+av(x[0],30)+'<b style="flex:1;font-weight:600;font-size:15px">'+esc(x[0]==='me'?'You':person(x[0]).n)+'</b><span class="chip violet">'+x[1]+'</span></div>'}).join('')+'</div>':''})()+
-      '<button class="btn ghost sm" style="align-self:flex-start" data-act="delCircle" data-c="'+c.id+'">'+(mine?'Delete circle':'Leave circle')+'</button></section>';
-  }).join('');
-  if(!S.circles.length) h+='<div class="card caught"><h3 style="font-size:22px">No circles yet</h3><p class="muted small">Make one for your closest friends, your family or your team.</p><button class="btn primary" data-act="newCircle">Create a circle</button></div>';
+  var h='<div class="head"><div><h1>Your circles</h1><span class="small muted">Only people in a circle can see or vote on what you ask it.</span></div></div>';
+  if(!S.circles.length) h+='<p class="muted" style="padding:0 4px">Make your first one: closest friends, family, or your team.</p>';
+  h+='<div class="cgrid">'+S.circles.map(circleTile).join('')+
+    '<button class="ctile new" data-act="newCircle" aria-label="New circle"><span class="disc"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><b>New circle</b></span></button></div>';
   if(LIVE) h+='<form class="box" data-form="joinCode"><label for="joinCodeIn"><b>Got an invite code?</b></label><div style="display:flex;gap:8px"><input class="plain" id="joinCodeIn" maxlength="12" autocomplete="off" placeholder="8-letter code" style="height:48px;text-transform:uppercase"><button class="btn sm" type="submit" style="min-height:48px">Join</button></div><span class="small muted">Circles are invite-only and never appear in search.</span></form>';
   else h+='<div class="banner"><span>This is the demo, so circles use example friends. On the live site each circle gets an invite link your real friends can open.</span></div>';
   return h;
 }
 function activityHTML(){
   var h='<div class="head"><h1>Activity</h1>'+(S.notifs.some(function(n){return !n.read})?'<button class="btn ghost sm" data-act="readAll">Mark all read</button>':'')+'</div>';
-  if(!S.notifs.length) return h+'<div class="card caught"><h3 style="font-size:22px">Nothing yet</h3><p class="muted small">Votes, new questions and verdicts will show up here.</p></div>';
-  var tone={verdict:'violet',poll:'',vote:'good',comment:'',after:'good',nudge:'urgent',plan:'violet'},word={plan:'Plan',verdict:'Verdict',poll:'New question',vote:'Vote',comment:'Comment',after:'Update',nudge:'Nudge'};
-  h+='<section class="box" style="gap:0">'+S.notifs.map(function(n){
-    return '<button class="notif" data-act="notif" data-n="'+n.id+'"><span class="chip '+(tone[n.kind]||'')+'">'+word[n.kind]+'</span><span class="tx"><span>'+esc(n.text)+'</span><span class="small muted">'+ago(n.t)+'</span></span>'+(n.read?'':'<span class="unread" aria-label="Unread"></span>')+'</button>';
-  }).join('')+'</section>';
+  if(!S.notifs.length) return h+'<div class="card caught"><span class="duo" aria-hidden="true"><i></i><i></i></span><h3 style="font-size:22px">Quiet for now</h3><p class="muted small">New questions, votes and verdicts from your circles will show up here.</p></div>';
+  var ico={
+    verdict:['v','<path d="M5 12.5l4.5 4.5L19 7.5"/>'],poll:['','<path d="M12 5v14M5 12h14"/>'],vote:['g','<path d="M5 12.5l4.5 4.5L19 7.5"/>'],
+    comment:['l','<path d="M20 12.5a7.5 7.5 0 0 1-11 6.6L4 20l1-4.4A7.5 7.5 0 1 1 20 12.5z"/>'],after:['g','<path d="M5 12h14M13 6l6 6-6 6"/>'],
+    nudge:['c','<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'],plan:['l','<rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>']};
+  var row=function(n){var k=ico[n.kind]||ico.poll;
+    return '<button class="notif'+(n.read?' read':'')+'" data-act="notif" data-n="'+n.id+'"><span class="nico '+k[0]+'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+k[1]+'</svg></span><span class="tx"><span>'+esc(n.text)+'</span><span class="small muted">'+ago(n.t)+'</span></span>'+(n.read?'':'<span class="unread" aria-label="Unread"></span>')+'</button>'};
+  var today=S.notifs.filter(function(n){return dayKey(n.t)===dayKey(now())}),earlier=S.notifs.filter(function(n){return dayKey(n.t)!==dayKey(now())});
+  if(today.length) h+='<section class="sec"><span class="label">Today</span><div class="box" style="gap:0">'+today.map(row).join('')+'</div></section>';
+  if(earlier.length) h+='<section class="sec"><span class="label">Earlier</span><div class="box" style="gap:0">'+earlier.map(row).join('')+'</div></section>';
   return h;
 }
 var histTab='Asked';
@@ -882,6 +1022,7 @@ function youHTML(){
     }).join('')+'</div>':'<p class="muted small" style="padding:0 4px">'+(histTab==='Asked'?'You have not asked anything yet.':'You have not voted yet.')+'</p>';
   h+='</section>';
   h+='<section class="sec"><span class="label">Preferences</span><div class="box" style="gap:0">'+
+    '<div class="tog"><div class="tx"><b>Appearance</b><span>'+(THEME==='auto'?'Follows this device':THEME==='dark'?'Always dark':'Always light')+'</span></div><div class="seg" role="tablist" aria-label="Appearance" style="grid-template-columns:repeat(3,auto)">'+[['auto','Auto'],['light','Light'],['dark','Dark']].map(function(t){return '<button role="tab" style="padding:0 12px;min-height:38px" aria-selected="'+(THEME===t[0])+'" data-act="themePick" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div></div>'+
     '<div class="tog"><div class="tx"><b>Anonymous by default</b><span>New questions hide who voted what</span></div><button class="sw" role="switch" aria-checked="'+S.prefs.anon+'" aria-label="Anonymous by default" data-act="prefAnon"></button></div>'+
     '<div class="tog"><div class="tx"><label for="prefDl"><b>Default deadline</b></label></div><select class="sel" id="prefDl">'+DL.map(function(d){return '<option value="'+d[0]+'"'+(S.prefs.dl===d[0]?' selected':'')+'>'+d[1]+'</option>'}).join('')+'</select></div>'+
     (LIVE&&HAS4&&PUSH_OK?'<div class="tog"><div class="tx"><b>Notifications on this device</b><span>'+(pushDenied()?'Blocked in your browser’s settings for this site':'When a friend asks, nudges you, or a verdict lands')+'</span></div><button class="sw" role="switch" aria-checked="'+pushOn()+'" aria-label="Notifications on this device" data-act="push"'+(pushDenied()?' disabled':'')+'></button></div>'
@@ -925,13 +1066,14 @@ function sync(){
   if(view==='home'){ if(computeHomeSig()!==homeSig) render(); else {patchCards();patchRows();chrome()} }
   else { var a=document.activeElement; if(!(a&&$('#main').contains(a)&&/INPUT|SELECT|TEXTAREA/.test(a.tagName))) render(); else chrome() }
   if(SH&&SH.type==='poll') refreshPollSheet();
+  if(SH&&SH.type==='circle') openCircle(SH.cid,true);
 }
 
 /* ---------- actions ---------- */
 function vote(pid,i){
   var p=poll(pid); if(!p||isClosed(p)||p.by==='me'||p.votes.me===i) return;
   var firstVote=p.votes.me==null,prev=p.votes.me;
-  p.votes.me=i; bumpStreak(); buzz();
+  p.votes.me=i; p.voteAt=now(); bumpStreak(); buzz();
   if(p.voted&&p.voted.indexOf('me')<0) p.voted.push('me');
   if(p.counts){ if(prev!=null) p.counts[prev]--; p.counts[i]++ }
   if(LIVE) remote(sb.from('votes').upsert({poll_id:pid,user_id:ME,choice:i,updated_at:new Date().toISOString()}).then(function(r){return (r.error||!p.early)?r:sb.rpc('close_if_complete',{p:pid})}),p.circles);
@@ -976,7 +1118,7 @@ function sendPicks(pid){
   var p=poll(pid); if(!p||isClosed(p)||p.by==='me') return;
   var d=PK[pid]||[],picks=[]; d.forEach(function(y,i){if(y) picks.push(i)});
   var firstTime=(p.picks||{}).me==null;
-  if(!p.picks) p.picks={}; p.picks.me=picks; delete PKEDIT[pid]; delete PK[pid]; bumpStreak(); buzz(); burst(); tipDone('vote');
+  if(!p.picks) p.picks={}; p.picks.me=picks; p.voteAt=now(); delete PKEDIT[pid]; delete PK[pid]; bumpStreak(); buzz(); burst(); tipDone('vote');
   if(p.voted&&p.voted.indexOf('me')<0) p.voted.push('me');
   if(LIVE) remote(sb.from('votes').upsert({poll_id:pid,user_id:ME,choice:0,picks:picks,updated_at:new Date().toISOString()}).then(function(r){return (r.error||!p.early)?r:sb.rpc('close_if_complete',{p:pid})}),p.circles);
   if(firstTime&&view==='home'&&!SH){ holdId=pid; releaseHold(1700) }
@@ -1139,6 +1281,7 @@ function postPoll(){
   }
   var hid=HAS3&&D.fmt!=='open'&&D.hide&&hideOk();
   var p=mkPoll({id:newId(),by:'me',voted:LIVE?[]:null,circles:D.circles.slice(),q:q,type:D.fmt==='open'?'open':D.fmt==='photo'?'photo':D.fmt==='match'?'match':'choice',opts:opts,closes:now()+dlMs(D.dl),anon:D.anon||hid,live:D.live,who:D.who,early:D.fmt!=='open'&&D.early,hideAsker:hid});
+  p.pendingAt=now();
   S.polls.push(p); bumpStreak(); tipDone('ask'); closeSheet(); location.hash='#home'; sync();
   if(LIVE) remote(sb.from('polls').insert(Object.assign({id:p.id,author:ME,q:p.q,note:'',type:p.type,opts:p.opts,closes_at:new Date(p.closes).toISOString(),anon:p.anon,live:p.live,who:p.who},p.early?{early:true}:{},p.hideAsker?{hide_asker:true}:{}))
     .then(function(r){return r.error?r:sb.from('poll_circles').insert(p.circles.map(function(c){return {poll_id:p.id,circle_id:c}}))})
@@ -1353,6 +1496,9 @@ document.addEventListener('click',function(e){
   var el=e.target.closest('[data-act]'); if(!el) return;
   var a=el.dataset.act,p;
   if(a==='scrim'){ if(e.target===el) closeSheet(); return }
+  if(a==='theme'){setTheme(isDark()?'light':'dark'); if(S.me&&view==='you') render(); return}
+  if(a==='themePick'){setTheme(el.dataset.t); return render()}
+  if(a==='openCircle') return openCircle(el.dataset.c);
   if(a==='vote') return vote(el.dataset.p,+el.dataset.i);
   if(a==='guess') return guess(el.dataset.p,+el.dataset.i);
   if(a==='nudge') return nudge(el.dataset.p,el.dataset.u);
@@ -1389,7 +1535,7 @@ document.addEventListener('click',function(e){
     var name=$('#cName').value.trim(),mem=Object.keys(SH.pick).filter(function(k){return SH.pick[k]}),er=$('#cErr');
     if(!name){er.textContent='Give the circle a name.';er.hidden=false;return}
     if(!mem.length&&!LIVE){er.textContent='Add at least one friend.';er.hidden=false;return}
-    var nc={id:newId(),name:name,members:mem,owner:'me',code:''};
+    var nc={id:newId(),name:name,members:mem,owner:'me',code:'',pendingAt:now()};
     if(LIVE) remote(sb.from('circles').insert({id:nc.id,name:name,owner:ME}));
     S.circles.push(nc); closeSheet(); save(); render(); toast(name+' is ready. Ask it something.'); return }
   if(a==='delCircle'){
@@ -1397,7 +1543,7 @@ document.addEventListener('click',function(e){
     var cid=el.dataset.c,cc=circle(cid);
     if(LIVE&&cc) remote(cc.owner==='me'?sb.from('circles').delete().eq('id',cid):sb.from('members').delete().eq('circle_id',cid).eq('user_id',ME),[cid]);
     S.circles=S.circles.filter(function(c){return c.id!==cid});
-    S.polls=S.polls.filter(function(x){x.circles=x.circles.filter(function(c){return c!==cid}); return x.circles.length}); save(); return render() }
+    S.polls=S.polls.filter(function(x){x.circles=x.circles.filter(function(c){return c!==cid}); return x.circles.length}); save(); closeSheet(); return render() }
   if(a==='closeNow'){p=poll(el.dataset.p); if(p){p.closes=now(); var cid=p.id; if(LIVE){ remote(sb.from('polls').update({closes_at:new Date().toISOString()}).eq('id',cid),p.circles).then(function(){openReveal(cid)}); checkCloses(); closeSheet(); sync(); $('#toasts').innerHTML=''; return }
     checkCloses(); sync(); $('#toasts').innerHTML=''; openReveal(cid)} return}
   if(a==='delPoll'){
@@ -1417,7 +1563,7 @@ document.addEventListener('click',function(e){
     if(el.dataset.armed!=='1'){el.dataset.armed='1';el.textContent='Tap again to remove';return}
     var kc=circle(el.dataset.c),ku=el.dataset.u; if(!kc) return;
     remote(sb.from('members').delete().eq('circle_id',kc.id).eq('user_id',ku),[kc.id]);
-    kc.members=kc.members.filter(function(x){return x!==ku}); save(); return render() }
+    kc.members=kc.members.filter(function(x){return x!==ku}); save(); render(); return openCircle(kc.id,true) }
   if(a==='share'||a==='rvShare'){var sid=el.dataset.p; if(a==='rvShare') closeReveal(); return shareCard(sid)}
   if(a==='shareNow') return shareNow();
   if(a==='authTab'){AUTH.tab=el.dataset.t;AUTH.err='';AUTH.msg='';return renderAuth()}
@@ -1485,7 +1631,7 @@ function tryCard(){
     $('#tryCard').innerHTML='<article class="card"><div class="card-top"><span class="av" style="--s:38px;background:'+colorFor(P.asker_name)+'">'+esc(initials(P.asker_name))+'</span><div class="who"><b>'+esc(P.asker_name)+' wants your vote</b><span>'+esc(P.circle_name)+'</span></div><span class="chip'+(ms<HR?' urgent':'')+'">'+IC.clock+' '+left(ms)+'</span></div>'+
       '<p class="q">'+esc(P.question)+'</p>'+
       ((P.options||[]).length?'<div class="opts">'+P.options.map(function(o,i){
-        return '<button class="opt'+(AUTH.pick===i?' mine':'')+'" data-pv="'+i+'"'+(ms<=0?' disabled':'')+' aria-pressed="'+(AUTH.pick===i)+'"><span class="fill"></span><span class="lbl">'+esc(o)+'</span><span class="tick">'+IC.check+'</span><span class="pct"></span></button>'}).join('')+'</div>'
+        return '<button class="opt'+(AUTH.pick===i?' mine':'')+'" data-pv="'+i+'"'+(ms<=0?' disabled':'')+' aria-pressed="'+(AUTH.pick===i)+'"><span class="fill"></span><span class="key">'+'ABCDEFGH'[i]+'</span><span class="lbl">'+esc(o)+'</span><span class="tick">'+IC.check+'</span><span class="pct"></span></button>'}).join('')+'</div>'
         :'<p class="muted small">This is an open question. Join to write your reply.</p>')+
       '<div class="card-state">'+(ms<=0?'Join to see the verdict.':AUTH.pick!=null?'Got it. Enter your first name and your vote is in.':'')+'</div></article>';
   }
@@ -1496,7 +1642,7 @@ function tryCard(){
     $('#tryCard').innerHTML='<article class="card"><div class="card-top"><span class="av" style="--s:38px;background:#FFD7C9">MC</span><div class="who"><b>Maya Chen</b><span>Inner Circle · example</span></div><span class="chip urgent">'+IC.clock+' 12m left</span></div>'+
       '<p class="q">Should I text him first?</p><div class="opts">'+names.map(function(n,i){
         var c=base[i]+(picked===i?1:0),pct=picked==null?0:Math.round(c/tot*100);
-        return '<button class="opt'+(picked!=null?' show':'')+(picked===i?' mine':'')+(picked!=null&&i===0?' lead':'')+'" style="--pct:0%" data-pct="'+pct+'" data-try="'+i+'"><span class="fill"></span><span class="lbl">'+n+'</span><span class="tick">'+IC.check+'</span><span class="pct">'+(picked!=null?pct+'%':'')+'</span></button>'}).join('')+'</div>'+
+        return '<button class="opt'+(picked!=null?' show':'')+(picked===i?' mine':'')+(picked!=null&&i===0?' lead':'')+'" style="--pct:0%" data-pct="'+pct+'" data-try="'+i+'"><span class="fill"></span><span class="key">'+'ABCDEFGH'[i]+'</span><span class="lbl">'+n+'</span><span class="tick">'+IC.check+'</span><span class="pct">'+(picked!=null?pct+'%':'')+'</span></button>'}).join('')+'</div>'+
       '<div class="card-state">'+(picked!=null?'That was the whole thing. One tap and you’re in.':'')+'</div>'+
       '<div class="card-foot"><span class="grow">'+tot+' friends voted</span></div></article>';
     if(picked!=null) requestAnimationFrame(function(){requestAnimationFrame(function(){$$('#tryCard .opt').forEach(function(b){b.style.setProperty('--pct',b.dataset.pct+'%')})})});
@@ -1844,6 +1990,13 @@ function liveRefresh(){
       if(isMatch(p)){ Object.keys(votes).forEach(function(k){ if(Array.isArray(votes[k])) p.picks[k]=votes[k] }); if(v.my_picks) p.picks.me=v.my_picks; p.votes={} }
       if(v.my_take) p.takes.me=v.my_take;
       if(v.takes) p.takesList=v.takes.map(function(x){return {by:x.u?mapId(x.u):null,c:x.c,t:x.t}});
+      /* A load that started before this person's latest tap must not undo it on screen. */
+      if(o&&o.voteAt&&now()-o.voteAt<8000&&v.my_choice==null&&!past){
+        if(o.votes.me!=null) p.votes.me=o.votes.me;
+        if(o.picks&&o.picks.me) p.picks.me=o.picks.me;
+        if(p.voted.indexOf('me')<0) p.voted.push('me');
+        p.voteAt=o.voteAt;
+      }
       var nm=p.by==='me'?'':(friends[p.by]?friends[p.by].n.split(' ')[0]:'Someone');
       if(!firstLoad){
         if(!o&&p.by!=='me'&&!past){ notify('poll',p.id,nm+' asked: '+p.q); toast(nm+' asked a question','Vote',function(){location.hash='#home';openPoll(p.id)}) }
@@ -1857,7 +2010,11 @@ function liveRefresh(){
       return p;
     });
     if(myName) S.me.name=myName;
-    S.friends=friends; S.circles=cids.map(function(k){return cmap[k]}); S.polls=next; S.loaded=true; liveWarned=false;
+    /* Likewise a question or circle created a moment ago, which that older load could not know about yet. */
+    var fresh=function(x){return x.pendingAt&&now()-x.pendingAt<20000};
+    S.polls.forEach(function(o){ if(fresh(o)&&!pm[o.id]) next.push(o) });
+    var keepC=S.circles.filter(function(c){return fresh(c)&&!cmap[c.id]});
+    S.friends=friends; S.circles=cids.map(function(k){return cmap[k]}).concat(keepC); S.polls=next; S.loaded=true; liveWarned=false;
     joinChannels(cids); checkCloses(); sync();
     if(ONLOAD){var onl=ONLOAD;ONLOAD=null;onl()}
   }).then(null,function(){ if(!liveWarned){liveWarned=true;toast('Could not reach Sway. Trying again shortly.')} })

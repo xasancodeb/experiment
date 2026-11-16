@@ -140,7 +140,8 @@ svg{flex:none}
 .opt.lead .pct{color:var(--violet-ink)}
 .opt .tick{display:none;width:24px;height:24px;border-radius:50%;background:var(--violet);color:var(--on-violet);align-items:center;justify-content:center}
 .opt.mine::after,.opt.mine:not([disabled]):hover::after{box-shadow:inset 0 0 0 2.5px var(--violet)}
-.opt.mine .tick{display:flex;animation:pop .35s cubic-bezier(.2,.8,.2,1)}
+.opt.mine .tick{display:flex}
+.opt.just .tick{animation:pop .35s cubic-bezier(.2,.8,.2,1)}
 .opts.photo{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
 .opts.photo .opt{flex-direction:column;align-items:stretch;padding:0;gap:0;border-radius:22px}
 .opts.photo .ph{position:relative;display:block;aspect-ratio:4/5;background:var(--sunk);overflow:hidden}
@@ -158,7 +159,8 @@ svg{flex:none}
 .deck::before{transform:rotate(-1.1deg)}
 .deck::after{left:28px;right:28px;bottom:0;opacity:.35;transform:rotate(1.4deg)}
 .deck.single::before,.deck.single::after{display:none}
-.deck .card{position:relative;z-index:1;box-shadow:var(--shadow);animation:rise .4s cubic-bezier(.2,.8,.2,1)}
+.deck .card{position:relative;z-index:1;box-shadow:var(--shadow)}
+.deck.fresh .card{animation:rise .4s cubic-bezier(.2,.8,.2,1)}
 .caught{align-items:center;text-align:center;padding:30px 20px}
 .caught .ok{width:56px;height:56px;border-radius:50%;background:var(--good-soft);color:var(--good-ink);display:flex;align-items:center;justify-content:center}
 @keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
@@ -248,9 +250,9 @@ svg{flex:none}
 select.sel{height:40px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);padding:0 10px;font-weight:600}
 
 #boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg)}
-#boot .brand{font-size:34px;animation:pulse 1.4s ease-in-out infinite}
+#boot .brand{font-size:34px}
 @keyframes pulse{50%{opacity:.45}}
-.skel{height:132px;border-radius:28px;background:var(--surface);animation:pulse 1.4s ease-in-out infinite}
+.skel{height:132px;border-radius:28px;background:var(--surface);opacity:.6}
 .rowcard{display:flex;flex-direction:column;gap:10px;width:100%;text-align:left;background:var(--surface);border-radius:22px;padding:14px 16px;transition:transform .15s ease}
 .rowcard:active{transform:scale(.99)}
 .rowcard .r1{display:flex;align-items:center;gap:12px}
@@ -285,14 +287,13 @@ div.opt{cursor:default}
 @keyframes stamp{from{transform:scale(1.5) rotate(-3deg);opacity:0}}
 /* ambient: the two circles of the logo, far behind everything */
 .ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
-.ambient i{position:absolute;border-radius:50%;filter:blur(72px);opacity:.55;animation:drift 28s ease-in-out infinite alternate}
-.ambient i:nth-child(1){width:44vmax;height:44vmax;left:-16vmax;top:-14vmax;background:var(--violet-soft)}
-.ambient i:nth-child(2){width:36vmax;height:36vmax;right:-14vmax;bottom:-12vmax;background:var(--coral-soft);animation-delay:-11s}
-@keyframes drift{to{transform:translate(5vmax,3vmax) scale(1.1)}}
+.ambient i{position:absolute;border-radius:50%;opacity:.9}
+.ambient i:nth-child(1){width:70vmax;height:70vmax;left:-30vmax;top:-30vmax;background:radial-gradient(closest-side,var(--violet-soft),transparent)}
+.ambient i:nth-child(2){width:60vmax;height:60vmax;right:-26vmax;bottom:-26vmax;background:radial-gradient(closest-side,var(--coral-soft),transparent)}
 #fx{position:fixed;inset:0;width:100%;height:100%;z-index:80;pointer-events:none}
 #main.enter>*{animation:rise .42s cubic-bezier(.2,.8,.2,1) both}
 #main.enter>*:nth-child(2){animation-delay:.04s}#main.enter>*:nth-child(3){animation-delay:.08s}#main.enter>*:nth-child(4){animation-delay:.12s}#main.enter>*:nth-child(n+5){animation-delay:.16s}
-.opt.mine::before{content:"";position:absolute;top:0;bottom:0;left:-40%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);animation:sheen .8s ease-out .05s both;pointer-events:none}
+.opt.just::before{content:"";position:absolute;top:0;bottom:0;left:-40%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);animation:sheen .8s ease-out .05s both;pointer-events:none}
 @keyframes sheen{to{left:120%}}
 .cdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
 .tip{display:flex;align-items:center;gap:10px;padding:10px 12px 10px 14px;border-radius:16px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--coral);font-size:14.5px}
@@ -357,7 +358,6 @@ div.opt{cursor:default}
 .opts.photo .key{width:24px;height:24px;border-radius:8px;font-size:12px}
 /* ---- glass: the floating bar, notices and the dimmed backdrop ---- */
 .toast{background:color-mix(in srgb,var(--nav) 86%,transparent);-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);border:1px solid rgba(255,255,255,.10)}
-.scrim{-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
 /* ---- first-visit tips: quiet, never alarming ---- */
 .tip{background:var(--violet-soft);box-shadow:none;color:var(--violet-ink)}
 .tip::before{background:var(--violet)}
@@ -400,7 +400,7 @@ div.opt{cursor:default}
   .sheet::before{content:"";flex:none;align-self:center;width:42px;height:5px;border-radius:99px;background:var(--line);margin-bottom:-4px}
   .card.big .q{font-size:26px}
   .band{grid-template-columns:1fr;padding:28px 22px;border-radius:28px}.trust{grid-template-columns:1fr}
-  .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin:0 -16px 8px;padding:8px 16px;background:color-mix(in srgb,var(--bg) 72%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin:0 -16px 8px;padding:8px 16px;background:var(--bg)}
 }
 .foot{text-align:center;color:var(--ink2);font-size:13.5px}
 .callit{display:flex;flex-direction:column;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
@@ -973,7 +973,7 @@ function circleBody(c){
 function openCircle(cid,quiet){
   var c=circle(cid); if(!c){ if(SH&&SH.type==='circle') closeSheet(); return }
   var sc=quiet&&$('.sheet')?$('.sheet').scrollTop:0;
-  SH={type:'circle',cid:cid};
+  SH={type:'circle',cid:cid,html:circleBody(c)};
   showSheet('<div class="sheet-head"><h2 style="display:flex;align-items:center;gap:10px"><i class="cdot" style="width:14px;height:14px;margin:0;background:'+tintFor(c.id)+'"></i>'+esc(c.name)+'</h2><button class="x" data-act="close" aria-label="Close">'+IC.x+'</button></div>'+circleBody(c),c.name);
   if(quiet){$('.scrim').style.animation='none';$('.sheet').style.animation='none';$('.sheet').scrollTop=sc}
 }
@@ -1043,13 +1043,16 @@ function railHTML(){
   h+='<div class="box"><span class="label">Circles</span><div>'+S.circles.map(function(c){return '<div class="person"><b>'+esc(c.name)+'</b><span class="avs">'+c.members.slice(0,3).map(function(m){return av(m,24)}).join('')+'</span></div>'}).join('')+'</div></div>';
   return h;
 }
-var ENTER=true;
+var ENTER=true,LASTHTML='',LASTDECK='';
+function viewHTML(){return view==='home'?homeHTML():view==='circles'?circlesHTML():view==='activity'?activityHTML():youHTML()}
 function render(){
   var r=(location.hash||'#home').slice(1); view=['home','circles','activity','you'].indexOf(r)>=0?r:'home';
   $$('[data-nav]').forEach(function(a){ if(a.dataset.nav===view) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current') });
   var m=$('#main');
-  if(ENTER){ENTER=false;m.classList.remove('enter');void m.offsetWidth;m.classList.add('enter')}
-  m.innerHTML=view==='home'?homeHTML():view==='circles'?circlesHTML():view==='activity'?activityHTML():youHTML();
+  /* The entrance plays once per visit to a screen. The class comes off afterwards, or every later redraw would replay it. */
+  if(ENTER){ENTER=false;m.classList.remove('enter');void m.offsetWidth;m.classList.add('enter');clearTimeout(render.t);render.t=setTimeout(function(){m.classList.remove('enter')},900)}
+  LASTHTML=viewHTML(); m.innerHTML=LASTHTML;
+  if(view==='home'){ var dk=$('.deck [data-card]',m),did=dk?dk.dataset.card:''; if(dk&&did!==LASTDECK) dk.parentNode.classList.add('fresh'); LASTDECK=did }
   if(view==='home') homeSig=computeHomeSig();
   chrome();
 }
@@ -1064,9 +1067,9 @@ function sync(){
   save();
   if(!S.me) return;
   if(view==='home'){ if(computeHomeSig()!==homeSig) render(); else {patchCards();patchRows();chrome()} }
-  else { var a=document.activeElement; if(!(a&&$('#main').contains(a)&&/INPUT|SELECT|TEXTAREA/.test(a.tagName))) render(); else chrome() }
+  else { var a=document.activeElement; if(!(a&&$('#main').contains(a)&&/INPUT|SELECT|TEXTAREA/.test(a.tagName))&&viewHTML()!==LASTHTML) render(); else chrome() }
   if(SH&&SH.type==='poll') refreshPollSheet();
-  if(SH&&SH.type==='circle') openCircle(SH.cid,true);
+  if(SH&&SH.type==='circle'){ var cc2=circle(SH.cid); if(!cc2||circleBody(cc2)!==SH.html) openCircle(SH.cid,true) }
 }
 
 /* ---------- actions ---------- */
@@ -1079,7 +1082,10 @@ function vote(pid,i){
   if(LIVE) remote(sb.from('votes').upsert({poll_id:pid,user_id:ME,choice:i,updated_at:new Date().toISOString()}).then(function(r){return (r.error||!p.early)?r:sb.rpc('close_if_complete',{p:pid})}),p.circles);
   tipDone('vote'); burst();
   if(firstVote&&view==='home'&&!SH){ holdId=pid; clearTimeout(holdTimer); holdTimer=setTimeout(function(){holdId=null;sync()},HAS2?15000:1700) }
-  finishIfAll(p); sync();
+  finishIfAll(p); sync(); flourish(pid,i);
+}
+function flourish(pid,i){
+  $$('[data-act="vote"][data-p="'+pid+'"][data-i="'+i+'"]').forEach(function(b){b.classList.add('just');setTimeout(function(){b.classList.remove('just')},950)});
 }
 function releaseHold(ms){clearTimeout(holdTimer);holdTimer=setTimeout(function(){holdId=null;sync()},ms)}
 function guess(pid,i){

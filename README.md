@@ -11,6 +11,7 @@ post a dilemma to a circle of friends, they vote in one tap, and you get a verdi
 | `config.js` | Two settings that switch on real accounts |
 | `supabase/schema.sql` | The database tables and privacy rules |
 | `supabase/upgrade-2.sql` | Adds predictions, hot takes, nudges, end-early, the tiebreaker and question previews |
+| `supabase/upgrade-3.sql` | Adds plans with RSVPs, match mode and anonymous asking |
 | `manifest.json`, `icon-*.png`, `apple-touch-icon.png` | Lets people add Sway to their phone's home screen |
 | `vendor/` | The Supabase browser library (v2.45.4), bundled so the site has no outside script dependencies |
 
@@ -31,6 +32,9 @@ invite link can vote straight away as a guest and add an email later.
    Then do the same with `supabase/upgrade-2.sql`. It adds predictions, hot takes, nudges, the
    end-early switch, the tiebreaker and the preview shown on shared question links. Until it has
    been run, those features stay hidden and everything else works. It is safe to run more than once.
+   Then run `supabase/upgrade-3.sql` the same way. It adds plans with RSVPs, match mode and
+   anonymous asking, and it changes how questions are loaded so that the asker of an anonymous
+   question never reaches other people's browsers. Deploy the site files before running it.
 3. In the project's authentication settings, allow anonymous sign-ins (this is
    what lets invited friends vote as guests). For quick testing you can also
    turn off email confirmation.
@@ -60,5 +64,11 @@ Tested against the connected Supabase project with real browser sessions:
 - Three people, after `upgrade-2.sql`: the guided start, a shared question link where
   a guest taps an answer and joins, predictions, a hot take, a nudge, the end-early
   countdown, a tie, the tiebreaker, and the reveal showing who called it.
+
+Plans, match mode and anonymous asking (upgrade 3) were tested in the demo, against a
+stand-in backend, and their database rules in a local Postgres with five pretend users.
+They have not yet run against the connected project.
+
+Venue offers exist only as made-up examples in the demo. There are no venue accounts.
 
 Not yet tested: password reset with a real email, and the site on a physical phone.

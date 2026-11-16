@@ -12,6 +12,9 @@ post a dilemma to a circle of friends, they vote in one tap, and you get a verdi
 | `supabase/schema.sql` | The database tables and privacy rules |
 | `supabase/upgrade-2.sql` | Adds predictions, hot takes, nudges, end-early, the tiebreaker and question previews |
 | `supabase/upgrade-3.sql` | Adds plans with RSVPs, match mode and anonymous asking |
+| `supabase/upgrade-4.sql` | Adds the tables for push notifications |
+| `supabase/functions/notify/` | The notification sender (a Supabase Edge Function, no libraries) |
+| `sw.js` | Shows notifications on a device and opens the question when one is tapped |
 | `manifest.json`, `icon-*.png`, `apple-touch-icon.png` | Lets people add Sway to their phone's home screen |
 | `vendor/` | The Supabase browser library (v2.45.4), bundled so the site has no outside script dependencies |
 
@@ -45,6 +48,36 @@ invite link can vote straight away as a guest and add an email later.
    Supabase authentication settings, add the site's address as the site URL so
    confirmation emails link back to it.
 
+## Push notifications
+
+People switch them on per device (on iPhone the site has to be added to the Home Screen
+first). The asker's browser tells the sender when they ask, nudge, lock in a plan, hand
+over a tiebreak or share what happened next; the sender checks the caller really is the
+asker and sends to the rest of the circle. A once-a-minute timer announces verdicts and
+gives a last call 15 minutes before a question closes.
+
+Set up, once per project:
+
+1. Run `supabase/upgrade-4.sql`.
+2. Create a VAPID key pair. Put the public key in `config.js` as `vapid`, and set these
+   function secrets: `VAPID_PUBLIC`, `VAPID_PRIVATE_JWK`, `VAPID_SUBJECT`, `SITE_URL`,
+   and `CRON_SECRET` (any long random string).
+3. Deploy `supabase/functions/notify` with JWT verification off (it checks callers itself).
+4. Schedule the timer, with your own secret in place of `YOUR_CRON_SECRET`:
+
+   ```sql
+   create extension if not exists pg_net;
+   create extension if not exists pg_cron;
+   select cron.schedule('sway-notify-tick', '* * * * *', $$
+     select net.http_post(
+       url := 'https://YOUR-PROJECT.supabase.co/functions/v1/notify',
+       headers := jsonb_build_object('Content-Type', 'application/json', 'x-sway-cron', 'YOUR_CRON_SECRET'),
+       body := '{"kind":"tick"}'::jsonb)
+   $$);
+   ```
+
+Never commit the private key or the cron secret.
+
 ## Privacy rules enforced by the database
 
 - People only see circles they belong to, and the polls, comments and members inside them.
@@ -71,5 +104,10 @@ Tested against the connected Supabase project with real browser sessions:
   30 seconds after the last pick and revealed the one option everyone said yes to.
 
 Venue offers exist only as made-up examples in the demo. There are no venue accounts.
+
+Push notifications: the encryption matches the RFC 8291 example, and the deployed sender
+was run against the project (permission checks, no repeats, real calls to Google's and
+Mozilla's push services with fake devices, which were rejected and forgotten as expected).
+Delivery to a real phone has not been confirmed yet.
 
 Not yet tested: password reset with a real email, and the site on a physical phone.

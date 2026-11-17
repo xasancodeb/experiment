@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Sway</title><meta name="description" content="Sway: ask your trusted friends before you decide."><meta name="theme-color" content="#F5F1EA"><link rel="manifest" href="manifest.json"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Sway"><meta property="og:title" content="Sway"><meta property="og:description" content="Ask your trusted friends before you decide."><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="config.js"></script><script>if(window.SWAY_CONFIG&&SWAY_CONFIG.url&&SWAY_CONFIG.key)document.write('<script src="vendor/supabase.js"><\/script>')</script></head><body>
 <title>Sway</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500..800&family=Instrument+Sans:wght@400..700&display=swap">
 <style>
 /* Layout: sidebar nav + one finite column of poll cards + quiet right rail; collapses to a single column with a floating tab bar. */
 :root{
@@ -11,24 +11,28 @@
   --coral:#FF6B4A; --coral-soft:#FFE6DE; --coral-ink:#B8391C;
   --good-soft:#E4F3EA; --good-ink:#1F6B45;
   --nav:#1C1726; --on-nav:#FFFFFF; --on-nav2:#B9B3C4; --shadow:0 18px 40px rgba(28,23,38,.10); --glow:0 10px 26px rgba(91,61,245,.30); --hair:rgba(28,23,38,.07); --lift:0 1px 2px rgba(28,23,38,.04),0 14px 30px -20px rgba(28,23,38,.28);
-  --display:'Bricolage Grotesque','Avenir Next','Segoe UI',sans-serif;
+  --display:'Unbounded','Avenir Next','Segoe UI',sans-serif;
+  --grad:linear-gradient(135deg,#7657FF 0%,#B14DFF 55%,#F0477E 125%);
+  --glow1:#E4DDFF; --glow2:#FFDCE6; --glass:#FFFFFF; --glass-line:rgba(28,23,38,.07);
   --body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#14111B; --surface:#1F1A29; --sunk:#2A2436; --line:#383047;
-  --ink:#F3EFF8; --ink2:#B0A9BD;
-  --violet:#8F7AFF; --on-violet:#14111B; --violet-soft:#2B2350; --violet-ink:#C9BEFF;
-  --coral:#FF7D5F; --coral-soft:#40221B; --coral-ink:#FFB7A4;
+  --bg:#0B0912; --surface:#171321; --sunk:#221D30; --line:#342D48;
+  --glow1:rgba(118,87,255,.60); --glow2:rgba(240,71,126,.42); --glass:rgba(255,255,255,.07); --glass-line:rgba(255,255,255,.17);
+  --ink:#FFFFFF; --ink2:#B9B3C9;
+  --violet:#7657FF; --on-violet:#FFFFFF; --violet-soft:#241B4B; --violet-ink:#CBC0FF;
+  --coral:#FF5C8A; --coral-soft:#3F1428; --coral-ink:#FFB4C8;
   --good-soft:#1A3327; --good-ink:#8ED9AE;
-  --nav:#2A2436; --on-nav:#FFFFFF; --on-nav2:#B0A9BD; --shadow:0 18px 40px rgba(0,0,0,.45); --glow:0 10px 26px rgba(143,122,255,.22); --hair:rgba(255,255,255,.08); --lift:0 14px 30px -20px rgba(0,0,0,.6);
+  --nav:#1C1728; --on-nav:#FFFFFF; --on-nav2:#B0A9BD; --shadow:0 18px 40px rgba(0,0,0,.45); --glow:0 10px 26px rgba(143,122,255,.22); --hair:rgba(255,255,255,.08); --lift:0 14px 30px -20px rgba(0,0,0,.6);
   color-scheme:dark } }
 :root[data-theme="dark"]{
-  --bg:#14111B; --surface:#1F1A29; --sunk:#2A2436; --line:#383047;
-  --ink:#F3EFF8; --ink2:#B0A9BD;
-  --violet:#8F7AFF; --on-violet:#14111B; --violet-soft:#2B2350; --violet-ink:#C9BEFF;
-  --coral:#FF7D5F; --coral-soft:#40221B; --coral-ink:#FFB7A4;
+  --bg:#0B0912; --surface:#171321; --sunk:#221D30; --line:#342D48;
+  --glow1:rgba(118,87,255,.60); --glow2:rgba(240,71,126,.42); --glass:rgba(255,255,255,.07); --glass-line:rgba(255,255,255,.17);
+  --ink:#FFFFFF; --ink2:#B9B3C9;
+  --violet:#7657FF; --on-violet:#FFFFFF; --violet-soft:#241B4B; --violet-ink:#CBC0FF;
+  --coral:#FF5C8A; --coral-soft:#3F1428; --coral-ink:#FFB4C8;
   --good-soft:#1A3327; --good-ink:#8ED9AE;
-  --nav:#2A2436; --on-nav:#FFFFFF; --on-nav2:#B0A9BD; --shadow:0 18px 40px rgba(0,0,0,.45); --glow:0 10px 26px rgba(143,122,255,.22); --hair:rgba(255,255,255,.08); --lift:0 14px 30px -20px rgba(0,0,0,.6);
+  --nav:#1C1728; --on-nav:#FFFFFF; --on-nav2:#B0A9BD; --shadow:0 18px 40px rgba(0,0,0,.45); --glow:0 10px 26px rgba(143,122,255,.22); --hair:rgba(255,255,255,.08); --lift:0 14px 30px -20px rgba(0,0,0,.6);
   color-scheme:dark }
 
 *{box-sizing:border-box}
@@ -288,8 +292,8 @@ div.opt{cursor:default}
 /* ambient: the two circles of the logo, far behind everything */
 .ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
 .ambient i{position:absolute;border-radius:50%;opacity:.9}
-.ambient i:nth-child(1){width:70vmax;height:70vmax;left:-30vmax;top:-30vmax;background:radial-gradient(closest-side,var(--violet-soft),transparent)}
-.ambient i:nth-child(2){width:60vmax;height:60vmax;right:-26vmax;bottom:-26vmax;background:radial-gradient(closest-side,var(--coral-soft),transparent)}
+.ambient i:nth-child(1){width:90vmax;height:90vmax;left:-40vmax;top:-44vmax;background:radial-gradient(closest-side,var(--glow1),transparent)}
+.ambient i:nth-child(2){width:80vmax;height:80vmax;right:-38vmax;bottom:-36vmax;background:radial-gradient(closest-side,var(--glow2),transparent)}
 #fx{position:fixed;inset:0;width:100%;height:100%;z-index:80;pointer-events:none}
 #main.enter>*{animation:rise .42s cubic-bezier(.2,.8,.2,1) both}
 #main.enter>*:nth-child(2){animation-delay:.04s}#main.enter>*:nth-child(3){animation-delay:.08s}#main.enter>*:nth-child(4){animation-delay:.12s}#main.enter>*:nth-child(n+5){animation-delay:.16s}
@@ -403,6 +407,52 @@ div.opt{cursor:default}
   .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin:0 -16px 8px;padding:8px 16px;background:var(--bg)}
 }
 .say1{font-size:17px;color:var(--ink2);margin-top:6px}
+/* ===== Sway, after dark: one gradient, light behind glass, and answers as circles ===== */
+h1,h2,h3{letter-spacing:-.045em}
+.brand{font-weight:700;letter-spacing:-.05em;font-size:22px}
+.hero h1{font-size:clamp(34px,6vw,64px);font-weight:700;line-height:1.02}
+.hero h1 em{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.head h1{font-size:32px;font-weight:700}
+.q{font-weight:600;font-size:19px;line-height:1.2;letter-spacing:-.04em}
+.card.big .q{font-size:24px;line-height:1.14}
+.rowcard .tt b{font-size:15px;font-weight:600;line-height:1.3;letter-spacing:-.03em}
+.sheet-head h2{font-size:18px}
+.stat b,.streak b{letter-spacing:-.05em}
+.rv h2{font-size:clamp(30px,8vw,52px);font-weight:700}
+.rv .big{font-size:clamp(60px,19vw,104px);font-weight:700}
+.ctile .disc b{font-weight:700;font-size:clamp(13px,9cqw,19px);letter-spacing:-.04em}
+.band h2{font-weight:700}.mock b{font-weight:700;font-size:26px}.mock .n{font-weight:700;font-size:62px}
+.key,.opt .pct,.av{letter-spacing:-.03em}
+.btn.primary,.nav .ask,.verdict,.stat.hot{background:var(--grad);color:#fff}
+.btn.primary{background-image:var(--grad)}
+.prog i{background:var(--grad)}
+.opt.mine .key,.opt.lead .key,.opt .tick{background:var(--grad);color:#fff}
+.nav .ask{box-shadow:0 0 0 0 transparent,0 10px 30px -6px rgba(150,80,255,.75)}
+.deck .card,.try .card{background:var(--glass);border:1px solid var(--glass-line);box-shadow:0 30px 70px -30px rgba(120,70,255,.55)}
+.deck::before,.deck::after{background:var(--glass);border:1px solid var(--glass-line);border-top:0}
+.sheet{background:var(--bg);border:1px solid var(--glass-line);border-bottom:0}
+.chip.urgent{background:var(--coral-soft);color:var(--coral-ink)}
+.say1{font-size:16px}
+/* two answers become two circles; they swell and shrink with the vote */
+.opts.duel{flex-direction:row;align-items:center;justify-content:center;gap:0;min-height:230px;padding:6px 0}
+.opts.duel .opt{flex:none;width:54%;aspect-ratio:1;min-height:0;border-radius:50%;flex-direction:column;justify-content:center;gap:4px;padding:10%;text-align:center;color:#fff;
+  background:radial-gradient(120% 120% at 30% 20%,#9C84FF,#6A45F5 60%,#4A2BD0);box-shadow:0 18px 44px -14px rgba(118,87,255,.8);
+  transition:width .9s cubic-bezier(.2,.9,.2,1),transform .15s ease,box-shadow .3s,opacity .3s}
+.opts.duel .opt{padding:10% 13% 10% 8%}
+.opts.duel .opt+.opt{padding:10% 8% 10% 13%;margin-left:-7%;background:radial-gradient(120% 120% at 30% 20%,#FF8FAE,#F0477E 60%,#C72A62);box-shadow:0 18px 44px -14px rgba(240,71,126,.8)}
+.opts.duel .opt::after,.opts.duel .opt .fill,.opts.duel .opt .key,.opts.duel .opt .tick,.opts.duel .opt.just::before{display:none}
+.opts.duel .opt .lbl{flex:none;padding:0;font:600 15px/1.15 var(--display);letter-spacing:-.04em;text-wrap:balance;overflow-wrap:anywhere}
+.opts.duel .opt .pct{font:700 0/1 var(--display);color:#fff;transition:font-size .5s ease .25s}
+.opts.duel .opt.show{width:calc(36% + var(--pct) * .4)}
+.opts.duel .opt.show .pct{font-size:clamp(18px,7vw,30px)}
+.opts.duel .opt.lead .pct{color:#fff}
+.opts.duel .opt.mine{outline:3px solid #fff;outline-offset:3px;z-index:1}
+.opts.duel .opt:not([disabled]):hover{transform:scale(1.04);z-index:2}
+.opts.duel .opt:not([disabled]):active{transform:scale(.96)}
+.opts.duel .opt[disabled]{opacity:.96}
+.opts.duel .offer{color:#fff;opacity:.9}
+.try .card{transform:rotate(1.2deg)}
+@media (max-width:820px){.hero h1{font-size:34px}.head h1{font-size:26px}.card.big .q{font-size:21px}.opts.duel{min-height:200px}}
 .foot{text-align:center;color:var(--ink2);font-size:13.5px}
 .callit{display:flex;flex-direction:column;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
 .callit .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
@@ -522,13 +572,14 @@ var sb=LIVE?window.supabase.createClient(CFG.url,CFG.key):null;
 var ME=null,GUEST=false,PENDING=null;
 /* Appearance: 'auto' follows the device; 'light' and 'dark' are the person's own choice, remembered on this device. */
 var THEME='auto',THEMESET=false;
-try{THEME=localStorage.getItem('sway.theme')||'auto'}catch(e){}
+THEME='dark';
+try{THEME=localStorage.getItem('sway.theme')||'dark'}catch(e){}
 function isDark(){return THEME==='dark'||(THEME==='auto'&&(document.documentElement.getAttribute('data-theme')==='dark'||(!document.documentElement.getAttribute('data-theme')&&!!window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)))}
 function applyTheme(){
   var r=document.documentElement;
   if(THEME==='auto'){ if(THEMESET){r.removeAttribute('data-theme');THEMESET=false} }
   else {r.setAttribute('data-theme',THEME);THEMESET=true}
-  var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content',isDark()?'#14111B':'#F5F1EA');
+  var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content',isDark()?'#0B0912':'#F5F1EA');
 }
 function setTheme(t){THEME=t; try{localStorage.setItem('sway.theme',t)}catch(e){} applyTheme()}
 applyTheme();
@@ -815,7 +866,7 @@ function optsHTML(p){
   }
   if(isMatch(p)) return matchHTML(p);
   var st=optStates(p),dis=(isClosed(p)||p.by==='me')?' disabled':'',photo=p.type==='photo';
-  return '<div class="opts'+(photo?' photo':'')+'">'+p.opts.map(function(o,i){
+  return '<div class="opts'+(photo?' photo':(p.opts.length===2?' duel':''))+'">'+p.opts.map(function(o,i){
     var s=st[i],cls='opt'+(s.show?' show':'')+(s.mine?' mine':'')+(s.lead?' lead':'');
     var inner='<span class="fill"></span><span class="key">'+'ABCDEFGH'[i]+'</span><span class="lbl">'+esc(o.t)+offerLine(o)+'</span><span class="tick">'+IC.check+'</span><span class="pct">'+(s.show?s.pct+'%':'')+'</span>';
     if(photo) inner='<span class="ph">'+(o.img?'<img src="'+o.img+'" alt="">':(o.art?art(o.art):''))+'</span><span class="meta">'+inner+'</span>';
@@ -1643,7 +1694,7 @@ function tryCard(){
     if(tag) tag.textContent=ms<=0?'Voting has closed':AUTH.pick==null?'Tap your answer':'Now add your name';
     $('#tryCard').innerHTML='<article class="card"><div class="card-top"><span class="av" style="--s:38px;background:'+colorFor(P.asker_name)+'">'+esc(initials(P.asker_name))+'</span><div class="who"><b>'+esc(P.asker_name)+' wants your vote</b><span>'+esc(P.circle_name)+'</span></div><span class="chip'+(ms<HR?' urgent':'')+'">'+IC.clock+' '+left(ms)+'</span></div>'+
       '<p class="q">'+esc(P.question)+'</p>'+
-      ((P.options||[]).length?'<div class="opts">'+P.options.map(function(o,i){
+      ((P.options||[]).length?'<div class="opts'+(P.options.length===2?' duel':'')+'">'+P.options.map(function(o,i){
         return '<button class="opt'+(AUTH.pick===i?' mine':'')+'" data-pv="'+i+'"'+(ms<=0?' disabled':'')+' aria-pressed="'+(AUTH.pick===i)+'"><span class="fill"></span><span class="key">'+'ABCDEFGH'[i]+'</span><span class="lbl">'+esc(o)+'</span><span class="tick">'+IC.check+'</span><span class="pct"></span></button>'}).join('')+'</div>'
         :'<p class="muted small">This is an open question. Join to write your reply.</p>')+
       '<div class="card-state">'+(ms<=0?'Join to see the verdict.':AUTH.pick!=null?'Got it. Enter your first name and your vote is in.':'')+'</div></article>';
@@ -1653,7 +1704,7 @@ function tryCard(){
     if(AUTH.poll) return real(AUTH.poll);
     var tot=base[0]+base[1]+(picked!=null?1:0);
     $('#tryCard').innerHTML='<article class="card"><div class="card-top"><span class="av" style="--s:38px;background:#FFD7C9">MC</span><div class="who"><b>Maya Chen</b><span>Inner Circle · example</span></div><span class="chip urgent">'+IC.clock+' 12m left</span></div>'+
-      '<p class="q">Should I text him first?</p><div class="opts">'+names.map(function(n,i){
+      '<p class="q">Should I text him first?</p><div class="opts duel">'+names.map(function(n,i){
         var c=base[i]+(picked===i?1:0),pct=picked==null?0:Math.round(c/tot*100);
         return '<button class="opt'+(picked!=null?' show':'')+(picked===i?' mine':'')+(picked!=null&&i===0?' lead':'')+'" style="--pct:0%" data-pct="'+pct+'" data-try="'+i+'"><span class="fill"></span><span class="key">'+'ABCDEFGH'[i]+'</span><span class="lbl">'+n+'</span><span class="tick">'+IC.check+'</span><span class="pct">'+(picked!=null?pct+'%':'')+'</span></button>'}).join('')+'</div>'+
       '<div class="card-state">'+(picked!=null?'That was the whole thing. One tap and you’re in.':'')+'</div>'+
@@ -1677,7 +1728,7 @@ function wrapText(ctx,text,maxW){
 function drawCard(p){
   var W=1080,H=1350,c=document.createElement('canvas'); c.width=W; c.height=H;
   var x=c.getContext('2d'),t=tally(p),win=winner(p),tie=win<0,pad=84;
-  var disp='"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif',body='"Instrument Sans",system-ui,sans-serif';
+  var disp='"Unbounded","Avenir Next","Segoe UI",sans-serif',body='"Instrument Sans",system-ui,sans-serif';
   x.fillStyle='#5B3DF5'; x.fillRect(0,0,W,H);
   x.globalAlpha=.16; x.fillStyle='#FFFFFF'; x.beginPath(); x.arc(W-90,150,250,0,7); x.fill(); x.fillStyle='#FF6B4A'; x.globalAlpha=.9; x.beginPath(); x.arc(W-40,300,120,0,7); x.fill(); x.globalAlpha=1;
   x.fillStyle='#FFFFFF'; x.textBaseline='alphabetic';
@@ -1729,7 +1780,7 @@ function openRecap(){
 function recapCard(){
   var go=function(){
     var r=recapData(),W=1080,H=1350,c=document.createElement('canvas'); c.width=W; c.height=H; var x=c.getContext('2d'),pad=84;
-    var disp='"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif',body='"Instrument Sans",system-ui,sans-serif';
+    var disp='"Unbounded","Avenir Next","Segoe UI",sans-serif',body='"Instrument Sans",system-ui,sans-serif';
     x.fillStyle='#1C1726'; x.fillRect(0,0,W,H);
     x.fillStyle='#5B3DF5'; x.beginPath(); x.arc(W-120,170,230,0,7); x.fill(); x.globalAlpha=.92; x.fillStyle='#FF6B4A'; x.beginPath(); x.arc(W-40,330,130,0,7); x.fill(); x.globalAlpha=1;
     x.fillStyle='#FFFFFF'; x.font='800 64px '+disp; x.fillText('sway',pad,150);
@@ -1738,7 +1789,7 @@ function recapCard(){
     x.font='600 30px '+body; x.globalAlpha=.85; x.fillText('Ask your people before you decide.',pad,H-84); x.globalAlpha=1;
     CARD=c; showCard('Your recap','Your Sway recap','Only your own numbers are on it. No friends’ names, no questions.');
   };
-  if(document.fonts&&document.fonts.load) Promise.all([document.fonts.load('800 100px "Bricolage Grotesque"'),document.fonts.load('700 30px "Instrument Sans"')]).then(go,go); else go();
+  if(document.fonts&&document.fonts.load) Promise.all([document.fonts.load('800 100px "Unbounded"'),document.fonts.load('700 30px "Instrument Sans"')]).then(go,go); else go();
 }
 /* Friendly, private awards for a circle, from the last 30 days of questions this browser can see. */
 function awardsFor(c){
@@ -1762,7 +1813,7 @@ function shareCard(pid){
   var go=function(){
     CARD=drawCard(p); showCard('Verdict card','Verdict card: '+p.q+' '+verdictText(p),'The card shows the question and the result. It never shows who voted.');
   };
-  if(document.fonts&&document.fonts.load) Promise.all([document.fonts.load('800 100px "Bricolage Grotesque"'),document.fonts.load('700 30px "Instrument Sans"')]).then(go,go); else go();
+  if(document.fonts&&document.fonts.load) Promise.all([document.fonts.load('800 100px "Unbounded"'),document.fonts.load('700 30px "Instrument Sans"')]).then(go,go); else go();
 }
 function shareNow(){
   if(!CARD) return;

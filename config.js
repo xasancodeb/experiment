@@ -9,7 +9,7 @@ window.SWAY_CONFIG = {
   // false = core only: ask, vote, reveal, comments, circles, notifications.
   // true also shows the extras (calling the winner, hot takes, nudges, tiebreaker, plans,
   // match mode, anonymous asking, awards, recap, streak).
-  extras: false,
+  extras: true,
   // Public key for push notifications. Its private half lives only in the project's secrets.
   vapid: "BPg6FcHqY79WPp2YrSWOAEusgZtk2ZCnchvLYO2G2vp4Tp1_zx-BUKiPxO6dtVqaZxf481J3WJwb1w_xLdT3Pjc"
 };

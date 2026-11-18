@@ -403,6 +403,13 @@ div.opt{cursor:default}
   .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin:0 -16px 8px;padding:8px 16px;background:var(--bg)}
 }
 .say1{font-size:17px;color:var(--ink2);margin-top:6px}
+.rowcard.mine{padding:0;gap:0;overflow:hidden}
+.rowcard.mine>.rowopen{display:flex;flex-direction:column;gap:10px;width:100%;text-align:left;padding:14px 16px}
+.rowcard .acts{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--line);background:var(--sunk)}
+.rowcard .acts span{flex:1;min-width:0;font-size:13.5px;color:var(--ink2);font-weight:600}
+.owner{display:flex;flex-wrap:wrap;gap:8px}
+.ytabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.sec>.label .n{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--sunk);color:var(--ink);font-size:11px;letter-spacing:0}
 .foot{text-align:center;color:var(--ink2);font-size:13.5px}
 .callit{display:flex;flex-direction:column;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
 .callit .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
@@ -514,7 +521,7 @@ div.opt{cursor:default}
 <script>
 (function(){
 'use strict';
-var MIN=60000,HR=3600000,DAY=86400000,KEY='sway.site.v8';
+var MIN=60000,HR=3600000,DAY=86400000,KEY='sway.site.v9';
 /* Live mode: set window.SWAY_CONFIG = {url, key} (see config.js) and load the Supabase library. Without it the site runs as a local demo. */
 var CFG=window.SWAY_CONFIG||{};
 var LIVE=!!(CFG.url&&CFG.key&&window.supabase&&window.supabase.createClient);
@@ -537,7 +544,7 @@ applyTheme();
    Everything else (calling the winner, hot takes, nudges, tiebreaker, plans, match mode, anonymous asking,
    awards, recap, streak, follow-ups, example venue offers) is built and kept, but hidden unless
    config.js sets extras: true. */
-var EXTRAS=CFG.extras===true;
+var EXTRAS=CFG.extras!==false;
 var HAS2=!LIVE;
 /* HAS3: plans, match mode and anonymous asking (live mode: once supabase/upgrade-3.sql has been run). */
 var HAS3=!LIVE,NOMY=false;
@@ -883,18 +890,27 @@ function freshList(){return S.polls.filter(function(p){return isClosed(p)&&invol
 function openList(){return S.polls.filter(function(p){return !isClosed(p)&&!myTurn(p)&&p.id!==holdId}).sort(function(a,b){return a.closes-b.closes})}
 function rowHTML(p){
   var tu=turn(p),vs={length:tu.total},n=tu.n,sub;
-  if(p.by==='me') sub='Your question · '+circleNames(p);
+  if(p.by==='me') sub=(p.hideAsker?'Asked anonymously · ':'')+circleNames(p);
   else if(isOpenType(p)) sub=first(p.by)+' · you replied';
   else if(isMatch(p)) sub=first(p.by)+' · your picks are in';
   else sub=first(p.by)+' · you picked '+(p.opts[p.votes.me]?p.opts[p.votes.me].t:'an option');
   if(p.early&&!isOpenType(p)&&p.closes-now()<=31000&&n===vs.length) sub='Everyone is in. The verdict drops in a few seconds.';
-  return '<button class="rowcard" data-row="'+p.id+'" data-act="open" data-p="'+p.id+'"><span class="r1">'+av(p.by,38)+'<span class="tt"><b>'+esc(p.q)+'</b><span>'+esc(sub)+'</span></span>'+timeChip(p)+'</span>'+
-    '<span class="r1"><span class="prog" style="flex:1"><i style="width:'+(vs.length?Math.round(n/vs.length*100):0)+'%"></i></span><span class="small muted" style="font-weight:600">'+n+' of '+vs.length+(isOpenType(p)?' replied':' voted')+'</span></span></button>';
+  var inner='<span class="r1">'+av(p.by,38)+'<span class="tt"><b>'+esc(p.q)+'</b><span>'+esc(sub)+'</span></span>'+timeChip(p)+'</span>'+
+    '<span class="r1"><span class="prog" style="flex:1"><i style="width:'+(vs.length?Math.round(n/vs.length*100):0)+'%"></i></span><span class="small muted" style="font-weight:600">'+n+' of '+vs.length+(isOpenType(p)?' replied':' voted')+'</span></span>';
+  if(p.by!=='me'||!canNudge(p)) return '<button class="rowcard" data-row="'+p.id+'" data-act="open" data-p="'+p.id+'">'+inner+'</button>';
+  var w=waitingFor(p),left2=toNudge(p);
+  var act=!w.length?'<span>Everyone has voted.</span>'
+    :left2.length?'<span>'+(w.length===1?first(w[0])+' hasn’t voted yet':w.length+' haven’t voted yet')+'</span><button class="btn sm" data-act="nudgeAll" data-p="'+p.id+'">Nudge '+(left2.length===1?first(left2[0]):'them')+'</button>'
+    :'<span>Nudged · waiting on '+w.length+'</span>';
+  return '<div class="rowcard mine" data-row="'+p.id+'"><button class="rowopen" data-act="open" data-p="'+p.id+'">'+inner+'</button><div class="acts">'+act+'</div></div>';
 }
 function patchRows(){
   $$('[data-row]').forEach(function(el){
-    var p=poll(el.dataset.row); if(!p||document.activeElement===el) return;
-    var tmp=document.createElement('div'); tmp.innerHTML=rowHTML(p); el.replaceWith(tmp.firstChild);
+    var p=poll(el.dataset.row),fa=document.activeElement; if(!p||(el.contains(fa)&&/INPUT|TEXTAREA/.test(fa.tagName))) return;
+    var html=rowHTML(p); if(el.outerHTML===html) return;
+    var refocus=el.contains(fa)&&fa.dataset?fa.dataset.act:null;
+    var tmp=document.createElement('div'); tmp.innerHTML=html; var nu=tmp.firstChild; el.replaceWith(nu);
+    if(refocus){var t=nu.querySelector('[data-act="'+refocus+'"]')||nu.querySelector('button'); if(t) try{t.focus({preventScroll:true})}catch(e){}}
   });
 }
 function startFlags(){return [S.circles.length>0,S.circles.some(function(c){return c.members.length>0}),S.polls.some(function(p){return p.by==='me'})]}
@@ -951,8 +967,11 @@ function homeHTML(){
   if(loop.length) need+=loop.map(function(p){
       return '<div class="card" style="flex-direction:row;align-items:center;gap:12px"><div style="flex:1;min-width:0"><b style="display:block;line-height:1.3">'+esc(p.q)+'</b><span class="small muted">Your circle helped you decide. Tell them how it went.</span></div><button class="btn sm" data-act="open" data-p="'+p.id+'">Tell them</button></div>';
     }).join('');
-  if(need) h+='<section class="sec"><span class="label">'+(EXTRAS?'Needs you':'Results are in')+'</span>'+need+'</section>';
-  if(open.length) h+='<section class="sec"><span class="label">Still open</span>'+open.map(rowHTML).join('')+'</section>';
+  if(need) h+='<section class="sec"><span class="label">'+(EXTRAS?'Needs you':'Results are in')+' <span class="n">'+(fresh.length+ties.length+plans.length+loop.length)+'</span></span>'+need+'</section>';
+  var mineOpen=open.filter(function(p){return p.by==='me'}),theirs=open.filter(function(p){return p.by!=='me'});
+  var lab=function(t,n){return '<span class="label">'+t+' <span class="n">'+n+'</span></span>'};
+  if(mineOpen.length) h+='<section class="sec">'+lab('Your questions',mineOpen.length)+mineOpen.map(rowHTML).join('')+'</section>';
+  if(theirs.length) h+='<section class="sec">'+lab('Waiting for results',theirs.length)+theirs.map(rowHTML).join('')+'</section>';
   h+='<p class="end">That’s everything from your circles. Sway has no endless feed.</p>';
   return h;
 }
@@ -1008,28 +1027,32 @@ function activityHTML(){
   if(earlier.length) h+='<section class="sec"><span class="label">Earlier</span><div class="box" style="gap:0">'+earlier.map(row).join('')+'</div></section>';
   return h;
 }
-var histTab='Asked';
+var histTab='Asked',youTab='me';
 function youHTML(){
   var st=stats(),sk=liveStreak();
   var lists={Asked:S.polls.filter(function(p){return p.by==='me'}),Voted:S.polls.filter(function(p){return p.by!=='me'&&hasAnswered(p,'me')})};
   var list=lists[histTab].slice().sort(function(a,b){return b.created-a.created});
   var h='<div style="display:flex;align-items:center;gap:16px">'+av('me',72)+'<div style="flex:1;min-width:0"><label class="sr" for="nameEdit">Your name</label><input class="nameedit" id="nameEdit" maxlength="24" value="'+esc(S.me.name)+'"><span class="chip" style="margin-top:8px">'+IC.lock+' Only your circles can see you</span></div></div>';
-  if(EXTRAS) h+='<button class="btn primary" data-act="recap" style="align-self:flex-start">See your Sway so far</button>';
-  if(EXTRAS) h+='<section class="sec"><span class="label">Decision diary · only you see this</span><div class="stats">'+
+  var yt=EXTRAS?youTab:(youTab==='me'?'history':youTab);
+  h+='<div class="seg ytabs" role="tablist" aria-label="Sections">'+(EXTRAS?[['me','Insights']]:[]).concat([['history','History'],['settings','Settings']]).map(function(t){return '<button role="tab" aria-selected="'+(yt===t[0])+'" data-act="ytab" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>';
+  if(EXTRAS&&yt==='me') h+='<button class="btn primary" data-act="recap" style="align-self:flex-start">See your Sway so far</button>';
+  if(EXTRAS&&yt==='me') h+='<section class="sec"><span class="label">Decision diary · only you see this</span><div class="stats">'+
     '<div class="stat hot"><b>'+sk+'</b><span>day streak</span></div><div class="stat"><b>'+st.called+'</b><span>called it (picked the winner)</span></div>'+
     '<div class="stat"><b>'+st.asked+'</b><span>questions asked</span></div><div class="stat"><b>'+st.voted+'</b><span>votes given</span></div></div></section>';
   var sy=inSync();
-  if(EXTRAS) h+='<section class="sec"><span class="label">Who thinks like you</span><div class="box" style="gap:0">'+(sy.length?sy.map(function(x){
+  if(EXTRAS&&yt==='me') h+='<section class="sec"><span class="label">Who thinks like you</span><div class="box" style="gap:0">'+(sy.length?sy.map(function(x){
       return '<div class="person">'+av(x.id,34)+'<b>'+esc(person(x.id).n)+'</b><span class="meter"><i style="width:'+x.pct+'%"></i></span><span class="small" style="font-weight:700;font-variant-numeric:tabular-nums;width:44px;text-align:right">'+x.pct+'%</span></div>'}).join('')+
       '<p class="small muted" style="padding-top:8px;border-top:1px solid var(--line)">How often each friend’s vote matched yours. Anonymous polls are never counted.</p>'
     :'<p class="small muted">Vote on a few more questions and Sway will show which friends see things the way you do.</p>')+'</div></section>';
+  if(yt==='history'){
   h+='<section class="sec"><div class="wrap" role="tablist">'+['Asked','Voted'].map(function(t){return '<button class="pill" role="tab" aria-selected="'+(histTab===t)+'" data-act="hist" data-t="'+t+'">'+t+' · '+lists[t].length+'</button>'}).join('')+'</div>';
   h+=list.length?'<div class="box" style="gap:0">'+list.map(function(p){
       var c=isClosed(p);
       return '<button class="rowbtn" style="padding:12px 0" data-act="open" data-p="'+p.id+'"><span class="t">'+esc(p.q)+'<br><span class="small muted" style="font-weight:400">'+esc(circleNames(p))+' · '+(c?esc(verdictText(p)):left(p.closes-now()))+'</span></span><span class="chip'+(c?' violet':' urgent')+'">'+(c?'Closed':'Open')+'</span></button>';
     }).join('')+'</div>':'<p class="muted small" style="padding:0 4px">'+(histTab==='Asked'?'You have not asked anything yet.':'You have not voted yet.')+'</p>';
   h+='</section>';
-  h+='<section class="sec"><span class="label">Preferences</span><div class="box" style="gap:0">'+
+  }
+  if(yt==='settings') h+='<section class="sec"><span class="label">Preferences</span><div class="box" style="gap:0">'+
     '<div class="tog"><div class="tx"><b>Appearance</b><span>'+(THEME==='auto'?'Follows this device':THEME==='dark'?'Always dark':'Always light')+'</span></div><div class="seg" role="tablist" aria-label="Appearance" style="grid-template-columns:repeat(3,auto)">'+[['auto','Auto'],['light','Light'],['dark','Dark']].map(function(t){return '<button role="tab" style="padding:0 12px;min-height:38px" aria-selected="'+(THEME===t[0])+'" data-act="themePick" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div></div>'+
     '<div class="tog"><div class="tx"><b>Hide who voted, by default</b><span>New questions count votes without showing names</span></div><button class="sw" role="switch" aria-checked="'+S.prefs.anon+'" aria-label="Anonymous by default" data-act="prefAnon"></button></div>'+
     '<div class="tog"><div class="tx"><label for="prefDl"><b>Default deadline</b></label></div><select class="sel" id="prefDl">'+DL.map(function(d){return '<option value="'+d[0]+'"'+(S.prefs.dl===d[0]?' selected':'')+'>'+d[1]+'</option>'}).join('')+'</select></div>'+
@@ -1108,6 +1131,18 @@ function saveTake(pid,text){
   if(!p.takes) p.takes={}; p.takes.me=text;
   if(LIVE) remote(sb.from('votes').update({take:text||null}).eq('poll_id',pid).eq('user_id',ME));
   sync(); toast(text?'Saved. Everyone sees it at the reveal.':'Hot take removed.');
+}
+function waitingFor(p){
+  if(p.hideAsker||isOpenType(p)) return [];
+  return voters(p).filter(function(v){return v!=='me'&&!hasAnswered(p,v)});
+}
+function canNudge(p){return EXTRAS&&HAS2&&p.by==='me'&&!isClosed(p)&&!p.hideAsker&&!isOpenType(p)}
+function toNudge(p){return canNudge(p)?waitingFor(p).filter(function(v){return (p.nudgedTo||[]).indexOf(v)<0}):[]}
+function nudgeAll(pid){
+  var p=poll(pid); if(!p) return; var list=toNudge(p); if(!list.length) return;
+  list.forEach(function(u){ if(!p.nudgedTo) p.nudgedTo=[]; p.nudgedTo.push(u);
+    if(LIVE) remote(sb.from('nudges').insert({poll_id:pid,to_user:u,from_user:ME}).then(function(r){ if(!r.error) notifyServer('nudge',pid,u); return r }),p.circles) });
+  buzz(); sync(); toast(list.length===1?'Nudged '+first(list[0])+'.':'Nudged '+list.length+' friends.');
 }
 function nudge(pid,u){
   var p=poll(pid); if(!p||isClosed(p)||p.by!=='me') return;
@@ -1327,7 +1362,8 @@ function refreshPollSheet(force){
   var top=h,tu=turn(p); h='';
   if(LIVE&&!closed&&pollCircle(p)) h+='<button class="btn sm" style="align-self:flex-start" data-act="sharePoll" data-p="'+p.id+'">'+IC.up+' Share this question</button>';
   if(p.by==='me'){
-    if(!closed) h+='<div class="wrap"><button class="btn sm" data-act="closeNow" data-p="'+p.id+'">Close voting now</button><button class="btn ghost sm" data-act="delPoll" data-p="'+p.id+'">Delete</button></div>';
+    if(!closed){ var tn=toNudge(p);
+      h+='<div class="owner">'+(tn.length?'<button class="btn primary sm" data-act="nudgeAll" data-p="'+p.id+'">Nudge '+(tn.length===1?first(tn[0]):tn.length+' who haven’t voted')+'</button>':'')+'<button class="btn sm" data-act="closeNow" data-p="'+p.id+'">Close voting now</button><button class="btn ghost sm" data-act="delPoll" data-p="'+p.id+'">Delete</button></div>'; }
     else if(EXTRAS&&p.decided==null&&!open) h+='<div class="box"><b>So, what did you do?</b><div class="wrap"><button class="btn primary sm" data-act="decide" data-v="1" data-p="'+p.id+'">Going with the verdict</button><button class="btn ghost sm" data-act="decide" data-v="0" data-p="'+p.id+'">Went my own way</button></div></div>';
     else if(EXTRAS&&p.decided!=null){
       h+='<span class="chip good" style="align-self:flex-start">'+IC.check+' '+(p.decided?'You went with the verdict':'You went your own way')+'</span>';
@@ -1515,6 +1551,7 @@ document.addEventListener('click',function(e){
   if(a==='vote') return vote(el.dataset.p,+el.dataset.i);
   if(a==='guess') return guess(el.dataset.p,+el.dataset.i);
   if(a==='nudge') return nudge(el.dataset.p,el.dataset.u);
+  if(a==='nudgeAll') return nudgeAll(el.dataset.p);
   if(a==='setTb') return setTb(el.dataset.p,el.dataset.u);
   if(a==='pick'){ var pp=poll(el.dataset.p); if(!pp) return; var dd=PK[pp.id]||(PK[pp.id]=pp.opts.map(function(){return false})); dd[+el.dataset.i]=!dd[+el.dataset.i]; buzz(); patchCards(); return }
   if(a==='sendPicks') return sendPicks(el.dataset.p);
@@ -1538,6 +1575,7 @@ document.addEventListener('click',function(e){
   if(a==='readAll'){S.notifs.forEach(function(n){n.read=true});save();return render()}
   if(a==='notif'){var n=S.notifs.filter(function(x){return x.id===el.dataset.n})[0]; if(n){n.read=true;save();render(); if(poll(n.pid)) openPoll(n.pid); else toast('That question was deleted.')} return}
   if(a==='hist'){histTab=el.dataset.t;return render()}
+  if(a==='ytab'){youTab=el.dataset.t;return render()}
   if(a==='prefAnon'){S.prefs.anon=!S.prefs.anon;save();return render()}
   if(a==='simToggle'){S.simOn=!S.simOn;save();return render()}
   if(a==='reset'){ if(!resetArmed){resetArmed=true;el.textContent='Tap again to erase';setTimeout(function(){resetArmed=false;var b=$('#resetBtn'); if(b) b.textContent='Reset'},3500);return}

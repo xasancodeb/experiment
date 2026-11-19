@@ -152,6 +152,25 @@ button{cursor:pointer;border:0;background:none;padding:0;text-align:left}
 .av.out{opacity:.35;filter:grayscale(1)}
 .keep{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:22px;background:var(--accent-soft);color:var(--accent-ink)}
 .keep .tx{display:flex;flex-direction:column;gap:2px}.keep b{font-weight:800;font-size:15.5px}.keep span{font-size:13.5px;font-weight:600}
+.l2{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;flex:1}
+.ofr{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;color:#9A3412;background:#FFEDD5;border-radius:99px;padding:3px 9px;line-height:1.25;text-align:left}
+.ofr svg{flex:none}
+.optin .pltx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:8px 0}
+.optin .pltx b{font-weight:800;font-size:15px;overflow-wrap:anywhere}
+.optin .plk{background:#FFEDD5;color:#C2410C}
+.addbtn.place{border-color:#FDBA74;color:#C2410C}
+.unlock{border-radius:24px;padding:18px;background:linear-gradient(135deg,#F97316,#EC4899);color:#fff;display:flex;flex-direction:column;gap:8px;box-shadow:0 18px 34px -18px rgba(236,72,153,.7)}
+.unlock small{display:flex;align-items:center;gap:6px;font-weight:800;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.95}
+.unlock b{font-size:20px;font-weight:800;line-height:1.2}
+.unlock span{font-weight:600;font-size:14.5px;opacity:.95}
+.unlock .code{font:800 clamp(24px,8vw,32px)/1 var(--font);letter-spacing:.04em;white-space:nowrap;overflow:hidden;background:#fff;color:#17132B;border-radius:16px;padding:14px;text-align:center;user-select:all}
+.unlock .btn{background:#fff;color:#17132B;align-self:flex-start}
+.bizhead{border-radius:24px;padding:18px;background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;gap:6px}
+.bizhead b{font-size:22px;font-weight:800;letter-spacing:-.03em}
+.bizhead span{color:var(--ink2);font-weight:600;font-size:14px}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.result{padding:12px 14px;border-radius:16px;font-weight:700}
+.result.good{background:var(--ok-soft);color:var(--ok)}.result.bad{background:var(--hot-soft);color:var(--hot)}
 .empty{background:var(--surface);border-radius:24px;padding:26px;text-align:center;color:var(--ink2);box-shadow:var(--lift)}
 .empty b{display:block;color:var(--ink);font-size:19px;font-weight:800;margin-bottom:4px}
 .empty .btn{margin-top:14px}
@@ -363,6 +382,7 @@ var I={
   mask:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.2A9.6 9.6 0 0 1 12 6c5 0 8.5 4.5 9.5 6-.5.8-1.6 2.2-3.1 3.5M6.5 7.6C4.6 8.9 3.2 10.8 2.5 12c1 1.5 4.5 6 9.5 6 1.6 0 3-.4 4.3-1.1"/></svg>',
   star:'<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.8l-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></svg>',
   staro:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.8l-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></svg>',
+  gift:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4.5" rx="1"/><path d="M5 12.5V20h14v-7.5M12 8v12M12 8c-1.5-3.5-5.5-4-5.5-1.5S10 8 12 8zm0 0c1.5-3.5 5.5-4 5.5-1.5S14 8 12 8z"/></svg>',
   img:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5L6 19.5"/></svg>',
   logo:'<svg width="34" height="34" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="30" fill="#17132B"/><circle cx="40" cy="50" r="22" fill="#7C3AED"/><circle cx="58" cy="44" r="22" fill="#EC4899" fill-opacity=".9"/></svg>'
 };
@@ -452,6 +472,10 @@ function demo(){
     P({id:'m2',by:'me',circles:['inner'],q:'Should I move to Lisbon?',opts:[{t:'Yes, go'},{t:'Stay put'}],closes:t-DAY,created:t-3*DAY,votes:{maya:0,jonah:0,priya:1,leo:0,ana:0}})
   ];
   s.seen={m2:true}; s.seenV={m1:1};
+  [['luigi','Luigi’s Trattoria','food','Via Roma 12','15% off the bill',4,80,'Not valid on Saturdays'],['sakura','Sakura Sushi','food','Harbour St 3','Free dessert for the table',3,null,''],['taco','Taco Loco','bar','Main Sq 8','2-for-1 margaritas before 9pm',2,null,'']].forEach(function(x){
+    PLACES[x[0]]={id:x[0],name:x[1],city:'Lisbon',category:x[2],address:x[3],offer:{title:x[4],min_group:x[5],min_spend:x[6],details:x[7],valid_until:null}} });
+  s.polls.push(P({id:'q5',by:'priya',circles:['inner'],q:'Where for Friday dinner?',opts:[{t:'Luigi’s Trattoria',biz:'luigi'},{t:'Sakura Sushi',biz:'sakura'},{t:'Taco Loco',biz:'taco'}],closes:t+6*HR,votes:{maya:1,leo:0}}));
+  s.polls.push(P({id:'q6',by:'leo',circles:['inner'],q:'Birthday dinner spot?',opts:[{t:'Luigi’s Trattoria',biz:'luigi'},{t:'Sakura Sushi',biz:'sakura'}],closes:t-HR,created:t-DAY,votes:{maya:0,jonah:0,priya:1,ana:0,me:0}}));
   s.act=[{id:'a1',t:t-2*HR,kind:'verdict',pid:'q4',text:'The verdict is in: Tattoo: wrist or ankle?',unread:true},{id:'a2',t:t-HR,kind:'poll',pid:'q2',text:'Maya asked Inner Circle: Which dress for Saturday’s wedding?',unread:true}];
   s.loaded=true; return s;
 }
@@ -482,6 +506,110 @@ function row(p,sub,pill,cls){
 }
 function section(label,dot,items){return items.length?'<div class="label"><i style="background:'+dot+'"></i>'+label+' <span class="n">'+items.length+'</span></div><div class="stack">'+items.join('')+'</div>':''}
 
+/* ---------- places with offers ---------- */
+var PLACES={},CLAIM={},HAS10=!LIVE,PLQ='',PLLIST=null;
+var OFFSEL='id,business_id,title,details,min_group,min_spend,valid_until,created_at,businesses(name,city,category,address)';
+function placeOf(o){ return o&&o.biz?PLACES[o.biz]:null }
+function fmtDate(d){ try{ return new Date(d+'T12:00:00').toLocaleDateString(undefined,{day:'numeric',month:'short'}) }catch(e){ return d } }
+function offerCond(f){ var c=[]; if(f.min_group>1) c.push('groups of '+f.min_group+'+'); if(f.min_spend) c.push('min spend '+(+f.min_spend)); if(f.valid_until) c.push('until '+fmtDate(f.valid_until)); return c.join(' · ') }
+function offerTag(o){ var pl=placeOf(o); if(!pl||!pl.offer) return ''; var c=offerCond(pl.offer); return '<small class="ofr">'+I.gift+' '+esc(pl.offer.title)+(c?' · '+esc(c):'')+'</small>' }
+function ansLabel(o){ var t=offerTag(o); return t?'<span class="l2"><span>'+esc(o.t)+'</span>'+t+'</span>':esc(o.t) }
+function toPlaces(list){ (list||[]).forEach(function(r){ if(!r.businesses) return; var cur=PLACES[r.business_id]; if(cur&&cur.offer&&cur.offer.created_at>r.created_at) return;
+  PLACES[r.business_id]={id:r.business_id,name:r.businesses.name,city:r.businesses.city,category:r.businesses.category,address:r.businesses.address,offer:r} }) }
+function loadPlaces(){
+  if(!LIVE||!HAS10) return; var ids={}; S.polls.forEach(function(p){ p.opts.forEach(function(o){ if(o.biz&&!PLACES[o.biz]) ids[o.biz]=1 }) }); ids=Object.keys(ids); if(!ids.length) return;
+  ids.forEach(function(x){ PLACES[x]={id:x,offer:null} });
+  soft(sb.from('offers').select(OFFSEL).in('business_id',ids)).then(function(r){ toPlaces(r.data); refresh() });
+}
+function pPlaces(){
+  var h=bar('Add a place');
+  h+='<p class="hint" style="font-size:15px;margin-top:-4px">Places that made an offer for groups. If one wins, your circle gets the deal.</p>';
+  h+='<div class="say"><label class="sr" for="plq">Search places</label><input id="plq" value="'+esc(PLQ)+'" placeholder="Search by name or city" autocomplete="off"></div>';
+  if(PLLIST===null) return h+'<div class="empty"><b>Loading places…</b></div>';
+  var q=PLQ.trim().toLowerCase(),list=PLLIST.filter(function(pl){ return !q||(pl.name+' '+pl.city+' '+pl.category).toLowerCase().indexOf(q)>=0 });
+  if(!list.length) return h+'<div class="empty"><b>'+(PLLIST.length?'No places match':'No offers yet')+'</b>'+(PLLIST.length?'Try another name or city.':'Places will show up here once local businesses join. You can still type answers yourself.')+'</div>';
+  var taken=draft?draft.bz||[]:[];
+  return h+'<div class="stack">'+list.map(function(pl){ var c=offerCond(pl.offer),has=taken.indexOf(pl.id)>=0;
+    return '<button class="row" data-a="pickplace" data-id="'+pl.id+'"'+(has?' disabled style="opacity:.55"':'')+'><span class="tile" style="background:'+grad(pl.id)+'" aria-hidden="true">'+esc(pl.name.slice(0,2).toUpperCase())+'</span><span class="tx"><b>'+esc(pl.name)+'</b><span>'+esc(pl.city)+' · '+esc(pl.category)+'</span><small class="ofr" style="margin-top:4px;align-self:flex-start">'+I.gift+' '+esc(pl.offer.title)+(c?' · '+esc(c):'')+'</small></span>'+(has?'<span class="pill">Added</span>':'')+'</button>'}).join('')+'</div>';
+}
+function openPlaces(){
+  PLQ=''; PLLIST=LIVE?null:Object.keys(PLACES).map(function(k){return PLACES[k]}).filter(function(pl){return pl.offer}); go('places');
+  if(LIVE) soft(sb.from('offers').select(OFFSEL).order('created_at',{ascending:false}).limit(300)).then(function(r){ toPlaces(r.data);
+    var seen={}; PLLIST=[]; (r.data||[]).forEach(function(x){ if(!seen[x.business_id]&&PLACES[x.business_id]&&PLACES[x.business_id].offer){ seen[x.business_id]=1; PLLIST.push(PLACES[x.business_id]) } });
+    PLLIST.sort(function(a,b){return a.name.localeCompare(b.name)}); draw('stay') });
+}
+function pickPlace(id){
+  var pl=PLACES[id]; if(!pl||!draft) return;
+  if(draft.type!=='Options'){ draft.type='Options'; draft.o=[]; draft.ph=[]; draft.bz=[] }
+  draft.bz=draft.bz||[];
+  for(var z=draft.o.length-1;z>=0;z--) if(!String(draft.o[z]).trim()&&!draft.bz[z]){ draft.o.splice(z,1); draft.bz.splice(z,1); draft.ph.splice(z,1) }
+  if(draft.bz.indexOf(id)>=0) return toast(pl.name+' is already an answer.');
+  if(draft.o.length>=MAXA) return toast('That’s the most answers a question can have.');
+  draft.o.push(pl.name); draft.bz[draft.o.length-1]=id;
+  stack.pop(); draw('back'); toast(pl.name+' added, with its offer.');
+}
+function unlockCard(p,pl){
+  var c=CLAIM[p.id];
+  if(!c) return '<div class="unlock"><small>'+I.gift+' Your group unlocked an offer</small><b>'+esc(pl.offer.title)+' at '+esc(pl.name)+'</b>'+(offerCond(pl.offer)?'<span>'+esc(offerCond(pl.offer))+'</span>':'')+'<button class="btn sm" data-a="claim" data-id="'+p.id+'">Show the code</button></div>';
+  var cond=offerCond({min_group:c.min_group,min_spend:c.min_spend,valid_until:c.valid_until});
+  return '<div class="unlock"><small>'+I.gift+' Unlocked for your group</small><div class="code">'+esc(c.code)+'</div><b>'+esc(c.title)+'</b>'+(c.details?'<span>'+esc(c.details)+'</span>':'')+(cond?'<span>'+esc(cond)+'</span>':'')+
+    '<span>Show this code at '+esc(c.business_name)+(c.address?' · '+esc(c.address):'')+'. One code for the whole group.</span>'+(c.redeemed?'<span><b style="font-size:15px">Already used</b></span>':'')+'</div>';
+}
+function claim(id){
+  var p=poll(id); if(!p) return;
+  if(!LIVE){ var pl=placeOf(p.opts[tally(p).win]); if(!pl) return; CLAIM[id]={code:'SWAY-DEMO42',title:pl.offer.title,details:pl.offer.details,min_group:pl.offer.min_group,min_spend:pl.offer.min_spend,valid_until:pl.offer.valid_until,business_name:pl.name,address:pl.address,redeemed:false}; return draw('stay') }
+  sb.rpc('claim_offer',{p:id}).then(function(r){ if(r.error) return toast(r.error.message||'The code couldn’t be loaded.'); var d=(r.data||[])[0]; if(!d) return toast('The code couldn’t be loaded.'); CLAIM[id]=d; draw('stay') });
+}
+
+/* ---------- for businesses ---------- */
+var BIZ={loaded:false,row:null,offers:[],stats:null,cat:'food',res:null,delarm:null};
+var CATS=[['food','Restaurant'],['cafe','Cafe'],['bar','Bar'],['shop','Shop'],['fun','Fun'],['beauty','Beauty'],['other','Other']];
+function loadBiz(){
+  if(!LIVE) return; BIZ.loaded=false;
+  sb.from('businesses').select('*').eq('owner',ME).maybeSingle().then(function(r){
+    BIZ.row=r.data||null; if(!BIZ.row){ BIZ.loaded=true; return draw('stay') }
+    return Promise.all([sb.from('offers').select('*').eq('business_id',BIZ.row.id).order('created_at',{ascending:false}),sb.rpc('business_stats')]).then(function(rs){
+      BIZ.offers=rs[0].data||[]; BIZ.stats=(rs[1].data||[])[0]||null; BIZ.loaded=true; draw('stay') });
+  },function(){ BIZ.loaded=true; draw('stay') });
+}
+function pBiz(){
+  var h=bar('For businesses');
+  if(!LIVE) return h+'<div class="empty"><b>Business tools are on the live site</b>A restaurant, cafe or shop creates a profile and posts offers for groups. When friends ask “where should we go?”, its offer shows on its answer.</div>';
+  if(!BIZ.loaded) return h+'<div class="empty"><b>Loading…</b></div>';
+  if(!BIZ.row) return h+'<p class="hint" style="font-size:15px;margin-top:-4px">Put your place in front of friends deciding where to go. When someone adds your place to a question, your offer shows on it. If you win, the group gets a code to show you.</p>'+
+    '<p class="privacy">'+I.lock+'<span>You only ever see totals: how often you appeared, won, and how many codes were used. Never questions, names or votes.</span></p>'+
+    '<form class="sec" data-f="bizcreate"><label class="sr" for="bzName">Business name</label><input class="plain" id="bzName" maxlength="60" placeholder="Business name" autocomplete="organization">'+
+    '<span class="sublabel">Type of place</span><div class="chips">'+CATS.map(function(c){return '<button type="button" class="chip" aria-pressed="'+(BIZ.cat===c[0])+'" data-a="bizcat" data-t="'+c[0]+'">'+c[1]+'</button>'}).join('')+'</div>'+
+    '<div class="formgrid"><label class="sr" for="bzCity">City</label><input class="plain" id="bzCity" maxlength="40" placeholder="City" autocomplete="address-level2"><label class="sr" for="bzAddr">Address</label><input class="plain" id="bzAddr" maxlength="120" placeholder="Address (optional)" autocomplete="street-address"></div>'+
+    '<button class="btn primary wide" type="submit">Create business profile</button></form>';
+  var b=BIZ.row,st=BIZ.stats||{};
+  h+='<div class="bizhead"><b>'+esc(b.name)+'</b><span>'+esc((CATS.filter(function(c){return c[0]===b.category})[0]||['','Place'])[1])+' · '+esc(b.city)+(b.address?' · '+esc(b.address):'')+'</span>'+
+    (b.verified?'<span class="pill ok" style="align-self:flex-start">Live · your offers can appear</span>':'<span class="pill hot" style="align-self:flex-start">Waiting for approval</span><span>Sway checks every business before its offers appear, so groups can trust them. You can add offers now; they go live once you’re approved.</span>')+'</div>';
+  h+='<div class="stats"><div class="stat"><b>'+(st.appeared||0)+'</b><span>questions you were in</span></div><div class="stat"><b>'+(st.won||0)+'</b><span>times you won</span></div><div class="stat"><b>'+(st.claimed||0)+'</b><span>codes unlocked</span></div><div class="stat"><b>'+(st.redeemed||0)+'</b><span>codes used</span></div></div>';
+  h+='<form class="sec" data-f="redeem"><label class="label" for="rdc"><i style="background:#10B981"></i>Check a code at the counter</label><div class="say"><input id="rdc" maxlength="16" placeholder="SWAY-XXXXXX" autocomplete="off" style="text-transform:uppercase"><button class="btn sm" type="submit">Check</button></div>'+
+    (BIZ.res?'<div class="result '+(BIZ.res.ok?'good':'bad')+'">'+esc(BIZ.res.message)+(BIZ.res.offer_title?' · '+esc(BIZ.res.offer_title):'')+(BIZ.res.group_size?' · '+BIZ.res.group_size+(BIZ.res.group_size===1?' person voted':' people voted'):'')+'</div>':'')+'</form>';
+  h+='<div class="label"><i style="background:#F97316"></i>Your offers <span class="n">'+BIZ.offers.length+'</span></div>';
+  if(BIZ.offers.length) h+='<div class="box">'+BIZ.offers.map(function(o){ var exp=o.valid_until&&o.valid_until<new Date().toISOString().slice(0,10);
+    return '<div class="tog"><div class="tx"><b>'+esc(o.title)+'</b><span>'+esc([offerCond(o),exp?'ended':'',o.details||''].filter(Boolean).join(' · '))+'</span></div><button class="linkbtn" data-a="offerdel" data-id="'+o.id+'" style="color:var(--hot)">'+(BIZ.delarm===o.id?'Tap again':'Delete')+'</button><button class="sw" role="switch" aria-label="Offer on" aria-checked="'+(o.active&&!exp)+'" data-a="offeract" data-id="'+o.id+'"'+(exp?' disabled':'')+'></button></div>'}).join('')+'</div>';
+  h+='<form class="sec" data-f="offernew"><span class="sublabel">New offer for groups</span><label class="sr" for="ofT">Offer</label><input class="plain" id="ofT" maxlength="80" placeholder="e.g. 15% off the bill, free dessert for the table">'+
+    '<label class="sr" for="ofD">Details</label><input class="plain" id="ofD" maxlength="200" placeholder="Details (optional), e.g. not on Saturdays">'+
+    '<div class="formgrid"><label class="sr" for="ofG">Smallest group</label><input class="plain" id="ofG" type="number" min="1" max="50" inputmode="numeric" placeholder="Smallest group, e.g. 4"><label class="sr" for="ofS">Minimum spend</label><input class="plain" id="ofS" type="number" min="0" inputmode="decimal" placeholder="Minimum spend"></div>'+
+    '<label class="sublabel" for="ofU">Ends on (optional)</label><input class="plain" id="ofU" type="date">'+
+    '<button class="btn primary wide" type="submit">Add offer</button></form>';
+  return h;
+}
+function bizCreate(){
+  var nm=val('bzName'),city=val('bzCity'),addr=val('bzAddr');
+  if(nm.length<2) return toast('Enter your business name.'); if(city.length<2) return toast('Enter your city.');
+  sb.from('businesses').insert({name:nm,category:BIZ.cat,city:city,address:addr||null}).then(function(r){ if(r.error) return toast(/duplicate|unique/i.test(r.error.message)?'You already have a business profile.':'That didn’t save. Try again.'); toast('Business profile created.'); loadBiz() });
+}
+function offerNew(){
+  if(!BIZ.row) return; var t=val('ofT'),d=val('ofD'),g=parseInt(val('ofG'),10)||2,sp=val('ofS'),u=val('ofU');
+  if(t.length<3) return toast('Write the offer, for example “15% off the bill”.');
+  var row={business_id:BIZ.row.id,title:t,details:d||null,min_group:Math.max(1,Math.min(50,g)),min_spend:sp===''?null:Math.max(0,+sp),valid_until:u||null};
+  sb.from('offers').insert(row).then(function(r){ if(r.error) return toast('That didn’t save. Check the numbers and try again.'); ['ofT','ofD','ofG','ofS','ofU'].forEach(function(k){ var e0=document.getElementById(k); if(e0) e0.value='' }); toast('Offer added.'); loadBiz() });
+}
+
 /* ---------- Vote ---------- */
 function friendsStrip(){
   var waitingFrom={}; toVote().forEach(function(p){ if(p.by!=='anon'&&!waitingFrom[p.by]) waitingFrom[p.by]=p.id });
@@ -508,7 +636,7 @@ function bigCard(p,i,n){
   var c0=solid(p.id),tu=turn(p),done=voters(p).filter(function(v){return v!=='me'&&hasVoted(p,v)});
   var who=p.by==='anon'?'Someone in your circle':first(p.by);
   var body=isOpen(p)?'<form class="reply" data-f="reply" data-id="'+p.id+'"><label class="sr" for="rp'+p.id+'">Your reply</label><input id="rp'+p.id+'" maxlength="200" autocomplete="off" placeholder="Write your answer"><button type="submit">Send</button></form>'
-    :p.type==='photo'?photoGrid(p):'<div class="ans">'+p.opts.map(function(o,k){return '<button data-a="vote" data-id="'+p.id+'" data-i="'+k+'"><span class="k" style="background:'+c0+'">'+LET[k]+'</span>'+esc(o.t)+'</button>'}).join('')+'</div>';
+    :p.type==='photo'?photoGrid(p):'<div class="ans">'+p.opts.map(function(o,k){return '<button data-a="vote" data-id="'+p.id+'" data-i="'+k+'"><span class="k" style="background:'+c0+'">'+LET[k]+'</span>'+ansLabel(o)+'</button>'}).join('')+'</div>';
   return '<article class="big" style="background:'+grad(p.id)+'" aria-label="Question from '+esc(who)+'">'+
     '<div class="who">'+av(p.by)+'<span class="wt"><b>'+esc(who)+' needs you</b>'+esc(cname(p))+'</span><span class="count">'+(i+1)+' of '+n+'</span></div>'+cdSpan(p,'cdrow')+
     (p.anon?'<span class="mask">'+I.mask+' Anonymous: nobody sees your answer</span>':'')+
@@ -602,6 +730,7 @@ function pYou(){
   else if(LIVE&&HAS4&&IOS&&!STANDALONE) h+='<div class="tog"><div class="tx"><b>Notifications on iPhone</b><span>Add Sway to your Home Screen first: tap Share, then “Add to Home Screen”. Open it from there and switch notifications on here.</span></div></div>';
   if(!LIVE||HAS4){ var oc=S.only?S.only.filter(function(u){return S.friends[u]}).length:0,mc=S.circles.filter(function(c){return S.muted.indexOf(c.id)>=0}).length;
     h+='<button class="tog" data-a="notifyppl" style="width:100%"><span class="tx"><b>What notifies you</b><span>'+(mc?(S.circles.length-mc)+' of '+S.circles.length+' circles':'All circles')+' · '+(S.only?(oc===1?'1 person':oc+' people'):'everyone')+'</span></span><span class="linkbtn">Change</span></button>' }
+  if(HAS10) h+='<button class="tog" data-a="biz" style="width:100%"><span class="tx"><b>For businesses</b><span>Have a restaurant, cafe or shop? Make offers to groups deciding where to go</span></span><span class="linkbtn">Open</span></button>';
   if(LIVE&&GUEST) h+='<div class="tog"><div class="tx"><b>Keep your account</b><span>Add an email so you can log in on any device</span></div><button class="btn sm" data-a="saveacct">Add email</button></div>';
   if(LIVE) h+='<div class="tog"><div class="tx"><b>Log out</b><span>'+(GUEST?'A guest account can’t be recovered after logging out':'You can log back in with your email')+'</span></div><button class="btn ghost sm" data-a="logout">Log out</button></div>';
   else h+='<div class="tog"><div class="tx"><b>Demo</b><span>Example friends and questions, saved nowhere</span></div><button class="btn ghost sm" data-a="resetdemo">Start over</button></div>';
@@ -627,12 +756,13 @@ function pQuestion(id){
     else h+='<div class="sec">'+p.opts.map(function(o,i){
       var sel=you===i,cls='opt'+(sel?' mine':'')+(show&&i===t.win?' win':'');
       return '<button class="'+cls+'" style="'+(sel?'background:'+g:'')+'" data-a="vote" data-id="'+p.id+'" data-i="'+i+'"'+(mine||closed?' disabled':'')+'>'+
-        (show?'<span class="f" style="width:'+t.pct[i]+'%;background:'+(sel?'#fff':c0)+'"></span>':'')+'<span class="k">'+LET[i]+'</span><span class="l">'+esc(o.t)+'</span>'+
+        (show?'<span class="f" style="width:'+t.pct[i]+'%;background:'+(sel?'#fff':c0)+'"></span>':'')+'<span class="k">'+LET[i]+'</span><span class="l">'+ansLabel(o)+'</span>'+
         (show?'<span class="p">'+t.pct[i]+'%</span>':sel?'<span class="p">'+I.check+'</span>':'')+'</button>'}).join('')+'</div>';
     if(!closed&&!mine) h+='<p class="status">'+(you==null?'Tap an answer to vote. You can change it until it closes.':(hiddenVote(p,'me')||p.myHidden?I.mask+' You voted anonymously. Nobody else will see your answer.':(p.live?I.check+' Your vote is in. You can change it until it closes.':I.lock+' Your vote is in. Results show when it closes.')))+'</p>';
     if(!closed&&mine) h+='<p class="status">'+(p.live?I.check+' Your circle sees the results as they vote.':I.lock+' Results stay hidden until voting closes.')+'</p>';
   }
   if(closed&&!S.seen[p.id]&&involved(p)) h+='<button class="btn primary wide" data-a="reveal" data-id="'+p.id+'">Reveal the result</button>';
+  var wpl=closed&&S.seen[p.id]&&!open&&t.win>=0?placeOf(p.opts[t.win]):null; if(wpl&&wpl.offer) h+=unlockCard(p,wpl);
   if(mine&&!closed&&tu.total&&tu.n>=tu.total) h+='<button class="btn primary wide" data-a="close" data-id="'+p.id+'" style="min-height:56px">Everyone has '+(open?'replied':'voted')+' · End now and see the result</button>';
   if(mine&&!closed){
     var todo=canNudge(p)?vs.filter(function(v){return v!=='me'&&!hasVoted(p,v)&&p.nudgedTo.indexOf(v)<0}):[];
@@ -670,11 +800,15 @@ function pAsk(){
   if(d.type==='Open') h+='<p class="hint">Friends answer in their own words.</p>';
   else {
     var photos=d.type==='Photos',fixed=d.type==='Yes / No';
+    d.bz=d.bz||[];
     h+='<div class="stack">'+d.o.map(function(o,i){
+      var pz=!photos&&d.bz[i]&&PLACES[d.bz[i]];
+      if(pz) return '<div class="optin"><span class="k plk">'+I.gift+'</span><span class="pltx"><b>'+esc(pz.name)+'</b>'+(pz.offer?'<small class="ofr" style="align-self:flex-start">'+esc(pz.offer.title)+(offerCond(pz.offer)?' · '+esc(offerCond(pz.offer)):'')+'</small>':'')+'</span><button class="rm" data-a="rmopt" data-i="'+i+'" aria-label="Remove '+esc(pz.name)+'">'+I.x+'</button></div>';
       var slot=photos?(d.ph[i]?'<img class="thumb" src="'+d.ph[i]+'" alt="">':'<label class="pick" title="Add a photo">'+I.img+'<input class="sr" type="file" accept="image/*" data-file="'+i+'" aria-label="Add a photo for answer '+(i+1)+'"></label>'):'<span class="k">'+LET[i]+'</span>';
       return '<div class="optin">'+slot+'<input data-o="'+i+'" value="'+esc(o)+'" maxlength="60" placeholder="'+(photos?'Caption (optional)':'Answer '+(i+1))+'" aria-label="Answer '+(i+1)+'">'+
         (!fixed&&d.o.length>2?'<button class="rm" data-a="rmopt" data-i="'+i+'" aria-label="Remove answer '+(i+1)+'">'+I.x+'</button>':'')+'</div>'}).join('')+'</div>';
     if(!fixed&&d.o.length<MAXA) h+=photos?'<label class="addbtn">+ Add photos<input class="sr" type="file" accept="image/*" multiple data-many="1" aria-label="Add photos"></label>':'<button class="addbtn" data-a="addopt">+ Add answer</button>';
+    if(!photos&&HAS10&&d.o.length<MAXA) h+='<button class="addbtn place" data-a="places">'+I.gift+' Add a place with an offer</button>';
     h+='<p class="hint">'+(fixed?'Tap an answer to rename it, for example “Do it” and “Don’t”.':d.o.length+' of up to '+MAXA+' answers'+(photos?' · you can pick several photos at once':''))+'</p>';
     var allAnon=d.anon||(d.hide&&hideOk());
     h+='<div class="label"><i style="background:#0EA5E9"></i>How friends vote</div><div class="box">'+
@@ -745,20 +879,24 @@ function pNewPw(){return bar('New password')+'<form class="sec" data-f="newpw"><
 var AFTER=null;
 function pSaveAcct(){
   var why=AFTER==='ask'?'Add an email to ask your first question. It keeps your questions and circles safe if you change phones or clear your browser.'
+    :AFTER==='biz'?'Add an email to set up your business, so you can always log back in to manage your offers.'
     :AFTER==='newcircle'?'Add an email to create a circle. It keeps your circles safe if you change phones or clear your browser.'
     :'Add an email and password so you can log in on any device and keep your circles.';
-  return bar(AFTER?'One quick step':'Keep your account')+'<p class="hint" style="font-size:15px">'+why+'</p><form class="authf" data-f="saveacct"><label class="sr" for="se">Email</label><input class="plain" id="se" type="email" autocomplete="email" placeholder="Email"><label class="sr" for="sp">Password</label><input class="plain" id="sp" type="password" autocomplete="new-password" placeholder="Password (8 or more characters)"><p class="err" id="seErr" hidden></p><button class="btn primary wide" type="submit">'+(AFTER==='ask'?'Save and ask':AFTER==='newcircle'?'Save and create a circle':'Save')+'</button></form><p class="hint">Your name, circles and votes stay as they are.</p>'}
+  return bar(AFTER?'One quick step':'Keep your account')+'<p class="hint" style="font-size:15px">'+why+'</p><form class="authf" data-f="saveacct"><label class="sr" for="se">Email</label><input class="plain" id="se" type="email" autocomplete="email" placeholder="Email"><label class="sr" for="sp">Password</label><input class="plain" id="sp" type="password" autocomplete="new-password" placeholder="Password (8 or more characters)"><p class="err" id="seErr" hidden></p><button class="btn primary wide" type="submit">'+(AFTER==='ask'?'Save and ask':AFTER==='newcircle'?'Save and create a circle':AFTER==='biz'?'Save and continue':'Save')+'</button></form><p class="hint">Your name, circles and votes stay as they are.</p>'}
 
 /* ---------- drawing ---------- */
 function draw(mode){
   var top=stack[stack.length-1],page=$('#page'),h;
   if(!top) h=tab==='vote'?pVote():tab==='mine'?pMine():tab==='circles'?pCircles():pYou();
-  else{ var k=top[0]; h=k==='q'?pQuestion(top[1]):k==='ask'?pAsk():k==='circle'?pCircle(top[1]):k==='newcircle'?pNewCircle():k==='shared'?pShared(top[1]):k==='newpw'?pNewPw():k==='saveacct'?pSaveAcct():k==='notifyppl'?pNotifyPpl():pActivity() }
+  else{ var k=top[0]; h=k==='q'?pQuestion(top[1]):k==='ask'?pAsk():k==='circle'?pCircle(top[1]):k==='newcircle'?pNewCircle():k==='shared'?pShared(top[1]):k==='newpw'?pNewPw():k==='saveacct'?pSaveAcct():k==='notifyppl'?pNotifyPpl():k==='places'?pPlaces():k==='biz'?pBiz():pActivity() }
   if(mode==='stay'&&h===LASTH&&page.innerHTML){ if(FOCUS){ var f0=page.querySelector(FOCUS); if(f0) try{f0.focus({preventScroll:true})}catch(e){} FOCUS=null } drawTabs(); return }
   LASTH=h;
   var keep=mode!=='nav'&&mode!=='back'?page.scrollTop:0;
   var fv=null,fa=document.activeElement; if(fa&&page.contains(fa)&&fa.id&&/INPUT|TEXTAREA/.test(fa.tagName)) fv={id:fa.id,v:fa.value,s:fa.selectionStart};
+  /* what you typed survives a redraw of the same screen (e.g. tapping a chip in a form) */
+  var typed={}; if(mode==='stay') page.querySelectorAll('input[id],textarea[id]').forEach(function(el){ if(!/^(file|checkbox|radio)$/.test(el.type)) typed[el.id]=el.value });
   page.innerHTML=h;
+  Object.keys(typed).forEach(function(id){ var el=document.getElementById(id); if(el&&page.contains(el)&&!el.readOnly&&el.value!==typed[id]) el.value=typed[id] });
   if(mode==='nav'||mode==='back'){ page.className='page'; void page.offsetWidth; page.className='page '+(mode==='back'?'back':'in') } else page.className='page still';
   page.scrollTop=keep;
   if(fv){ var fe=document.getElementById(fv.id); if(fe){ fe.value=fv.v; try{fe.focus({preventScroll:true}); fe.setSelectionRange(fv.s,fv.s)}catch(e){} } }
@@ -820,7 +958,7 @@ function reveal(id){
   var show=function(){
     var q=poll(id); if(!q||!el.parentNode) return; var t=tally(q),open=isOpen(q);
     el.innerHTML='<small>'+esc(q.q)+'</small><h2>'+esc(verdict(q))+(t.win>=0&&!open?'.':'')+'</h2>'+(t.win>=0&&!open?'<span class="bigp">'+t.pct[t.win]+'%</span>':'')+
-      '<span style="font-weight:700">'+(open?'Tap below to read them':q.votes.me==null?t.t+(t.t===1?' vote':' votes'):q.votes.me===t.win?'You picked the winner':t.win<0?'Your friends were split':'The circle went the other way')+'</span><button class="btn" data-a="unreveal" data-id="'+q.id+'">See details</button>';
+      (t.win>=0&&!open&&placeOf(q.opts[t.win])&&placeOf(q.opts[t.win]).offer?'<span style="font-weight:800;background:rgba(255,255,255,.22);border-radius:99px;padding:8px 14px">Your group unlocked an offer</span>':'')+'<span style="font-weight:700">'+(open?'Tap below to read them':q.votes.me==null?t.t+(t.t===1?' vote':' votes'):q.votes.me===t.win?'You picked the winner':t.win<0?'Your friends were split':'The circle went the other way')+'</span><button class="btn" data-a="unreveal" data-id="'+q.id+'">See details</button>';
     markSeen(q.id); buzz();
   };
   if(LIVE&&!isOpen(p)) loadStates([id]).then(function(){setTimeout(show,700)},function(){setTimeout(show,700)}); else setTimeout(show,700);
@@ -858,7 +996,7 @@ function post(){
   var opts;
   if(d.type==='Photos'){ var keep=[]; d.o.forEach(function(o,i){ if(d.ph[i]) keep.push(i) }); if(keep.length<2) return toast('Add at least two photos.'); opts=keep.map(function(i,n){return {t:d.o[i].trim()||('Photo '+LET[n]),img:d.ph[i]}}) }
   else if(d.type==='Open') opts=[];
-  else { var f=d.o.map(function(o){return o.trim()}).filter(Boolean); if(f.length<2) return toast('Add at least two answers.'); opts=f.map(function(x){return {t:x}}) }
+  else { var bz=d.bz||[],f=d.o.map(function(o,i){return {t:String(o).trim(),biz:d.type==='Options'?bz[i]:null}}).filter(function(x){return x.t}); if(f.length<2) return toast('Add at least two answers.'); opts=f.map(function(x){return x.biz?{t:x.t,biz:x.biz}:{t:x.t}}) }
   if(!d.who.length){ WHOWARN=true; draw('stay'); var ws=$('#whoStep'); if(ws) ws.scrollIntoView({behavior:'smooth',block:'center'}); return }
   var hid=HAS3&&d.type!=='Open'&&d.hide&&hideOk();
   var p={id:newId(),by:'me',circles:d.who.slice(),q:t,note:'',type:d.type==='Photos'?'photo':d.type==='Open'?'open':'choice',opts:opts,created:now(),closes:now()+dlMs(d.dl),
@@ -962,6 +1100,13 @@ document.addEventListener('click',function(e){
   if(a==='saveacct'){ AFTER=null; return go('saveacct') }
   if(a==='keeplater'){ store.set('sway.keepLater.'+ME,now()); return draw('stay') }
   if(a==='notifyppl') return go('notifyppl');
+  if(a==='claim') return claim(id);
+  if(a==='biz'){ if(LIVE&&GUEST){ AFTER='biz'; return go('saveacct') } BIZ.res=null; go('biz'); return loadBiz() }
+  if(a==='bizcat'){ BIZ.cat=el.dataset.t; return draw('stay') }
+  if(a==='offeract'){ var of=BIZ.offers.filter(function(x){return x.id===id})[0]; if(!of) return; of.active=!of.active; draw('stay');
+    return sb.from('offers').update({active:of.active}).eq('id',id).then(function(r){ if(r.error){ of.active=!of.active; draw('stay'); toast('That didn’t save.') } else toast(of.active?'Offer is on.':'Offer is paused.') }) }
+  if(a==='offerdel'){ if(BIZ.delarm!==id){ BIZ.delarm=id; draw('stay'); setTimeout(function(){ if(BIZ.delarm===id){ BIZ.delarm=null; draw('stay') } },4000); return }
+    BIZ.delarm=null; return sb.from('offers').delete().eq('id',id).then(function(r){ if(r.error) return toast('That didn’t delete.'); toast('Offer deleted.'); loadBiz() }) }
   if(a==='mutec'){ var mi=S.muted.indexOf(id),mcn=circle(id); if(mi>=0) S.muted.splice(mi,1); else S.muted.push(id);
     if(mcn) toast(mi>=0?'You’ll hear about '+mcn.name+' again.':mcn.name+' is muted. Nudges still come through.'); return saveOnly() }
   if(a==='onlymode'){ var want=el.dataset.t==='some'; if(want===!!S.only) return; S.only=want?[]:null; return saveOnly() }
@@ -973,11 +1118,14 @@ document.addEventListener('click',function(e){
   if(a==='cancelask'){ draft=null; tab='vote'; stack=[]; return draw('back') }
   if(a==='type'){ var from=draft.type,to=el.dataset.t; if(from===to) return;
     var keepText=(from==='Options'||from==='Photos')&&(to==='Options'||to==='Photos');
-    draft.type=to; if(!keepText){ draft.o=to==='Yes / No'?['Yes','No']:to==='Open'?[]:['','']; draft.ph=[] }
+    draft.type=to; if(!keepText){ draft.o=to==='Yes / No'?['Yes','No']:to==='Open'?[]:['','']; draft.ph=[]; draft.bz=[] }
+    else if(to==='Photos') draft.bz=[];
     else { if(to==='Options') draft.ph=[]; for(var z=draft.o.length-1;z>=2;z--) if(!String(draft.o[z]).trim()&&!draft.ph[z]){ draft.o.splice(z,1); draft.ph.splice(z,1) } }
     return draw('stay') }
   if(a==='addopt'){ if(draft.o.length<MAXA){ draft.o.push(''); FOCUS='[data-o="'+(draft.o.length-1)+'"]'; draw('stay') } return }
-  if(a==='rmopt'){ var ri=+el.dataset.i; draft.o.splice(ri,1); draft.ph.splice(ri,1); return draw('stay') }
+  if(a==='rmopt'){ var ri=+el.dataset.i; draft.o.splice(ri,1); draft.ph.splice(ri,1); if(draft.bz) draft.bz.splice(ri,1); return draw('stay') }
+  if(a==='places') return openPlaces();
+  if(a==='pickplace') return pickPlace(id);
   if(a==='who'){ var ix=draft.who.indexOf(id); if(ix>=0) draft.who.splice(ix,1); else draft.who.push(id); WHOWARN=false; return draw('stay') }
   if(a==='allc'){ draft.allc=true; return draw('stay') }
   if(a==='more'){ draft.more=!draft.more; return draw('stay') }
@@ -985,7 +1133,7 @@ document.addEventListener('click',function(e){
   if(a==='dtog'){ var k=el.dataset.k; draft[k]=!draft[k]; return draw('stay') }
   if(a==='post') return post();
 });
-document.addEventListener('input',function(e){ var t=e.target; if(!draft) return; if(t.id==='askq') draft.q=t.value; if(t.dataset&&t.dataset.o!=null) draft.o[+t.dataset.o]=t.value });
+document.addEventListener('input',function(e){ var t=e.target; if(t.id==='plq'){ PLQ=t.value; return draw('stay') } if(!draft) return; if(t.id==='askq') draft.q=t.value; if(t.dataset&&t.dataset.o!=null) draft.o[+t.dataset.o]=t.value });
 document.addEventListener('change',function(e){
   var t=e.target; if(!draft||!t.files||!t.files.length) return;
   if(t.dataset.file!=null){ var i=+t.dataset.file; readPhoto(t.files[0],function(u){ if(!u) return toast('That photo couldn’t be read. Try another one.'); draft.ph[i]=u; draw('stay') }); return }
@@ -1010,6 +1158,9 @@ document.addEventListener('submit',function(e){
   if(k==='auth') return doAuth();
   if(k==='newpw') return doNewPw();
   if(k==='saveacct') return doSaveAcct();
+  if(k==='bizcreate') return bizCreate();
+  if(k==='offernew') return offerNew();
+  if(k==='redeem'){ var cd=val('rdc'); if(!cd) return; return sb.rpc('redeem_code',{c:cd}).then(function(r){ var e1=document.getElementById('rdc'); if(e1) e1.value=''; BIZ.res=r.error?{ok:false,message:'That didn’t work. Try again.'}:(r.data||[])[0]; draw('stay'); loadBiz() }) }
 });
 document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var rv=$('#reveal'); if(rv){ rv.parentNode.removeChild(rv); refresh() } else if(stack.length) back() } });
 
@@ -1125,7 +1276,7 @@ function liveRefresh(){
     if(myName) S.me.name=myName;
     S.friends=friends;
     S.circles=cids.map(function(k){var c=cmap[k]; c.star=!!stars[k]; c.used=Math.max(usedOld[k]||0,lastAsk[k]||0); return c}).concat(keepC);
-    S.polls=next; S.loaded=true; warned=false;
+    S.polls=next; S.loaded=true; warned=false; loadPlaces();
     if(!S.seenV){ S.seenV={}; next.forEach(function(p){ if(p.by==='me') S.seenV[p.id]=turn(p).n }) }
     saveLocal();
     joinChannels(cids); refresh();
@@ -1137,6 +1288,7 @@ function liveRefresh(){
 function probe(){
   soft(sb.from('nudges').select('poll_id').limit(1)).then(function(r){ if(r&&!r.error&&Array.isArray(r.data)) { NUDGES=true; refresh() } });
   sb.from('polls').select('hide_asker').limit(1).then(function(r){ if(!r.error){ HAS3=true; refresh() } },function(){});
+  sb.from('businesses').select('id').limit(1).then(function(r){ if(!r.error){ HAS10=true; loadPlaces(); refresh() } },function(){});
   sb.from('push_subs').select('endpoint').limit(1).then(function(r){ if(!r.error){ HAS4=true; refreshPush(); refresh() } },function(){});
 }
 
@@ -1252,6 +1404,7 @@ function doSaveAcct(){ var em=val('se'),pw=($('#sp')||{}).value||'',er=$('#seErr
     toast('Your account is saved.');
     if(next==='ask'){ stack=[]; return setTab('ask') }
     if(next==='newcircle'){ stack=[['newcircle']]; tab='circles'; return draw('nav') }
+    if(next==='biz'){ stack=[['biz']]; tab='you'; draw('nav'); return loadBiz() }
     stack=[]; draw('back') }) }
 
 /* ---------- clocks: tick the countdowns, and notice when a question closes ---------- */

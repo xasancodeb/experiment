@@ -18,6 +18,7 @@ post a dilemma to a circle of friends, they vote in one tap, and you get a verdi
 | `supabase/upgrade-7.sql` | Lets each person choose whose questions and votes notify them |
 | `supabase/upgrade-8.sql` | Lets each person mute circles they aren't interested in |
 | `supabase/upgrade-9.sql` | Private votes are off unless the asker switches them on |
+| `supabase/upgrade-10.sql` | Places make offers to groups: businesses, offers, codes |
 | `supabase/functions/notify/` | The notification sender (a Supabase Edge Function, no libraries) |
 | `sw.js` | Shows notifications on a device and opens the question when one is tapped |
 | `manifest.json`, `icon-*.png`, `apple-touch-icon.png` | Lets people add Sway to their phone's home screen |
@@ -49,6 +50,7 @@ invite link can vote straight away as a guest and add an email later.
    then `supabase/upgrade-7.sql` and `supabase/upgrade-8.sql`, which let each person choose whose
    activity and which circles notify them.
    Finally `supabase/upgrade-9.sql`: private votes are off unless the asker switches them on.
+   Then `supabase/upgrade-10.sql` for business offers (see below).
 3. In the project's authentication settings, allow anonymous sign-ins (this is
    what lets invited friends vote as guests). For quick testing you can also
    turn off email confirmation.
@@ -102,6 +104,20 @@ Set up, once per project:
    ```
 
 Never commit the private key or the cron secret.
+
+## Business offers
+
+A restaurant, cafe or shop opens You → For businesses, creates a profile and posts offers for
+groups (for example "15% off the bill, groups of 4+, minimum spend 80"). When someone asks
+their circle "where should we go?", they can add places with offers as answers, and each
+offer shows on its answer. If a place wins outright, the circle unlocks one code
+(SWAY-XXXXXX) to show at the counter, and the business checks it once in the same page.
+
+- **Approving businesses:** a new business waits for approval. In Supabase, open
+  Table Editor → `businesses` and tick `verified` for the ones you trust. Until then their
+  offers never appear. Owners can't approve themselves.
+- **What businesses see:** totals only (questions they were in, wins, codes unlocked and
+  used). Never questions, names or votes.
 
 ## Privacy rules enforced by the database
 

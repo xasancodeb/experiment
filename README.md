@@ -26,6 +26,9 @@ post a dilemma to a circle of friends, they vote in one tap, and you get a verdi
 | `supabase/maintenance.sql` | Daily clean-up of old usage data, and removal of test accounts |
 | `privacy/`, `terms/` | Privacy policy and terms of use (drafts: have them checked) |
 | `tests/`, `.github/workflows/test.yml` | Automatic checks that GitHub runs on every push |
+| `DESIGN.md` | The design guide: brand, colours, type, spacing, motion and words |
+| `brand/` | The mark (`mark.svg`) and the 1024px App Store icon |
+| `tests/USABILITY.md` | How to test the app with 5 friends |
 | `supabase/functions/notify/` | The notification sender (a Supabase Edge Function, no libraries) |
 | `sw.js` | Shows notifications on a device and opens the question when one is tapped |
 | `manifest.json`, `icon-*.png`, `apple-touch-icon.png` | Lets people add Sway to their phone's home screen |

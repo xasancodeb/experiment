@@ -6,6 +6,7 @@ const { execSync } = require('child_process');
 const base = (process.env.BASE || 'http://localhost:8766/') + 'index.html', stamp = Date.now().toString(36);
 const sql = (q) => execSync('curl -sS -m 30 -X POST https://api.supabase.com/v1/projects/tsxoecarlbekrgjxrjyu/database/query -H "Content-Type: application/json" --data-binary @-', { input: JSON.stringify({ query: q }) }).toString();
 (async () => {
+  const skipOnb = async (P) => { await P.waitForSelector('.onb, .hello', { timeout: 20000 }); await P.waitForFunction(() => document.querySelector('.onb, .qhero') || (document.querySelector('.hello') && !document.body.innerText.includes('Loading your circles')), null, { timeout: 20000 }); if (await P.locator('.onb').count()) await P.click('[data-a="onbskip"]'); await P.waitForSelector('.hello, .qhero', { timeout: 20000 }); };
   const launch = {}; if (process.env.HTTPS_PROXY) { const px = new URL(process.env.HTTPS_PROXY); launch.proxy = { server: px.protocol + '//' + px.host, username: decodeURIComponent(px.username), password: decodeURIComponent(px.password), bypass: 'localhost,127.0.0.1' }; }
   const b = await chromium.launch(launch);
   const log = ['STAMP ' + stamp], errs = [];
@@ -26,10 +27,10 @@ const sql = (q) => execSync('curl -sS -m 30 -X POST https://api.supabase.com/v1/
     await O.waitForSelector('.tog:has-text("15% off the bill")', { timeout: 15000 });
     log.push('     approve: ' + sql("update public.businesses set verified = true where name = '" + PLACE + "' returning verified").trim()); });
   await step('A (preview on) and B: circle; B\'s Ask screen has no offers switch', async () => {
-    await A.goto(base + '?offers=on'); await A.waitForSelector('[data-auth="signup"]', { timeout: 20000 }); await A.fill('#auName', 'Asker A'); await A.fill('#auEmail', 'sway.test.a' + stamp + '@gmail.com'); await A.fill('#auPw', 'testpass-' + stamp); await A.click('form.authf button[type=submit]'); await A.waitForSelector('.hello', { timeout: 20000 });
+    await A.goto(base + '?offers=on'); await A.waitForSelector('[data-auth="signup"]', { timeout: 20000 }); await A.fill('#auName', 'Asker A'); await A.fill('#auEmail', 'sway.test.a' + stamp + '@gmail.com'); await A.fill('#auPw', 'testpass-' + stamp); await A.click('form.authf button[type=submit]'); await skipOnb(A);
     await tab(A, 'circles'); await A.click('.ctile.new'); await A.fill('#cName', 'Outings ' + stamp); await A.click('form[data-f="newcircle"] button');
     await A.waitForFunction(() => { const c = document.querySelector('.invite code'); return c && /join=/.test(c.textContent); }, null, { timeout: 20000 }); invite = await A.locator('.invite code').innerText();
-    await B.goto(invite); await B.waitForSelector('.banner', { timeout: 20000 }); await B.fill('#auName', 'Bea'); await B.fill('#auName', 'Bea'); await B.click('form.authf button[type=submit]'); await B.waitForSelector('.hello', { timeout: 20000 });
+    await B.goto(invite); await B.waitForSelector('.banner', { timeout: 20000 }); await B.fill('#auName', 'Bea'); await B.fill('#auName', 'Bea'); await B.click('form.authf button[type=submit]'); await skipOnb(B);
     await tab(B, 'circles'); await B.waitForSelector('.ctile:has-text("Outings")', { timeout: 20000 });
     await tab(B, 'ask'); await B.waitForTimeout(500); if (await B.locator('text=One quick step').count()) { await B.fill('#se', 'sway.test.b' + stamp + '@gmail.com'); await B.fill('#sp', 'testpass-' + stamp); await B.click('form[data-f="saveacct"] button[type=submit]'); await B.waitForSelector('#askq', { timeout: 15000 }); }
     await B.click('[data-a="type"][data-t="Options"]'); const sw = await B.locator('[data-k="wo"]').count(); log.push('     B sees offers switch: ' + sw); if (sw) throw new Error('switch visible by default'); await B.click('[data-a="cancelask"]'); });
@@ -41,7 +42,7 @@ const sql = (q) => execSync('curl -sS -m 30 -X POST https://api.supabase.com/v1/
     await A.waitForSelector('.toast:has-text("invited")', { timeout: 10000 }); log.push('     toast: ' + (await A.locator('.toast').innerText()));
     pollId = (await A.locator('.invite code').innerText()).split('q=')[1]; await A.click('[data-a="tab"][data-t="mine"]'); });
   await step('the place sees the request (size and count only) and sends its saved offer', async () => {
-    await O.reload(); await O.waitForSelector('.hello', { timeout: 20000 }); await tab(O, 'you'); await O.click('[data-a="biz"]'); await O.waitForSelector('text=A group of', { timeout: 20000 });
+    await O.reload(); await skipOnb(O); await tab(O, 'you'); await O.click('[data-a="biz"]'); await O.waitForSelector('text=A group of', { timeout: 20000 });
     log.push('     request: ' + (await O.locator('.mcard').first().innerText()).replace(/\n/g, ' / ')); await O.screenshot({ path: require('os').tmpdir() + '/n-req.png' });
     log.push('     raw request fields: ' + (await rpc(O, 'business_requests', {})));
     await O.click('[data-a="bidsend"]'); await O.waitForSelector('text=You offered', { timeout: 15000 }); });

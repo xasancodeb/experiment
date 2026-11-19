@@ -7,6 +7,7 @@ const { execSync } = require('child_process');
 const BASE = process.env.BASE || 'http://localhost:8766/', REF = process.env.SUPABASE_REF || 'tsxoecarlbekrgjxrjyu', stamp = Date.now().toString(36);
 const sql = (q) => JSON.parse(execSync('curl -sS -m 30 -X POST https://api.supabase.com/v1/projects/' + REF + '/database/query -H "Content-Type: application/json" --data-binary @-', { input: JSON.stringify({ query: q }) }).toString());
 (async () => {
+  const skipOnb = async (P) => { await P.waitForSelector('.onb, .hello', { timeout: 20000 }); await P.waitForFunction(() => document.querySelector('.onb, .qhero') || (document.querySelector('.hello') && !document.body.innerText.includes('Loading your circles')), null, { timeout: 20000 }); if (await P.locator('.onb').count()) await P.click('[data-a="onbskip"]'); await P.waitForSelector('.hello, .qhero', { timeout: 20000 }); };
   const opts = {}; if (process.env.HTTPS_PROXY) { const px = new URL(process.env.HTTPS_PROXY); opts.proxy = { server: px.protocol + '//' + px.host, username: decodeURIComponent(px.username), password: decodeURIComponent(px.password), bypass: 'localhost,127.0.0.1' }; }
   const b = await chromium.launch(opts);
   const log = [], errs = []; let failed = 0;
@@ -17,9 +18,9 @@ const sql = (q) => JSON.parse(execSync('curl -sS -m 30 -X POST https://api.supab
   const uid = (P) => P.evaluate(() => { const raw = Object.keys(localStorage).find((k) => /auth-token/.test(k)); return JSON.parse(localStorage.getItem(raw)).user.id; });
   await step('setup: A signs up, makes a circle, asks; Bea joins as a guest and comments', async () => {
     await A.goto(BASE + 'index.html'); await A.waitForSelector('[data-auth="signup"]', { timeout: 20000 }); await A.fill('#auName', 'Asker A'); await A.fill('#auEmail', 'sway.test.' + stamp + '@gmail.com'); await A.fill('#auPw', 'testpass-' + stamp); await A.click('form.authf button[type=submit]');
-    await A.waitForSelector('text=Start with a circle', { timeout: 20000 }); await A.click('[data-a="newcircle"]'); await A.fill('#cName', 'Safety ' + stamp); await A.click('form[data-f="newcircle"] button');
+    await skipOnb(A); await A.waitForSelector('text=Start with a circle', { timeout: 20000 }); await A.click('[data-a="newcircle"]'); await A.fill('#cName', 'Safety ' + stamp); await A.click('form[data-f="newcircle"] button');
     await A.waitForFunction(() => { const c = document.querySelector('.invite code'); return c && /join=/.test(c.textContent); }, null, { timeout: 20000 }); invite = await A.locator('.invite code').innerText();
-    await B.goto(invite); await B.waitForSelector('.banner', { timeout: 20000 }); await B.fill('#auName', 'Bea'); await B.click('form.authf button[type=submit]'); await B.waitForSelector('.hello', { timeout: 20000 });
+    await B.goto(invite); await B.waitForSelector('.banner', { timeout: 20000 }); await B.fill('#auName', 'Bea'); await B.click('form.authf button[type=submit]'); await skipOnb(B);
     await tab(B, 'circles'); await B.waitForSelector('.ctile:has-text("Safety")', { timeout: 20000 }); aId = await uid(A); bId = await uid(B);
     await A.waitForTimeout(1500); await tab(A, 'ask'); await A.fill('#askq', 'Safety test ' + stamp + '?'); await A.click('[data-a="who"] >> nth=0'); await A.click('[data-a="post"]'); await A.waitForSelector('text=Your question is live', { timeout: 20000 });
     await tab(B, 'vote'); await B.waitForSelector('.big h2:has-text("Safety test")', { timeout: 40000 }); await B.click('.big .go'); await B.fill('#cm', 'rude comment ' + stamp); await B.press('#cm', 'Enter'); await B.waitForTimeout(2000); });
@@ -40,7 +41,7 @@ const sql = (q) => JSON.parse(execSync('curl -sS -m 30 -X POST https://api.supab
     const u = sql("select count(*) n from auth.users where id = '" + aId + "'"); const c = sql("select (owner = '" + bId + "') as bea_owns from public.circles where name = 'Safety " + stamp + "'");
     log.push('     A still exists: ' + u[0].n + ' | circle: ' + JSON.stringify(c)); if (u[0].n !== 0 || !c.length || !c[0].bea_owns) throw new Error('not handed over'); });
   await step('Bea (guest) deletes her account: the empty circle goes too', async () => {
-    await B.reload(); await B.waitForSelector('.hello', { timeout: 20000 }); await tab(B, 'you'); await B.click('[data-a="delacctpage"]'); await B.click('[data-a="delacct"]'); await B.click('[data-a="delacct"]'); await B.waitForSelector('text=Your account was deleted.', { timeout: 20000 });
+    await B.reload(); await skipOnb(B); await tab(B, 'you'); await B.click('[data-a="delacctpage"]'); await B.click('[data-a="delacct"]'); await B.click('[data-a="delacct"]'); await B.waitForSelector('text=Your account was deleted.', { timeout: 20000 });
     const c = sql("select count(*) n from public.circles where name = 'Safety " + stamp + "'"); const u = sql("select count(*) n from auth.users where id = '" + bId + "'"); log.push('     circle left: ' + c[0].n + ' | Bea exists: ' + u[0].n); if (c[0].n !== 0 || u[0].n !== 0) throw new Error('left behind'); });
   console.log(log.join('\n')); if (errs.length) { failed++; console.log('ERRORS\n' + [...new Set(errs)].join('\n')); } console.log(failed ? failed + ' FAILED' : 'ALL PASSED'); await b.close(); process.exit(failed ? 1 : 0);
 })();

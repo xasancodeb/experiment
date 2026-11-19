@@ -4,6 +4,7 @@
 const { chromium } = require('playwright');
 const base = (process.env.BASE || 'http://localhost:8766/') + 'index.html', stamp = Date.now().toString(36);
 (async () => {
+  const skipOnb = async (P) => { await P.waitForSelector('.onb, .hello', { timeout: 20000 }); await P.waitForFunction(() => document.querySelector('.onb, .qhero') || (document.querySelector('.hello') && !document.body.innerText.includes('Loading your circles')), null, { timeout: 20000 }); if (await P.locator('.onb').count()) await P.click('[data-a="onbskip"]'); await P.waitForSelector('.hello, .qhero', { timeout: 20000 }); };
   const launch = {}; if (process.env.HTTPS_PROXY) { const px = new URL(process.env.HTTPS_PROXY); launch.proxy = { server: px.protocol + '//' + px.host, username: decodeURIComponent(px.username), password: decodeURIComponent(px.password), bypass: 'localhost,127.0.0.1' }; }
   const b = await chromium.launch(launch);
   const log = ['STAMP ' + stamp], errs = [], got = [];
@@ -20,9 +21,9 @@ const base = (process.env.BASE || 'http://localhost:8766/') + 'index.html', stam
   const vote = async (P, q, i) => { got.length = 0; await tab(P, 'vote'); await P.waitForSelector('.big h2:has-text("' + q + '")', { timeout: 40000 }); await P.click('.big .ans button >> nth=' + (i || 0)); };
   await step('setup: A, Bea, Cal, Dee; Bea and Cal get stand-in devices', async () => {
     await A.goto(base); await A.waitForSelector('[data-auth="signup"]', { timeout: 20000 }); await A.fill('#auName', 'Asker A'); await A.fill('#auEmail', 'sway.test.' + stamp + '@gmail.com'); await A.fill('#auPw', 'testpass-' + stamp); await A.click('form.authf button[type=submit]');
-    await A.waitForSelector('text=Start with a circle', { timeout: 20000 }); await A.click('[data-a="newcircle"]'); await A.fill('#cName', 'Soft ' + stamp); await A.click('form[data-f="newcircle"] button');
+    await skipOnb(A); await A.waitForSelector('text=Start with a circle', { timeout: 20000 }); await A.click('[data-a="newcircle"]'); await A.fill('#cName', 'Soft ' + stamp); await A.click('form[data-f="newcircle"] button');
     await A.waitForFunction(() => { const c = document.querySelector('.invite code'); return c && /join=/.test(c.textContent); }, null, { timeout: 20000 }); invite = await A.locator('.invite code').innerText();
-    for (const [P, n] of [[B, 'Bea'], [C, 'Cal'], [D, 'Dee']]) { await P.goto(invite); await P.waitForSelector('.banner', { timeout: 20000 }); await P.fill('#auName', n); await P.click('form.authf button[type=submit]'); await P.waitForSelector('.hello', { timeout: 20000 }); await tab(P, 'circles'); await P.waitForSelector('.ctile:has-text("Soft")', { timeout: 20000 }); }
+    for (const [P, n] of [[B, 'Bea'], [C, 'Cal'], [D, 'Dee']]) { await P.goto(invite); await P.waitForSelector('.banner', { timeout: 20000 }); await P.fill('#auName', n); await P.click('form.authf button[type=submit]'); await skipOnb(P); await tab(P, 'circles'); await P.waitForSelector('.ctile:has-text("Soft")', { timeout: 20000 }); }
     for (const [P, n] of [[B, 'b'], [C, 'c']]) log.push('     device ' + n + ': ' + (await rest(P, '/rest/v1/rpc/save_push_sub', 'POST', { ep: 'https://push-test-' + n + stamp + '.invalid/x', k: 'BAAA', a: 'AAAA' })));
     await A.waitForTimeout(1500); });
   await step('first vote → asker told at once; second vote right after → held for the roundup', async () => {

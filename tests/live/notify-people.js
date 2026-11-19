@@ -4,6 +4,7 @@
 const { chromium } = require('playwright');
 const base = (process.env.BASE || 'http://localhost:8766/') + 'index.html', stamp = Date.now().toString(36);
 (async () => {
+  const skipOnb = async (P) => { await P.waitForSelector('.onb, .hello', { timeout: 20000 }); await P.waitForFunction(() => document.querySelector('.onb, .qhero') || (document.querySelector('.hello') && !document.body.innerText.includes('Loading your circles')), null, { timeout: 20000 }); if (await P.locator('.onb').count()) await P.click('[data-a="onbskip"]'); await P.waitForSelector('.hello, .qhero', { timeout: 20000 }); };
   const launch = {}; if (process.env.HTTPS_PROXY) { const px = new URL(process.env.HTTPS_PROXY); launch.proxy = { server: px.protocol + '//' + px.host, username: decodeURIComponent(px.username), password: decodeURIComponent(px.password), bypass: 'localhost,127.0.0.1' }; }
   const b = await chromium.launch(launch);
   const log = [], errs = [], got = {};
@@ -18,12 +19,12 @@ const base = (process.env.BASE || 'http://localhost:8766/') + 'index.html', stam
   const A = await mk('A'), B = await mk('B'), C = await mk('C'); let invite = '';
   await step('setup: A, Bea, Cal in one circle; Bea gets a stand-in device', async () => {
     await A.goto(base); await A.waitForSelector('[data-auth="signup"]', { timeout: 20000 }); await A.fill('#auName', 'Asker A'); await A.fill('#auEmail', 'sway.test.' + stamp + '@gmail.com'); await A.fill('#auPw', 'testpass-' + stamp); await A.click('form.authf button[type=submit]');
-    await A.waitForSelector('text=Start with a circle', { timeout: 20000 }); await A.click('[data-a="newcircle"]'); await A.fill('#cName', 'Prefs ' + stamp); await A.click('form[data-f="newcircle"] button');
+    await skipOnb(A); await A.waitForSelector('text=Start with a circle', { timeout: 20000 }); await A.click('[data-a="newcircle"]'); await A.fill('#cName', 'Prefs ' + stamp); await A.click('form[data-f="newcircle"] button');
     await A.waitForFunction(() => { const c = document.querySelector('.invite code'); return c && /join=/.test(c.textContent); }, null, { timeout: 20000 }); invite = await A.locator('.invite code').innerText();
-    for (const [P, n] of [[B, 'Bea'], [C, 'Cal']]) { await P.goto(invite); await P.waitForSelector('.banner', { timeout: 20000 }); await P.fill('#auName', n); await P.click('form.authf button[type=submit]'); await P.waitForSelector('.hello', { timeout: 20000 }); }
+    for (const [P, n] of [[B, 'Bea'], [C, 'Cal']]) { await P.goto(invite); await P.waitForSelector('.banner', { timeout: 20000 }); await P.fill('#auName', n); await P.click('form.authf button[type=submit]'); await skipOnb(P); }
     log.push('     stand-in device: ' + (await rest(B, '/rest/v1/rpc/save_push_sub', 'POST', { ep: 'https://push-test-' + stamp + '.invalid/x', k: 'BAAA', a: 'AAAA' }))); await A.waitForTimeout(2000); });
   await step('Bea chooses "People I choose" → only Cal', async () => {
-    await B.reload(); await B.waitForSelector('.hello', { timeout: 20000 }); await B.waitForTimeout(2500); await tab(B, 'you');
+    await B.reload(); await skipOnb(B); await B.waitForTimeout(2500); await tab(B, 'you');
     log.push('     You row: ' + (await B.locator('[data-a="notifyppl"]').innerText()).replace(/\n/g, ' · '));
     await B.click('[data-a="notifyppl"]'); await B.click('[data-a="onlymode"][data-t="some"]'); await B.click('[data-a="onlyp"] >> nth=1').catch(() => {});
     const names = await B.locator('.person:has([data-a="onlyp"]) b').allInnerTexts(); log.push('     friends listed: ' + names.join(', '));

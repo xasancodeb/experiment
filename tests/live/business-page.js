@@ -6,6 +6,7 @@ const { execSync } = require('child_process');
 const base = process.env.BASE || 'http://localhost:8766/', stamp = Date.now().toString(36);
 const sql = (q) => execSync('curl -sS -m 30 -X POST https://api.supabase.com/v1/projects/tsxoecarlbekrgjxrjyu/database/query -H "Content-Type: application/json" --data-binary @-', { input: JSON.stringify({ query: q }) }).toString();
 (async () => {
+  const skipOnb = async (P) => { await P.waitForSelector('.onb, .hello', { timeout: 20000 }); await P.waitForFunction(() => document.querySelector('.onb, .qhero') || (document.querySelector('.hello') && !document.body.innerText.includes('Loading your circles')), null, { timeout: 20000 }); if (await P.locator('.onb').count()) await P.click('[data-a="onbskip"]'); await P.waitForSelector('.hello, .qhero', { timeout: 20000 }); };
   const launch = {}; if (process.env.HTTPS_PROXY) { const px = new URL(process.env.HTTPS_PROXY); launch.proxy = { server: px.protocol + '//' + px.host, username: decodeURIComponent(px.username), password: decodeURIComponent(px.password), bypass: 'localhost,127.0.0.1' }; }
   const b = await chromium.launch(launch);
   const log = ['STAMP ' + stamp], errs = [];
@@ -26,7 +27,7 @@ const sql = (q) => execSync('curl -sS -m 30 -X POST https://api.supabase.com/v1/
   await step('coming back shows the status, not the form', async () => { await P.reload(); await P.waitForSelector('#done:not([hidden])', { timeout: 20000 }); log.push('     ' + (await P.locator('#done .badge').innerText())); });
   await step('"Open your business page" goes into the app', async () => { await P.click('#done a.btn'); await P.waitForSelector('text=Apply Test ' + stamp, { timeout: 25000 }); log.push('     app shows: ' + (await P.locator('.bizhead').innerText()).replace(/\n/g, ' / ')); });
   await step('an existing user applies without retyping email or password', async () => {
-    await U.goto(base + 'index.html'); await U.waitForSelector('[data-auth="signup"]', { timeout: 20000 }); await U.fill('#auName', 'Rui'); await U.fill('#auEmail', 'sway.test.u' + stamp + '@gmail.com'); await U.fill('#auPw', 'testpass-' + stamp); await U.click('form.authf button[type=submit]'); await U.waitForSelector('.hello', { timeout: 20000 });
+    await U.goto(base + 'index.html'); await U.waitForSelector('[data-auth="signup"]', { timeout: 20000 }); await U.fill('#auName', 'Rui'); await U.fill('#auEmail', 'sway.test.u' + stamp + '@gmail.com'); await U.fill('#auPw', 'testpass-' + stamp); await U.click('form.authf button[type=submit]'); await skipOnb(U);
     await U.goto(base + 'business/'); await U.waitForSelector('#asWho:not([hidden])', { timeout: 20000 }); log.push('     ' + (await U.locator('#asWho').innerText()) + ' | email field shown: ' + (await U.locator('#cEmail').isVisible()) + ' | name prefilled: ' + (await U.inputValue('#cName')));
     await U.fill('#bName', 'Second Test ' + stamp); await U.fill('#bCity', 'Porto'); await U.click('#go'); await U.waitForSelector('#done:not([hidden])', { timeout: 20000 }); });
   await step('an email that already has an account gets a clear message', async () => {

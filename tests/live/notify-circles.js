@@ -4,6 +4,7 @@
 const { chromium } = require('playwright');
 const base = (process.env.BASE || 'http://localhost:8766/') + 'index.html', stamp = Date.now().toString(36);
 (async () => {
+  const skipOnb = async (P) => { await P.waitForSelector('.onb, .hello', { timeout: 20000 }); await P.waitForFunction(() => document.querySelector('.onb, .qhero') || (document.querySelector('.hello') && !document.body.innerText.includes('Loading your circles')), null, { timeout: 20000 }); if (await P.locator('.onb').count()) await P.click('[data-a="onbskip"]'); await P.waitForSelector('.hello, .qhero', { timeout: 20000 }); };
   const launch = {}; if (process.env.HTTPS_PROXY) { const px = new URL(process.env.HTTPS_PROXY); launch.proxy = { server: px.protocol + '//' + px.host, username: decodeURIComponent(px.username), password: decodeURIComponent(px.password), bypass: 'localhost,127.0.0.1' }; }
   const b = await chromium.launch(launch);
   const log = [], errs = [], got = [];
@@ -25,10 +26,10 @@ const base = (process.env.BASE || 'http://localhost:8766/') + 'index.html', stam
   const X = 'Loud ' + stamp, Y = 'Quiet ' + stamp;
   await step('setup: A makes two circles; Bea joins both and gets a stand-in device', async () => {
     await A.goto(base); await A.waitForSelector('[data-auth="signup"]', { timeout: 20000 }); await A.fill('#auName', 'Asker A'); await A.fill('#auEmail', 'sway.test.' + stamp + '@gmail.com'); await A.fill('#auPw', 'testpass-' + stamp); await A.click('form.authf button[type=submit]');
-    await A.waitForSelector('.hello', { timeout: 20000 }); inv.x = await circleOf(X); await A.click('[data-a="back"]'); inv.y = await circleOf(Y);
-    await B.goto(inv.x); await B.waitForSelector('.banner', { timeout: 20000 }); await B.fill('#auName', 'Bea'); await B.click('form.authf button[type=submit]'); await B.waitForSelector('.hello', { timeout: 20000 });
+    await skipOnb(A); inv.x = await circleOf(X); await A.click('[data-a="back"]'); inv.y = await circleOf(Y);
+    await B.goto(inv.x); await B.waitForSelector('.banner', { timeout: 20000 }); await B.fill('#auName', 'Bea'); await B.click('form.authf button[type=submit]'); await skipOnb(B);
     await tab(B, 'circles'); await B.waitForSelector('.ctile:has-text("' + X + '")', { timeout: 20000 });
-    await B.goto(inv.y); await B.waitForSelector('.hello', { timeout: 20000 }); await tab(B, 'circles'); await B.waitForSelector('.ctile:has-text("' + Y + '")', { timeout: 20000 }); await B.waitForTimeout(1500);
+    await B.goto(inv.y); await skipOnb(B); await tab(B, 'circles'); await B.waitForSelector('.ctile:has-text("' + Y + '")', { timeout: 20000 }); await B.waitForTimeout(1500);
     log.push('     device: ' + (await rest(B, '/rest/v1/rpc/save_push_sub', 'POST', { ep: 'https://push-test-' + stamp + '.invalid/x', k: 'BAAA', a: 'AAAA' }))); await A.waitForTimeout(1500); });
   await step('Bea mutes "' + Y + '" from its circle page', async () => {
     await tab(B, 'circles'); await B.waitForSelector('.ctile:has-text("' + Y + '")', { timeout: 20000 }); await B.click('.ctile:has-text("' + Y + '")'); await B.click('[data-a="mutec"]');

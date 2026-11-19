@@ -141,6 +141,7 @@ button{cursor:pointer;border:0;background:none;padding:0;text-align:left}
 .mcard{border-radius:26px;background:var(--surface);box-shadow:var(--lift);overflow:hidden}
 .mcard .top{padding:16px 16px 18px;color:#fff;display:flex;flex-direction:column;gap:8px;text-align:left;width:100%}
 .mcard .top small{font-weight:800;font-size:12px;opacity:.92}
+.mcard .top .newv{align-self:flex-start;background:#fff;color:#17132B;border-radius:99px;padding:6px 11px;font-size:12.5px;font-weight:800;animation:pop .35s cubic-bezier(.2,.8,.2,1)}
 .mcard .top b{font-size:20px;font-weight:800;line-height:1.15;letter-spacing:-.03em;overflow-wrap:anywhere}
 .mcard .body{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
 .bar2{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden}
@@ -353,7 +354,7 @@ function solid(id){return GR[hash(id)%GR.length][0]}
 
 /* ---------- state ---------- */
 var S=null,ME=null,GUEST=false;
-function blank(){return {me:null,friends:{},circles:[],polls:[],act:[],seen:{},loaded:false}}
+function blank(){return {me:null,friends:{},circles:[],polls:[],act:[],seen:{},seenV:{},loaded:false}}
 function person(id){ if(id==='me') return {n:(S.me&&S.me.name)||'You',c:'#E4E0F2'}; if(id==='anon') return {n:'Someone',c:'#E7E3F1'}; return S.friends[id]||{n:'A friend',c:'#E7DFD3'} }
 function name(id){return id==='me'?'You':person(id).n}
 function first(id){return id==='me'?'You':String(person(id).n).split(' ')[0]}
@@ -385,7 +386,20 @@ function ago(t){var d=now()-t; if(d<MIN) return 'just now'; if(d<HR) return Math
 var toVote=function(){return S.polls.filter(myTurn).sort(function(a,b){return a.closes-b.closes})};
 var ready=function(){return S.polls.filter(function(p){return isClosed(p)&&involved(p)&&!S.seen[p.id]})};
 var waitingOn=function(){return S.polls.filter(function(p){return p.by!=='me'&&!isClosed(p)&&hasVoted(p,'me')}).sort(function(a,b){return a.closes-b.closes})};
-function saveLocal(){ if(ME) store.set('sway2.'+ME,{act:S.act.slice(0,60),seen:S.seen}) }
+function saveLocal(){ if(ME) store.set('sway2.'+ME,{act:S.act.slice(0,60),seen:S.seen,seenV:S.seenV}) }
+/* votes on my open questions that I haven't looked at yet */
+function newVotes(p){ if(p.by!=='me'||isClosed(p)) return 0; return Math.max(0,turn(p).n-((S.seenV&&S.seenV[p.id])||0)) }
+function lookedAt(p){ if(!S.seenV||p.by!=='me') return; var n=turn(p).n; if(S.seenV[p.id]!==n){ S.seenV[p.id]=n; saveLocal() } }
+var MINEBASE={};
+function voteAct(p,o){
+  var fresh=turn(p).n-turn(o).n, all=turn(p).n>=turn(p).total, verb=isOpen(p)?'replied':'voted';
+  var names=p.hideAsker?[]:(isOpen(p)?voters(p).filter(function(v){return v!=='me'&&hasVoted(p,v)&&!hasVoted(o,v)}):(p.voted||[]).filter(function(v){return v!=='me'&&(o.voted||[]).indexOf(v)<0}));
+  var who=names.length?first(names[0])+(names.length>1?' and '+(names.length-1)+(names.length>2?' others':' other'):''):(fresh>1?fresh+' friends':'Someone');
+  var line=(all?'Everyone has '+verb:who+' '+verb)+' · '+turn(p).n+' of '+turn(p).total+' in';
+  var ex=S.act.filter(function(a){return a.kind==='vote'&&a.pid===p.id&&a.unread})[0];
+  if(ex){ ex.text=line+': '+p.q; ex.t=now(); S.act.splice(S.act.indexOf(ex),1); S.act.unshift(ex); saveLocal() } else addAct('vote',p.id,line+': '+p.q);
+  toast(line,'See',function(){ go('q',p.id) });
+}
 function addAct(kind,pid,text){ S.act.unshift({id:newId(),t:now(),kind:kind,pid:pid,text:text,unread:true}); if(S.act.length>60) S.act.length=60; saveLocal() }
 function markSeen(pid){ S.seen[pid]=true; S.act.forEach(function(a){ if(a.pid===pid&&a.kind==='verdict') a.unread=false }); saveLocal() }
 
@@ -410,7 +424,7 @@ function demo(){
     P({id:'m1',by:'me',circles:['inner'],q:'Should I get the fringe?',opts:[{t:'Yes'},{t:'No'}],closes:t+3*HR,votes:{maya:0,jonah:0}}),
     P({id:'m2',by:'me',circles:['inner'],q:'Should I move to Lisbon?',opts:[{t:'Yes, go'},{t:'Stay put'}],closes:t-DAY,created:t-3*DAY,votes:{maya:0,jonah:0,priya:1,leo:0,ana:0}})
   ];
-  s.seen={m2:true};
+  s.seen={m2:true}; s.seenV={m1:1};
   s.act=[{id:'a1',t:t-2*HR,kind:'verdict',pid:'q4',text:'The verdict is in: Tattoo: wrist or ankle?',unread:true},{id:'a2',t:t-HR,kind:'poll',pid:'q2',text:'Maya asked Inner Circle: Which dress for Saturday’s wedding?',unread:true}];
   s.loaded=true; return s;
 }
@@ -422,6 +436,7 @@ function back(){stack.pop();CRENAME=null;draw('back')}
 function newDraft(){return {q:'',type:'Yes / No',o:['Yes','No'],ph:[],who:[],more:false,live:false,hide:false,anon:false,early:false,dl:'3h',allc:false}}
 function setTab(t){
   if(LIVE&&ME) liveSoon();
+  if(t==='mine'&&S&&S.seenV){ MINEBASE={}; S.polls.forEach(function(p){ if(p.by==='me') MINEBASE[p.id]=S.seenV[p.id]||0 }) }
   if(t==='ask'&&draft&&stack.length&&stack[stack.length-1][0]==='ask') return;
   tab=t;stack=[];
   if(t==='ask'){ if(!S.circles.length){ toast('Create a circle first, so there’s someone to ask.'); tab='circles'; stack=[['newcircle']]; return draw('nav') }
@@ -496,7 +511,9 @@ function pMine(){
   if(live.length) h+='<div class="label"><i style="background:#EC4899"></i>Live now <span class="n">'+live.length+'</span></div><div class="stack">'+live.map(function(p){
     var vs=voters(p).filter(function(v){return v!=='me'}),yes=vs.filter(function(v){return hasVoted(p,v)}),no=vs.filter(function(v){return !hasVoted(p,v)}),todo=no.filter(function(v){return p.nudgedTo.indexOf(v)<0});
     var tu=turn(p),pct=tu.total?Math.round(tu.n/tu.total*100):0;
-    return '<div class="mcard" data-row="'+p.id+'"><button class="top" style="background:'+grad(p.id)+'" data-a="q" data-id="'+p.id+'"><small>'+esc(cname(p))+' · <span data-closes="'+p.closes+'">'+left(p.closes-now())+'</span>'+(p.hideAsker?' · asked anonymously':'')+'</small><b>'+esc(p.q)+'</b></button><div class="body">'+
+    var nw=Math.max(0,tu.n-(MINEBASE[p.id]!=null?MINEBASE[p.id]:((S.seenV&&S.seenV[p.id])||0))); if(!stack.length&&tab==='mine') lookedAt(p);
+    var vb=isOpen(p)?(nw===1?'reply':'replies'):(nw===1?'vote':'votes');
+    return '<div class="mcard" data-row="'+p.id+'"><button class="top" style="background:'+grad(p.id)+'" data-a="q" data-id="'+p.id+'"><small>'+esc(cname(p))+' · <span data-closes="'+p.closes+'">'+left(p.closes-now())+'</span>'+(p.hideAsker?' · asked anonymously':'')+'</small><b>'+esc(p.q)+'</b>'+(nw?'<span class="newv">+'+nw+' new '+vb+'</span>':'')+'</button><div class="body">'+
       '<div class="bar2"><i style="width:'+pct+'%;background:'+grad(p.id)+'"></i></div>'+
       '<div class="ppl"><span class="faces">'+(p.hideAsker?'':yes.map(function(v){return av(v)}).join('')+no.map(function(v){return av(v,'out')}).join(''))+'</span><span class="t">'+tu.n+' of '+tu.total+(isOpen(p)?' replied':' voted')+'</span>'+
       (canNudge(p)?(todo.length?'<button class="btn primary sm" data-a="nudge" data-id="'+p.id+'">Nudge '+(todo.length===1?esc(first(todo[0])):todo.length)+'</button>':no.length?'<span class="pill">Nudged</span>':'<span class="pill ok">All in</span>'):'')+'</div></div></div>'}).join('')+'</div>';
@@ -559,6 +576,7 @@ function pYou(){
 var DELARM=null,CRENAME=null;
 function pQuestion(id){
   var p=poll(id); if(!p) return bar('Question')+'<div class="empty"><b>This question is gone</b>It was deleted, or you’re no longer in its circle.</div>';
+  lookedAt(p);
   var mine=p.by==='me',closed=isClosed(p),t=tally(p),you=p.votes.me,vs=voters(p),g=grad(p.id),c0=solid(p.id),open=isOpen(p),tu=turn(p);
   var h=bar(mine?'Your question':'Question');
   h+='<div class="qhero" style="background:'+g+'"><div class="who">'+av(p.by)+'<span class="wt">'+(mine?(p.hideAsker?'You asked anonymously':'You asked'):(p.by==='anon'?'Someone':esc(first(p.by)))+' asked')+'<br>'+esc(cname(p))+'</span><span class="t"'+(closed?'':' data-closes="'+p.closes+'"')+'>'+left(p.closes-now())+'</span></div><h1>'+esc(p.q)+'</h1>'+(p.note?'<p class="note">'+esc(p.note)+'</p>':'')+
@@ -677,7 +695,8 @@ function draw(mode){
 }
 function drawTabs(){
   var n=toVote().length+ready().length;
-  $('#tabs').innerHTML=[['vote','Vote',I.vote,n],['mine','Mine',I.mine,0],['ask','Ask',I.plus,0],['circles','Circles',I.circles,0],['you','You',I.you,0]].map(function(t){
+  var nv=0; S.polls.forEach(function(p){ nv+=newVotes(p) });
+  $('#tabs').innerHTML=[['vote','Vote',I.vote,n],['mine','Mine',I.mine,nv],['ask','Ask',I.plus,0],['circles','Circles',I.circles,0],['you','You',I.you,0]].map(function(t){
     if(t[0]==='ask') return '<button class="tab ask" data-a="tab" data-t="ask" aria-label="Ask a question"><span class="plus">'+t[2]+'</span></button>';
     return '<button class="tab" data-a="tab" data-t="'+t[0]+'"'+(tab===t[0]&&!(stack.length&&stack[0][0]==='ask')?' aria-current="page"':'')+'>'+t[2]+t[1]+(t[3]?'<span class="badge">'+t[3]+'</span>':'')+'</button>'}).join('');
   try{document.title=(n?'('+n+') ':'')+'Sway'}catch(e){}
@@ -743,13 +762,14 @@ function vote(id,i){
   if(p.counts&&p.counts.length){ if(prev!=null&&p.counts[prev]>0) p.counts[prev]--; p.counts[i]=(p.counts[i]||0)+1 }
   if(p.nVoted!=null&&prev==null) p.nVoted++;
   buzz();
-  if(LIVE) save(sb.from('votes').upsert({poll_id:id,user_id:ME,choice:i,hidden:hid,updated_at:new Date().toISOString()}).then(function(r){ if(r.error||!p.early) return r; return sb.rpc('close_if_complete',{p:id}) }),p.circles);
+  if(LIVE) save(sb.from('votes').upsert({poll_id:id,user_id:ME,choice:i,hidden:hid,updated_at:new Date().toISOString()}).then(function(r){ if(r.error) return r; if(prev==null) notify('voted',id); if(!p.early) return r; return sb.rpc('close_if_complete',{p:id}) }),p.circles);
   return true;
 }
 function comment(id,text){
   var p=poll(id); if(!p) return;
+  var firstReply=isOpen(p)&&p.by!=='me'&&!isClosed(p)&&!p.comments.some(function(c){return c.by==='me'});
   p.comments.push({by:'me',text:text,t:now()});
-  if(LIVE) save(sb.from('comments').insert({poll_id:id,user_id:ME,body:text}),p.circles);
+  if(LIVE) save(sb.from('comments').insert({poll_id:id,user_id:ME,body:text}).then(function(r){ if(!r.error&&firstReply) notify('voted',id); return r }),p.circles);
 }
 function nudgeAll(id){
   var p=poll(id); if(!p||!canNudge(p)) return;
@@ -1007,7 +1027,7 @@ function liveRefresh(){
         if(!o&&p.by!=='me'&&!isClosed(p)){ addAct('poll',p.id,nm+' asked '+cname(p)+': '+p.q); toast(nm+' asked a question','Vote',function(){ setTab('vote') }) }
         if(o&&!isClosed(o)&&isClosed(p)&&involved(p)&&!S.seen[p.id]){ addAct('verdict',p.id,'The verdict is in: '+p.q); toast('The verdict is in','Reveal',function(){ reveal(p.id) }) }
         if(p.nudgedBy&&!(o&&o.nudgedBy)&&!isClosed(p)&&!hasVoted(p,'me')){ addAct('nudge',p.id,first(p.nudgedBy)+' is waiting on your vote: '+p.q); toast(first(p.nudgedBy)+' nudged you','Vote',function(){ go('q',p.id) }) }
-        if(o&&p.by==='me'&&turn(p).n>turn(o).n&&!isClosed(p)) toast('New vote · '+turn(p).n+' of '+turn(p).total+' in');
+        if(o&&p.by==='me'&&turn(p).n>turn(o).n&&!isClosed(p)) voteAct(p,o);
         if(o&&involved(p)&&p.comments.length>o.comments.length){ var lc=p.comments[p.comments.length-1]; if(lc.by!=='me') addAct('comment',p.id,first(lc.by)+' commented on: '+p.q) }
       } else if(isClosed(p)&&now()-p.closes>3*DAY) S.seen[p.id]=true;
       return p;
@@ -1020,7 +1040,9 @@ function liveRefresh(){
     if(myName) S.me.name=myName;
     S.friends=friends;
     S.circles=cids.map(function(k){var c=cmap[k]; c.star=!!stars[k]; c.used=Math.max(usedOld[k]||0,lastAsk[k]||0); return c}).concat(keepC);
-    S.polls=next; S.loaded=true; warned=false; saveLocal();
+    S.polls=next; S.loaded=true; warned=false;
+    if(!S.seenV){ S.seenV={}; next.forEach(function(p){ if(p.by==='me') S.seenV[p.id]=turn(p).n }) }
+    saveLocal();
     joinChannels(cids); refresh();
     if(ONLOAD){ var f=ONLOAD; ONLOAD=null; f() }
   }).catch(function(e){ if(String(e&&e.message)==='retry') return; if(!warned){ warned=true; toast('Couldn’t reach Sway. Trying again shortly.') } })
@@ -1108,7 +1130,7 @@ function doAuth(){
 }
 function enter(user){
   if(ME===user.id) return;
-  ME=user.id; GUEST=!!user.is_anonymous; S=blank(); var loc=store.get('sway2.'+ME)||{}; S.act=loc.act||[]; S.seen=loc.seen||{};
+  ME=user.id; GUEST=!!user.is_anonymous; S=blank(); var loc=store.get('sway2.'+ME)||{}; S.act=loc.act||[]; S.seen=loc.seen||{}; S.seenV=loc.seenV||null;
   S.me={name:(user.user_metadata&&user.user_metadata.name)||'Friend'};
   enterApp(); probe();
   sb.from('profiles').select('name').eq('id',ME).maybeSingle().then(function(pr){

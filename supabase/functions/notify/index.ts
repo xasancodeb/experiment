@@ -1,4 +1,6 @@
 // Sway notification sender (Supabase Edge Function).
+// - A voter's browser calls it with {kind:"voted"} so the asker hears that a vote came in
+//   (who voted and how many are in, never what anyone picked).
 // - A signed-in asker calls it after asking, nudging, locking in a plan, handing over a
 //   tiebreak or sharing what happened next.
 // - A once-a-minute database timer calls it with {kind:"tick"} to announce verdicts and
@@ -84,7 +86,7 @@ async function db(path: string, init: RequestInit = {}) {
   return init.method && init.method !== "GET" ? null : await res.json();
 }
 const POLL_COLS = "id,q,author,hide_asker,type,closes_at,created_at,notified,plan,tb_user";
-type Poll = { id: string; q: string; author: string; hide_asker: boolean; type: string; closes_at: string; created_at: string; notified: Record<string, boolean>; plan: { when?: string } | null; tb_user: string | null };
+type Poll = { id: string; q: string; author: string; hide_asker: boolean; type: string; closes_at: string; created_at: string; notified: Record<string, unknown>; plan: { when?: string } | null; tb_user: string | null };
 
 async function audience(poll: Poll) {
   const pcs = await db(`poll_circles?poll_id=eq.${poll.id}&select=circle_id,circles(name)`);
@@ -117,10 +119,35 @@ async function push(kind: string, users: string[], poll: Poll, title: string, bo
   return { sent: statuses.filter((x) => x >= 200 && x < 300).length, statuses };
 }
 
+// ---------- a friend just voted: tell the asker ----------
+async function voted(uid: string, poll: Poll) {
+  if (poll.author === uid) return { skipped: "own question" };
+  if (Date.parse(poll.closes_at) <= Date.now()) return { skipped: "closed" };
+  const open = poll.type === "open";
+  const rows: { user_id: string }[] = open
+    ? await db(`comments?poll_id=eq.${poll.id}&select=user_id`)
+    : await db(`votes?poll_id=eq.${poll.id}&select=user_id`);
+  const done = [...new Set(rows.map((r) => r.user_id))].filter((u) => u !== poll.author);
+  if (!done.includes(uid)) return { error: "forbidden" };           // only someone who really voted can trigger it
+  const a = await audience(poll);
+  const total = a.users.filter((u) => u !== poll.author).length;
+  const n = done.length, last = Number(poll.notified?.vote_n ?? 0);
+  if (n <= last) return { skipped: "nothing new" };                  // changing a vote, or a repeat call, sends nothing
+  const fresh = n - last, all = n >= total;
+  let who = "Someone";
+  if (!poll.hide_asker) { const pr = await db(`profiles?id=eq.${uid}&select=name`); who = String(pr[0]?.name ?? "A friend").split(" ")[0]; }
+  const verb = open ? "replied" : "voted";
+  const title = all ? `Everyone has ${verb}` : fresh === 1 ? `${who} ${verb}` : `${who} and ${fresh - 1} other${fresh > 2 ? "s" : ""} ${verb}`;
+  const notified = { ...(poll.notified ?? {}), vote_n: n, vote_at: new Date().toISOString() };
+  await db(`polls?id=eq.${poll.id}`, { method: "PATCH", body: JSON.stringify({ notified }) });
+  return push("voted", [poll.author], poll, title, `${poll.q} · ${n} of ${total} in`);
+}
+
 // ---------- something the asker just did ----------
 async function event(uid: string, b: { kind?: string; poll_id?: string; to?: string }) {
   if (!/^[0-9a-f-]{36}$/i.test(b.poll_id ?? "")) return { error: "bad poll" };
   const poll: Poll | undefined = (await db(`polls?id=eq.${b.poll_id}&select=${POLL_COLS}`))[0];
+  if (poll && b.kind === "voted") return voted(uid, poll);
   if (!poll || poll.author !== uid) return { error: "forbidden" };
   const a = await audience(poll);
   const others = a.users.filter((u) => u !== uid);

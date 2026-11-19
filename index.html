@@ -33,9 +33,9 @@ button{cursor:pointer;border:0;background:none;padding:0;text-align:left}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 [hidden]{display:none!important}
 
-.app{position:fixed;left:0;right:0;top:var(--vvt,0px);height:var(--vvh,100%);max-width:560px;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;isolation:isolate}
+.app{position:fixed;left:0;right:0;top:var(--vvt,0px);height:var(--vvh,100%);max-width:560px;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;overflow:clip;isolation:isolate}
 @media (min-width:600px){.app{box-shadow:0 0 0 1px var(--line),0 30px 80px -40px rgba(76,29,149,.5)}}
-.app::before{content:"";position:absolute;inset:-120px -80px auto;height:340px;z-index:-1;pointer-events:none;
+.app::before{content:"";position:absolute;inset:-120px 0 auto;height:340px;z-index:-1;pointer-events:none;
   background:radial-gradient(closest-side at 22% 55%,rgba(124,58,237,.26),transparent),radial-gradient(closest-side at 72% 40%,rgba(236,72,153,.2),transparent),radial-gradient(closest-side at 95% 75%,rgba(249,115,22,.16),transparent)}
 .page{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;
   padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(110px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
@@ -366,7 +366,7 @@ function solid(id){return GR[hash(id)%GR.length][0]}
 
 /* ---------- state ---------- */
 var S=null,ME=null,GUEST=false;
-function blank(){return {me:null,friends:{},circles:[],polls:[],act:[],seen:{},seenV:{},loaded:false}}
+function blank(){return {me:null,friends:{},circles:[],polls:[],act:[],seen:{},seenV:{},only:null,loaded:false}}
 function person(id){ if(id==='me') return {n:(S.me&&S.me.name)||'You',c:'#E4E0F2'}; if(id==='anon') return {n:'Someone',c:'#E7E3F1'}; return S.friends[id]||{n:'A friend',c:'#E7DFD3'} }
 function name(id){return id==='me'?'You':person(id).n}
 function first(id){return id==='me'?'You':String(person(id).n).split(' ')[0]}
@@ -578,6 +578,8 @@ function pYou(){
   h+='<div class="tog"><div class="tx"><b>Appearance</b><span>'+(THEME==='auto'?'Follows your device':THEME==='dark'?'Always dark':'Always light')+'</span></div></div><div class="seg" role="tablist" aria-label="Appearance" style="margin-bottom:10px">'+[['auto','Auto'],['light','Light'],['dark','Dark']].map(function(t){return '<button role="tab" aria-selected="'+(THEME===t[0])+'" data-a="theme" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>';
   if(LIVE&&HAS4&&PUSH_OK) h+='<div class="tog"><div class="tx"><b>Notifications on this device</b><span>'+(pushDenied()?'Blocked in your browser’s settings for this site':'When a friend asks, nudges you, or a result is in')+'</span></div><button class="sw" role="switch" aria-label="Notifications on this device" aria-checked="'+pushOn()+'" data-a="push"'+(pushDenied()?' disabled':'')+'></button></div>';
   else if(LIVE&&HAS4&&IOS&&!STANDALONE) h+='<div class="tog"><div class="tx"><b>Notifications on iPhone</b><span>Add Sway to your Home Screen first: tap Share, then “Add to Home Screen”. Open it from there and switch notifications on here.</span></div></div>';
+  if(!LIVE||HAS4){ var oc=S.only?S.only.filter(function(u){return S.friends[u]}).length:0;
+    h+='<button class="tog" data-a="notifyppl" style="width:100%"><span class="tx"><b>Whose questions and votes notify you</b><span>'+(S.only?(oc?oc+(oc===1?' person you chose':' people you chose'):'Nobody yet: choose people'):'Everyone in your circles')+'</span></span><span class="linkbtn">Change</span></button>' }
   if(LIVE&&GUEST) h+='<div class="tog"><div class="tx"><b>Keep your account</b><span>Add an email so you can log in on any device</span></div><button class="btn sm" data-a="saveacct">Add email</button></div>';
   if(LIVE) h+='<div class="tog"><div class="tx"><b>Log out</b><span>'+(GUEST?'A guest account can’t be recovered after logging out':'You can log back in with your email')+'</span></div><button class="btn ghost sm" data-a="logout">Log out</button></div>';
   else h+='<div class="tog"><div class="tx"><b>Demo</b><span>Example friends and questions, saved nowhere</span></div><button class="btn ghost sm" data-a="resetdemo">Start over</button></div>';
@@ -693,6 +695,27 @@ function pActivity(){
   return h+'<div class="stack">'+S.act.map(function(a){var p=poll(a.pid);
     return '<button class="row" data-a="act" data-id="'+a.id+'"><span class="tile" style="background:'+grad(a.pid||a.id)+'" aria-hidden="true">'+esc(p?initials(p.by):'S')+'</span><span class="tx"><b style="font-weight:'+(a.unread?800:600)+'">'+esc(a.text)+'</b><span>'+ago(a.t)+'</span></span>'+(a.unread?'<span class="pill v">New</span>':'')+'</button>'}).join('')+'</div>';
 }
+function pNotifyPpl(){
+  var some=!!S.only,ids=Object.keys(S.friends).sort(function(a,b){return name(a).localeCompare(name(b))});
+  var h=bar('Notifications')+'<p class="hint" style="font-size:15px;margin-top:-4px">Choose whose new questions, votes and results send a notification to this phone.</p>'+
+    '<div class="seg" role="tablist" aria-label="Who notifies you"><button role="tab" aria-selected="'+!some+'" data-a="onlymode" data-t="all">Everyone</button><button role="tab" aria-selected="'+some+'" data-a="onlymode" data-t="some">People I choose</button></div>';
+  if(!some) return h+'<p class="privacy">'+I.bell+'<span>You hear about everyone in your circles. Pick “People I choose” to hear only from certain friends.</span></p>';
+  if(!ids.length) return h+'<div class="empty"><b>No friends yet</b>Invite people to a circle first.</div>';
+  h+='<div class="label"><i style="background:#EC4899"></i>Notify me about <span class="n">'+S.only.filter(function(u){return S.friends[u]}).length+' of '+ids.length+'</span></div><div class="box">'+ids.map(function(u){var on=S.only.indexOf(u)>=0;
+    return '<div class="person">'+av(u)+'<b>'+esc(person(u).n)+'</b><button class="sw" role="switch" aria-label="Notifications from '+esc(person(u).n)+'" aria-checked="'+on+'" data-a="onlyp" data-u="'+u+'"></button></div>'}).join('')+'</div>';
+  return h+'<p class="privacy">'+I.lock+'<span>Nudges, and results of your own questions, always come through. Questions asked anonymously always notify you, so nobody can work out who asked.</span></p>';
+}
+/* quick taps send one save, always the latest choice, never two racing each other */
+var ONLY={t:null,busy:false,again:false};
+function saveOnly(){
+  draw('stay'); if(!LIVE) return;
+  clearTimeout(ONLY.t); ONLY.t=setTimeout(sendOnly,400);
+}
+function sendOnly(){
+  ONLY.t=null; if(ONLY.busy){ ONLY.again=true; return } ONLY.busy=true;
+  save(sb.from('notify_prefs').upsert({user_id:ME,only_from:S.only&&S.only.slice(),updated_at:new Date().toISOString()})).then(function(){
+    ONLY.busy=false; if(ONLY.again){ ONLY.again=false; sendOnly() } });
+}
 function pNewPw(){return bar('New password')+'<form class="sec" data-f="newpw"><label class="label" for="npw">Choose a new password</label><input class="plain" id="npw" type="password" autocomplete="new-password" placeholder="8 or more characters"><p class="err" id="npwErr" hidden></p><button class="btn primary wide" type="submit">Save new password</button></form>'}
 function pSaveAcct(){return bar('Keep your account')+'<p class="hint" style="font-size:15px">Add an email and password so you can log in on any device and keep your circles.</p><form class="authf" data-f="saveacct"><label class="sr" for="se">Email</label><input class="plain" id="se" type="email" autocomplete="email" placeholder="Email"><label class="sr" for="sp">Password</label><input class="plain" id="sp" type="password" autocomplete="new-password" placeholder="Password (8 or more characters)"><p class="err" id="seErr" hidden></p><button class="btn primary wide" type="submit">Save</button></form>'}
 
@@ -700,7 +723,7 @@ function pSaveAcct(){return bar('Keep your account')+'<p class="hint" style="fon
 function draw(mode){
   var top=stack[stack.length-1],page=$('#page'),h;
   if(!top) h=tab==='vote'?pVote():tab==='mine'?pMine():tab==='circles'?pCircles():pYou();
-  else{ var k=top[0]; h=k==='q'?pQuestion(top[1]):k==='ask'?pAsk():k==='circle'?pCircle(top[1]):k==='newcircle'?pNewCircle():k==='shared'?pShared(top[1]):k==='newpw'?pNewPw():k==='saveacct'?pSaveAcct():pActivity() }
+  else{ var k=top[0]; h=k==='q'?pQuestion(top[1]):k==='ask'?pAsk():k==='circle'?pCircle(top[1]):k==='newcircle'?pNewCircle():k==='shared'?pShared(top[1]):k==='newpw'?pNewPw():k==='saveacct'?pSaveAcct():k==='notifyppl'?pNotifyPpl():pActivity() }
   if(mode==='stay'&&h===LASTH&&page.innerHTML){ if(FOCUS){ var f0=page.querySelector(FOCUS); if(f0) try{f0.focus({preventScroll:true})}catch(e){} FOCUS=null } drawTabs(); return }
   LASTH=h;
   var keep=mode!=='nav'&&mode!=='back'?page.scrollTop:0;
@@ -735,6 +758,8 @@ function toast(t,action,fn){
 }
 function buzz(){try{if(navigator.vibrate) navigator.vibrate(12)}catch(e){}}
 
+/* the app frame itself never scrolls; only the list inside it does */
+(function(){ var app=document.getElementById('app'); app.addEventListener('scroll',function(){ if(app.scrollLeft||app.scrollTop){ app.scrollLeft=0; app.scrollTop=0 } }) })();
 /* ---------- phone keyboard: fit above it, keep the field in view ---------- */
 function isField(el){ return !!el&&(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&!/^(checkbox|radio|file|button|submit|range|color)$/i.test(el.type||''))) }
 var VV=window.visualViewport,kbT=null;
@@ -905,6 +930,9 @@ document.addEventListener('click',function(e){
   if(a==='push') return pushOn()?disablePush():enablePush();
   if(a==='logout') return logout();
   if(a==='saveacct') return go('saveacct');
+  if(a==='notifyppl') return go('notifyppl');
+  if(a==='onlymode'){ var want=el.dataset.t==='some'; if(want===!!S.only) return; S.only=want?[]:null; return saveOnly() }
+  if(a==='onlyp'){ var u0=el.dataset.u; if(!S.only) S.only=[]; var ix0=S.only.indexOf(u0); if(ix0>=0) S.only.splice(ix0,1); else S.only.push(u0); return saveOnly() }
   if(a==='resetdemo'){ S=demo(); stack=[]; tab='vote'; ANONME={}; return draw('nav') }
   if(a==='newcode') return;
   /* ask */
@@ -1016,7 +1044,7 @@ function liveRefresh(){
     cids=Object.keys(cmap); ids[who]=1;
     return Promise.all([sb.from('profiles').select('id,name,color').in('id',Object.keys(ids)),
       cids.length?(NOMY?sb.from('poll_circles').select('circle_id,polls(*)').in('circle_id',cids):sb.rpc('my_polls')):{data:[]},
-      soft(sb.from('circle_stars').select('circle_id'))]);
+      soft(sb.from('circle_stars').select('circle_id')),soft(sb.from('notify_prefs').select('only_from').eq('user_id',who))]);
   }).then(function(rs){
     must(rs[0]).forEach(function(p){ if(p.id===who) myName=p.name; else friends[p.id]={n:p.name||'A friend',c:p.color||PAL[hash(p.id)%PAL.length]} });
     if(rs[1].error&&!NOMY){ NOMY=true; throw new Error('retry') }
@@ -1024,6 +1052,7 @@ function liveRefresh(){
     if(d.length&&d[0].poll) d.forEach(function(x){ var cs=(x.circles||[]).filter(function(c){return cmap[c]}); if(x.poll&&cs.length){ pm[x.poll.id]={row:x.poll,circles:cs}; rows.push(pm[x.poll.id]) } });
     else d.forEach(function(x){ if(!x.polls) return; var p=pm[x.polls.id]; if(!p){ p=pm[x.polls.id]={row:x.polls,circles:[]}; rows.push(p) } p.circles.push(x.circle_id) });
     if(!rs[2].error){ STARS=true; must(rs[2]).forEach(function(s){stars[s.circle_id]=1}) }
+    var np=(rs[3]&&rs[3].data)||[]; if(!(stack.length&&stack[stack.length-1][0]==='notifyppl')&&!ONLY.busy&&!ONLY.t) S.only=np.length?np[0].only_from:null;
     var pids=rows.map(function(p){return p.row.id});
     return Promise.all([pids.length?sb.rpc('poll_states',{ids:pids}):{data:[]},pids.length?sb.from('comments').select('poll_id,user_id,body,created_at').in('poll_id',pids).order('created_at'):{data:[]},
       NUDGES?soft(sb.from('nudges').select('poll_id,to_user,from_user')):{data:[]}]);

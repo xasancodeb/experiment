@@ -108,7 +108,19 @@ async function mark(poll: Poll, flag: string) {
   await db(`polls?id=eq.${poll.id}`, { method: "PATCH", body: JSON.stringify({ notified: { ...(poll.notified ?? {}), [flag]: true } }) });
   poll.notified = { ...(poll.notified ?? {}), [flag]: true };
 }
-async function push(kind: string, users: string[], poll: Poll, title: string, body: string) {
+// Whose action this is, for people who chose to hear only from certain friends. Undefined when
+// the asker is hidden: filtering by a hidden person would reveal who they are.
+const by = (p: Poll, u?: string) => (p.hide_asker ? undefined : (u ?? p.author));
+async function onlyChosen(users: string[], poll: Poll, from?: string) {
+  if (!from || !users.length) return users;
+  const prefs: { user_id: string; only_from: string[] }[] =
+    await db(`notify_prefs?user_id=in.(${users.join(",")})&only_from=not.is.null&select=user_id,only_from`).catch(() => []);
+  const only = new Map(prefs.map((p) => [p.user_id, p.only_from]));
+  // Your own question always reaches you; otherwise the person must be on your list.
+  return users.filter((u) => !only.has(u) || u === poll.author || u === from || only.get(u)!.includes(from));
+}
+async function push(kind: string, users: string[], poll: Poll, title: string, body: string, from?: string) {
+  users = await onlyChosen(users, poll, from);
   if (!users.length) return { sent: 0, statuses: [] as number[] };
   const subs: Sub[] = await db(`push_subs?user_id=in.(${users.join(",")})&select=endpoint,p256dh,auth,user_id`);
   const statuses: number[] = [];
@@ -145,12 +157,12 @@ async function voted(uid: string, poll: Poll) {
   const notified = { ...(poll.notified ?? {}), vote_n: n, vote_at: new Date().toISOString() };
   await db(`polls?id=eq.${poll.id}`, { method: "PATCH", body: JSON.stringify({ notified }) });
   poll.notified = notified;
-  const asker = await push("voted", [poll.author], poll, title, `${poll.q} · ${n} of ${total} in`);
+  const asker = await push("voted", [poll.author], poll, title, `${poll.q} · ${n} of ${total} in`, all ? undefined : by(poll, uid));
   if (!all) return { asker };
   // The last vote is in: everyone else hears it too.
   const others = a.users.filter((u) => u !== poll.author);
   const next = poll.early ? "The result is in 30 seconds" : open ? "Go read what everyone said" : "The result comes when it closes";
-  const rest = await push("allin", others, poll, `Everyone has ${verb}`, `${poll.q} · ${next}`);
+  const rest = await push("allin", others, poll, `Everyone has ${verb}`, `${poll.q} · ${next}`, by(poll));
   // A question set to end once everyone has voted closes about 30 seconds later: announce the verdict then.
   if (poll.early) later(verdictWhenClosed(poll.id));
   return { asker, rest, verdict: poll.early ? "scheduled" : "at close" };
@@ -161,7 +173,7 @@ async function announceVerdict(poll: Poll) {
   if (poll.notified?.verdict || Date.parse(poll.closes_at) > Date.now()) return { skipped: true };
   await mark(poll, "verdict");
   const a = await audience(poll);
-  return push("verdict", a.users, poll, "The verdict is in", poll.q);
+  return push("verdict", a.users, poll, "The verdict is in", poll.q, by(poll));
 }
 async function verdictWhenClosed(id: string) {
   for (let i = 0; i < 3; i++) {
@@ -189,7 +201,7 @@ async function event(uid: string, b: { kind?: string; poll_id?: string; to?: str
     case "asked":
       if (poll.notified?.asked) return { skipped: true };
       await mark(poll, "asked");
-      return push("asked", others, poll, `${a.asker} asked ${a.circle}`, poll.q);
+      return push("asked", others, poll, `${a.asker} asked ${a.circle}`, poll.q, by(poll));
     case "nudge":
       if (poll.hide_asker) return { error: "forbidden" };
       return push("nudge", one, poll, `${a.asker} is waiting on you`, poll.q);
@@ -198,11 +210,11 @@ async function event(uid: string, b: { kind?: string; poll_id?: string; to?: str
       return push("tiebreak", one, poll, `${a.asker} gave you the deciding vote`, poll.q);
     case "plan":
       if (!poll.plan?.when) return { error: "no plan" };
-      return push("plan", others, poll, `Plan locked in: ${poll.plan.when}`, `${poll.q} · are you in?`);
+      return push("plan", others, poll, `Plan locked in: ${poll.plan.when}`, `${poll.q} · are you in?`, by(poll));
     case "closed":                               // the asker ended it early
       return announceVerdict(poll);
     case "outcome":
-      return push("outcome", others, poll, `${a.asker} shared what happened next`, poll.q);
+      return push("outcome", others, poll, `${a.asker} shared what happened next`, poll.q, by(poll));
   }
   return { error: "unknown kind" };
 }
@@ -215,7 +227,7 @@ async function tick() {
   for (const p of closed) {
     await mark(p, "verdict");
     const a = await audience(p);
-    await push("verdict", a.users, p, "The verdict is in", p.q);
+    await push("verdict", a.users, p, "The verdict is in", p.q, by(p));
     out.verdicts++;
   }
   // Last call: closing within 15 minutes, and only for questions that ran longer than half an hour.
@@ -227,7 +239,7 @@ async function tick() {
       ? (await db(`comments?poll_id=eq.${p.id}&select=user_id`)).map((x: { user_id: string }) => x.user_id)
       : (await db(`votes?poll_id=eq.${p.id}&select=user_id`)).map((x: { user_id: string }) => x.user_id);
     const waiting = a.users.filter((u) => u !== p.author && !done.includes(u));
-    await push("soon", waiting, p, `Closing soon · ${a.asker} is waiting on you`, p.q);
+    await push("soon", waiting, p, `Closing soon · ${a.asker} is waiting on you`, p.q, by(p));
     out.soon++;
   }
   return out;

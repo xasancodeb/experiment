@@ -15,6 +15,7 @@ post a dilemma to a circle of friends, they vote in one tap, and you get a verdi
 | `supabase/upgrade-4.sql` | Adds the tables for push notifications |
 | `supabase/upgrade-5.sql` | Adds starred circles (up to 3 each) and voting anonymously on any question |
 | `supabase/upgrade-6.sql` | Lets the asker switch private votes off for a question (enforced by the database) |
+| `supabase/upgrade-7.sql` | Lets each person choose whose questions and votes notify them |
 | `supabase/functions/notify/` | The notification sender (a Supabase Edge Function, no libraries) |
 | `sw.js` | Shows notifications on a device and opens the question when one is tapped |
 | `manifest.json`, `icon-*.png`, `apple-touch-icon.png` | Lets people add Sway to their phone's home screen |
@@ -42,7 +43,8 @@ invite link can vote straight away as a guest and add an email later.
    question never reaches other people's browsers. Deploy the site files before running it.
    Then run `supabase/upgrade-5.sql`. It adds starred circles and lets each voter choose to vote
    anonymously; a private vote is counted in the totals but its choice never leaves the database.
-   Then run `supabase/upgrade-6.sql`, which lets the asker switch private votes off per question.
+   Then run `supabase/upgrade-6.sql`, which lets the asker switch private votes off per question,
+   and `supabase/upgrade-7.sql`, which lets each person choose whose activity notifies them.
 3. In the project's authentication settings, allow anonymous sign-ins (this is
    what lets invited friends vote as guests). For quick testing you can also
    turn off email confirmation.
@@ -58,8 +60,12 @@ invite link can vote straight away as a guest and add an email later.
 People switch them on per device (on iPhone the site has to be added to the Home Screen
 first). The asker's browser tells the sender when they ask, nudge, lock in a plan, hand
 over a tiebreak or share what happened next; the sender checks the caller really is the
-asker and sends to the rest of the circle. A once-a-minute timer announces verdicts and
-gives a last call 15 minutes before a question closes.
+asker and sends to the rest of the circle. A voter's browser tells it about a new vote, and it
+tells the asker (who voted and how many are in, never what anyone picked); the last vote
+tells everyone. A verdict goes out the moment a question is ended early. A once-a-minute
+timer announces verdicts for questions that reach their deadline and gives a last call
+15 minutes before a question closes. Anyone can choose to hear only from certain friends
+(You → Notifications); nudges and results of their own questions always come through.
 
 Set up, once per project:
 
@@ -68,16 +74,19 @@ Set up, once per project:
    function secrets: `VAPID_PUBLIC`, `VAPID_PRIVATE_JWK`, `VAPID_SUBJECT`, `SITE_URL`,
    and `CRON_SECRET` (any long random string).
 3. Deploy `supabase/functions/notify` with JWT verification off (it checks callers itself).
-4. Schedule the timer, with your own secret in place of `YOUR_CRON_SECRET`:
+4. Schedule the timer. The secret is kept in the project's encrypted vault, not in the job:
 
    ```sql
    create extension if not exists pg_net;
    create extension if not exists pg_cron;
+   select vault.create_secret('YOUR_CRON_SECRET', 'sway_cron_secret');
    select cron.schedule('sway-notify-tick', '* * * * *', $$
      select net.http_post(
        url := 'https://YOUR-PROJECT.supabase.co/functions/v1/notify',
-       headers := jsonb_build_object('Content-Type', 'application/json', 'x-sway-cron', 'YOUR_CRON_SECRET'),
-       body := '{"kind":"tick"}'::jsonb)
+       headers := jsonb_build_object('Content-Type', 'application/json', 'x-sway-cron',
+                    (select decrypted_secret from vault.decrypted_secrets where name = 'sway_cron_secret')),
+       body := '{"kind":"tick"}'::jsonb,
+       timeout_milliseconds := 25000)
    $$);
    ```
 

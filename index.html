@@ -824,7 +824,7 @@ function post(){
 }
 function closeNow(id){
   var p=poll(id); if(!p) return; p.closes=now()-1;
-  if(LIVE) save(sb.from('polls').update({closes_at:new Date().toISOString()}).eq('id',id),p.circles).then(function(){reveal(id)}); else reveal(id);
+  if(LIVE) save(sb.from('polls').update({closes_at:new Date().toISOString()}).eq('id',id),p.circles).then(function(r){ if(r&&!r.error) setTimeout(function(){notify('closed',id)},800); reveal(id) }); else reveal(id);
   draw('stay');
 }
 function del(id){
@@ -1048,6 +1048,9 @@ function liveRefresh(){
         if(o&&!isClosed(o)&&isClosed(p)&&involved(p)&&!S.seen[p.id]){ addAct('verdict',p.id,'The verdict is in: '+p.q); toast('The verdict is in','Reveal',function(){ reveal(p.id) }) }
         if(p.nudgedBy&&!(o&&o.nudgedBy)&&!isClosed(p)&&!hasVoted(p,'me')){ addAct('nudge',p.id,first(p.nudgedBy)+' is waiting on your vote: '+p.q); toast(first(p.nudgedBy)+' nudged you','Vote',function(){ go('q',p.id) }) }
         if(o&&p.by==='me'&&turn(p).n>turn(o).n&&!isClosed(p)) voteAct(p,o);
+        if(o&&p.by!=='me'&&hasVoted(p,'me')&&!isClosed(p)&&turn(p).total&&turn(p).n>=turn(p).total&&turn(o).n<turn(o).total){
+          var ev='Everyone has '+(isOpen(p)?'replied':'voted'); addAct('allin',p.id,ev+': '+p.q);
+          toast(ev+(p.early&&!isOpen(p)?' · result in 30s':''),'See',function(){ go('q',p.id) }) }
         if(o&&involved(p)&&p.comments.length>o.comments.length){ var lc=p.comments[p.comments.length-1]; if(lc.by!=='me') addAct('comment',p.id,first(lc.by)+' commented on: '+p.q) }
       } else if(isClosed(p)&&now()-p.closes>3*DAY) S.seen[p.id]=true;
       return p;

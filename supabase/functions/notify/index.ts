@@ -1,7 +1,8 @@
 // Sway notification sender (Supabase Edge Function).
 // - A voter's browser calls it with {kind:"voted"} so the asker hears that a vote came in
 //   (who voted and how many are in, never what anyone picked).
-// - A signed-in asker calls it after asking, nudging, locking in a plan, handing over a
+//   When the last vote is in, everyone hears it, and an early close announces the verdict.
+// - A signed-in asker calls it after asking, ending a question early,, nudging, locking in a plan, handing over a
 //   tiebreak or sharing what happened next.
 // - A once-a-minute database timer calls it with {kind:"tick"} to announce verdicts and
 //   questions that are about to close.
@@ -85,8 +86,11 @@ async function db(path: string, init: RequestInit = {}) {
   if (!res.ok) throw new Error(`db ${path.split("?")[0]} ${res.status} ${(await res.text()).slice(0, 200)}`);
   return init.method && init.method !== "GET" ? null : await res.json();
 }
-const POLL_COLS = "id,q,author,hide_asker,type,closes_at,created_at,notified,plan,tb_user";
-type Poll = { id: string; q: string; author: string; hide_asker: boolean; type: string; closes_at: string; created_at: string; notified: Record<string, unknown>; plan: { when?: string } | null; tb_user: string | null };
+const POLL_COLS = "id,q,author,hide_asker,type,closes_at,created_at,notified,plan,tb_user,early";
+declare const EdgeRuntime: { waitUntil(p: Promise<unknown>): void } | undefined;
+const later = (p: Promise<unknown>) => { try { if (typeof EdgeRuntime !== "undefined") return EdgeRuntime.waitUntil(p); } catch (_) { /* fall through */ } return p; };
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+type Poll = { id: string; q: string; author: string; hide_asker: boolean; type: string; closes_at: string; created_at: string; notified: Record<string, unknown>; plan: { when?: string } | null; tb_user: string | null; early?: boolean };
 
 async function audience(poll: Poll) {
   const pcs = await db(`poll_circles?poll_id=eq.${poll.id}&select=circle_id,circles(name)`);
@@ -140,7 +144,36 @@ async function voted(uid: string, poll: Poll) {
   const title = all ? `Everyone has ${verb}` : fresh === 1 ? `${who} ${verb}` : `${who} and ${fresh - 1} other${fresh > 2 ? "s" : ""} ${verb}`;
   const notified = { ...(poll.notified ?? {}), vote_n: n, vote_at: new Date().toISOString() };
   await db(`polls?id=eq.${poll.id}`, { method: "PATCH", body: JSON.stringify({ notified }) });
-  return push("voted", [poll.author], poll, title, `${poll.q} · ${n} of ${total} in`);
+  poll.notified = notified;
+  const asker = await push("voted", [poll.author], poll, title, `${poll.q} · ${n} of ${total} in`);
+  if (!all) return { asker };
+  // The last vote is in: everyone else hears it too.
+  const others = a.users.filter((u) => u !== poll.author);
+  const next = poll.early ? "The result is in 30 seconds" : open ? "Go read what everyone said" : "The result comes when it closes";
+  const rest = await push("allin", others, poll, `Everyone has ${verb}`, `${poll.q} · ${next}`);
+  // A question set to end once everyone has voted closes about 30 seconds later: announce the verdict then.
+  if (poll.early) later(verdictWhenClosed(poll.id));
+  return { asker, rest, verdict: poll.early ? "scheduled" : "at close" };
+}
+
+// ---------- the verdict, sent the moment a question closes ----------
+async function announceVerdict(poll: Poll) {
+  if (poll.notified?.verdict || Date.parse(poll.closes_at) > Date.now()) return { skipped: true };
+  await mark(poll, "verdict");
+  const a = await audience(poll);
+  return push("verdict", a.users, poll, "The verdict is in", poll.q);
+}
+async function verdictWhenClosed(id: string) {
+  for (let i = 0; i < 3; i++) {
+    await sleep(i === 0 ? 3000 : 1500);
+    const p: Poll | undefined = (await db(`polls?id=eq.${id}&select=${POLL_COLS}`))[0];
+    if (!p) return;
+    const wait = Date.parse(p.closes_at) - Date.now();
+    if (wait > 90e3) return;                     // not closing soon after all; the timer will handle it
+    if (wait > 0) await sleep(wait + 1500);
+    const q: Poll | undefined = (await db(`polls?id=eq.${id}&select=${POLL_COLS}`))[0];
+    if (q && Date.parse(q.closes_at) <= Date.now()) { await announceVerdict(q); return; }
+  }
 }
 
 // ---------- something the asker just did ----------
@@ -166,6 +199,8 @@ async function event(uid: string, b: { kind?: string; poll_id?: string; to?: str
     case "plan":
       if (!poll.plan?.when) return { error: "no plan" };
       return push("plan", others, poll, `Plan locked in: ${poll.plan.when}`, `${poll.q} · are you in?`);
+    case "closed":                               // the asker ended it early
+      return announceVerdict(poll);
     case "outcome":
       return push("outcome", others, poll, `${a.asker} shared what happened next`, poll.q);
   }

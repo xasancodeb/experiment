@@ -20,6 +20,8 @@ post a dilemma to a circle of friends, they vote in one tap, and you get a verdi
 | `supabase/upgrade-9.sql` | Private votes are off unless the asker switches them on |
 | `supabase/upgrade-10.sql` | Places make offers to groups: businesses, offers, codes |
 | `supabase/upgrade-11.sql` | Offers only from the places a group listed, when the group asks |
+| `supabase/upgrade-12.sql` | Contact details on business applications |
+| `business/` | The page businesses apply on (send this link to places) |
 | `supabase/functions/notify/` | The notification sender (a Supabase Edge Function, no libraries) |
 | `sw.js` | Shows notifications on a device and opens the question when one is tapped |
 | `manifest.json`, `icon-*.png`, `apple-touch-icon.png` | Lets people add Sway to their phone's home screen |
@@ -122,8 +124,14 @@ Places compete for a group's choice, only when the group asks for it:
 - **Switching it on for everyone:** add `offers: true` to `config.js`. Until then the switch is
   hidden. To try it on one device, open the site with `?offers=on` (and `?offers=off` to
   stop).
-- **Businesses sign up** at the site address with `?business` on the end. The landing page
-  links to it too.
+- **Businesses apply** on the business page: the site address followed by `/business/`. It
+  explains the offer, shows pricing, and has the application form (business name, type, city,
+  address, website or Instagram, phone, contact name, email and password). Applying creates the
+  account and a business waiting for approval. The app's landing page links to it, and places
+  manage requests and codes in the app (You → For businesses, or the address with `?business`).
+- **Inviting places:** send them the business page with a short note, for example: "Groups of
+  friends are choosing where to go on Sway. When they're deciding between you and other places,
+  you get a request and can send an offer to win them. Free during launch: <link>".
 - **Approving businesses:** in Supabase open Table Editor → `businesses` and tick `verified`.
   Owners can't approve themselves.
 - **What places see:** the group's size, how many places they're up against and when the

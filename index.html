@@ -540,12 +540,9 @@ function pBiz(){
   var h=bar('For businesses');
   if(!LIVE) return h+'<div class="empty"><b>Business tools are on the live site</b>Restaurants, cafes and shops get a request when a group is choosing between them, and can send an offer to win the group.</div>';
   if(!BIZ.loaded) return h+'<div class="empty"><b>Loading…</b></div>';
-  if(!BIZ.row) return h+'<p class="hint" style="font-size:15px;margin-top:-4px">When a group of friends is choosing between your place and others, and they’ve asked for offers, you get a request. Send an offer to win them. If they pick you, they show you a code.</p>'+
-    '<p class="privacy">'+I.lock+'<span>You only see the group’s size, how many places you’re up against and when they decide. Never their question, names or votes. Free during launch; later a small fee only when a group uses your code.</span></p>'+
-    '<form class="sec" data-f="bizcreate"><label class="sr" for="bzName">Business name</label><input class="plain" id="bzName" maxlength="60" placeholder="Business name, as people would write it" autocomplete="organization">'+
-    '<span class="sublabel">Type of place</span><div class="chips">'+CATS.map(function(c){return '<button type="button" class="chip" aria-pressed="'+(BIZ.cat===c[0])+'" data-a="bizcat" data-t="'+c[0]+'">'+c[1]+'</button>'}).join('')+'</div>'+
-    '<div class="formgrid"><label class="sr" for="bzCity">City</label><input class="plain" id="bzCity" maxlength="40" placeholder="City" autocomplete="address-level2"><label class="sr" for="bzAddr">Address</label><input class="plain" id="bzAddr" maxlength="120" placeholder="Address (optional)" autocomplete="street-address"></div>'+
-    '<button class="btn primary wide" type="submit">Create business profile</button></form>';
+  if(!BIZ.row) return h+'<p class="hint" style="font-size:15px;margin-top:-4px">When a group of friends is choosing between your place and others, and they’ve asked for offers, you get a request. Send an offer to win them.</p>'+
+    '<p class="privacy">'+I.lock+'<span>You only see the group’s size, how many places you’re up against and when they decide. Free during launch.</span></p>'+
+    '<a class="btn primary wide" href="business/#apply">Apply for your place</a><p class="hint">It takes 2 minutes. Use this same account.</p>';
   var b=BIZ.row,st=BIZ.stats||{};
   h+='<div class="bizhead"><b>'+esc(b.name)+'</b><span>'+esc((CATS.filter(function(c){return c[0]===b.category})[0]||['','Place'])[1])+' · '+esc(b.city)+(b.address?' · '+esc(b.address):'')+'</span>'+
     (b.verified?'<span class="pill ok" style="align-self:flex-start">Approved · you can receive requests</span>':'<span class="pill hot" style="align-self:flex-start">Waiting for approval</span><span>Every place is checked before it can receive requests, so groups can trust the offers.</span>')+
@@ -1318,7 +1315,7 @@ function landing(){
       (AUTH.tab==='login'?'<button type="button" class="linkbtn" data-forgot="1" style="align-self:flex-start">Forgot your password?</button>':'')+'</form>';
   }
   h+='<div class="trust"><span>Private circles only</span><span>No followers, no likes</span><span>A feed that ends</span></div>';
-  if(LIVE) h+='<p class="hint" style="text-align:center">'+(ISBIZ?'Sign up or log in to set up your business.':'Own a restaurant, cafe or shop? <a href="?business" style="color:var(--accent);font-weight:800">Sway for businesses</a>')+'</p>';
+  if(LIVE) h+='<p class="hint" style="text-align:center">'+(ISBIZ?'Log in to manage your business. New here? <a href="business/#apply" style="color:var(--accent);font-weight:800">Apply for your place</a>':'Own a restaurant, cafe or shop? <a href="business/" style="color:var(--accent);font-weight:800">Sway for businesses</a>')+'</p>';
   var keep={}; land.querySelectorAll('input').forEach(function(i){keep[i.id]=i.value});
   land.innerHTML=h; land.querySelectorAll('input').forEach(function(i){ if(keep[i.id]!=null) i.value=keep[i.id] });
 }

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sway for Business</title>
+<meta name="description" content="Groups of friends are deciding where to go. Get a request when they're choosing between you and other places, send an offer, and win the table.">
+<meta property="og:title" content="Sway for Business: be the place they pick">
+<meta property="og:description" content="Get a request when a group is choosing between you and other places. Send an offer, win the table. Free during launch.">
+<meta name="theme-color" content="#F6F5FB">
+<link rel="icon" type="image/png" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500..800&display=swap">
+<script src="../config.js"></script>
+<script>if(window.SWAY_CONFIG&&SWAY_CONFIG.url&&SWAY_CONFIG.key)document.write('<script src="../vendor/supabase.js"><\/script>')</script>
+<style>
+:root{
+  --bg:#F6F5FB; --surface:#FFFFFF; --sunk:#F0EEF7; --line:#E7E3F1; --ink:#17132B; --ink2:#6B6683;
+  --accent:#7C3AED; --accent-soft:#F1EAFF; --accent-ink:#5B21B6; --hot:#E11D48; --hot-soft:#FFE4EA; --ok:#047857; --ok-soft:#DCFCEB;
+  --brand:linear-gradient(120deg,#7C3AED,#EC4899 60%,#F97316);
+  --lift:0 1px 2px rgba(23,19,43,.05),0 12px 28px -16px rgba(76,29,149,.32);
+  --font:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F0D18; --surface:#1A1727; --sunk:#242036; --line:#2E2944; --ink:#F6F4FF; --ink2:#ADA7C6;
+  --accent:#A78BFA; --accent-soft:#2A2148; --accent-ink:#D8CCFF; --hot:#FB7185; --hot-soft:#3A1622; --ok:#6EE7B7; --ok-soft:#10301F;
+  --lift:0 14px 30px -18px rgba(0,0,0,.8); color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0F0D18; --surface:#1A1727; --sunk:#242036; --line:#2E2944; --ink:#F6F4FF; --ink2:#ADA7C6;
+  --accent:#A78BFA; --accent-soft:#2A2148; --accent-ink:#D8CCFF; --hot:#FB7185; --hot-soft:#3A1622; --ok:#6EE7B7; --ok-soft:#10301F;
+  --lift:0 14px 30px -18px rgba(0,0,0,.8); color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{letter-spacing:-.035em;text-wrap:balance}
+a{color:var(--accent);font-weight:700}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:12px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wrap{max-width:980px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left,0px))}
+header{display:flex;align-items:center;gap:10px;padding:18px 0}
+.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;letter-spacing:-.04em;text-decoration:none;color:var(--ink)}
+.brand small{font-size:13px;font-weight:800;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:4px 10px;letter-spacing:0}
+header .grow{flex:1}
+.hero{position:relative;padding:28px 0 36px;display:grid;gap:28px;align-items:center}
+.hero::before{content:"";position:absolute;inset:-60px 0 auto;height:420px;z-index:-1;pointer-events:none;
+  background:radial-gradient(closest-side at 18% 50%,rgba(124,58,237,.22),transparent),radial-gradient(closest-side at 70% 40%,rgba(236,72,153,.18),transparent),radial-gradient(closest-side at 95% 75%,rgba(249,115,22,.14),transparent)}
+.hero h1{font-size:clamp(36px,7vw,58px);line-height:1.02;font-weight:800}
+.hero h1 em{font-style:normal;background:var(--brand);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font-size:clamp(17px,2.4vw,19px);color:var(--ink2);font-weight:600;margin-top:16px;max-width:560px}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 24px;border-radius:999px;font-weight:800;text-decoration:none;text-align:center}
+.btn.primary{background:var(--brand);color:#fff;box-shadow:0 12px 24px -12px rgba(236,72,153,.8)}
+.btn.ghost{background:var(--surface);color:var(--ink);box-shadow:var(--lift)}
+.btn.sm{min-height:42px;padding:0 18px;font-size:14.5px}
+.btn[disabled]{opacity:.55;cursor:default}
+.phone{justify-self:center;width:min(340px,100%);border-radius:30px;padding:18px;background:var(--surface);box-shadow:0 30px 60px -30px rgba(76,29,149,.55);display:flex;flex-direction:column;gap:12px}
+.phone .top{font-size:12.5px;font-weight:800;color:var(--ink2);letter-spacing:.04em;text-transform:uppercase}
+.req{border-radius:20px;padding:16px;background:var(--sunk);display:flex;flex-direction:column;gap:8px}
+.req b{font-size:18px;font-weight:800;letter-spacing:-.02em}
+.req span{color:var(--ink2);font-weight:600;font-size:14px}
+.req .send{align-self:flex-start;background:var(--brand);color:#fff;border-radius:99px;padding:9px 14px;font-weight:800;font-size:14px}
+.answer{border-radius:18px;padding:12px 14px;background:linear-gradient(135deg,#F97316,#EC4899);color:#fff;font-weight:800;display:flex;flex-direction:column;gap:6px}
+.ofr{align-self:flex-start;display:inline-flex;gap:6px;align-items:center;font-size:12.5px;font-weight:800;color:#9A3412;background:#FFEDD5;border-radius:99px;padding:3px 10px}
+.code{font:800 26px/1 var(--font);letter-spacing:.05em;text-align:center;border-radius:14px;padding:12px;background:var(--sunk)}
+section{padding:34px 0}
+section>h2{font-size:clamp(26px,4.5vw,36px);font-weight:800;margin-bottom:8px}
+section>p.lead{color:var(--ink2);font-weight:600;font-size:17px;max-width:640px}
+.steps{display:grid;gap:14px;margin-top:22px}
+.card{background:var(--surface);border-radius:24px;padding:20px;box-shadow:var(--lift);display:flex;flex-direction:column;gap:8px}
+.card .n{width:38px;height:38px;border-radius:12px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.card h3{font-size:19px;font-weight:800}
+.card p{color:var(--ink2);font-weight:600;font-size:15px}
+.two{display:grid;gap:14px;margin-top:22px}
+.list{display:flex;flex-direction:column;gap:10px;margin:6px 0 0;padding:0;list-style:none}
+.list li{display:flex;gap:10px;align-items:flex-start;font-weight:600;font-size:15px}
+.list li::before{content:"";flex:none;width:20px;height:20px;margin-top:2px;border-radius:50%;background:var(--ok-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23047857' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4L18 8'/%3E%3C/svg%3E") center/13px no-repeat}
+.list.no li::before{background:var(--hot-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E11D48' stroke-width='3.2' stroke-linecap='round'%3E%3Cpath d='M7 7l10 10M17 7 7 17'/%3E%3C/svg%3E") center/12px no-repeat}
+.price{border-radius:28px;padding:26px;color:#fff;background:var(--brand);display:flex;flex-direction:column;gap:10px;box-shadow:0 26px 50px -26px rgba(236,72,153,.75)}
+.price b{font-size:clamp(30px,5vw,42px);font-weight:800;letter-spacing:-.04em;line-height:1}
+.price span{font-weight:600;font-size:16px;opacity:.95}
+.apply{background:var(--surface);border-radius:28px;padding:22px;box-shadow:var(--lift);display:flex;flex-direction:column;gap:12px;max-width:620px}
+.apply h2{font-size:26px;font-weight:800}
+.lbl{font-size:13px;font-weight:800;color:var(--ink2);margin:6px 2px -4px}
+.in{width:100%;height:52px;padding:0 16px;border-radius:16px;border:1.5px solid var(--line);background:var(--bg);font-weight:600}
+.in:focus{border-color:var(--accent);outline:none}
+.grid2{display:grid;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:40px;padding:0 16px;border-radius:999px;font-weight:700;font-size:14px;background:var(--sunk)}
+.chip[aria-pressed="true"]{background:var(--brand);color:#fff}
+.err{color:var(--hot);font-weight:700;font-size:14.5px}
+.note{color:var(--ink2);font-size:13.5px;font-weight:600}
+.done{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:6px 12px;font-weight:800;font-size:13px}
+.badge.wait{background:var(--hot-soft);color:var(--hot)}.badge.ok{background:var(--ok-soft);color:var(--ok)}
+details{background:var(--surface);border-radius:18px;padding:16px 18px;box-shadow:var(--lift)}
+details+details{margin-top:10px}
+summary{font-weight:800;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:10px}
+summary::after{content:"+";font-weight:800;color:var(--accent)}
+details[open] summary::after{content:"–"}
+details p{color:var(--ink2);font-weight:600;margin-top:8px;font-size:15px}
+footer{padding:30px 0 calc(40px + env(safe-area-inset-bottom,0px));color:var(--ink2);font-size:14px;font-weight:600;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+@media (min-width:760px){
+  .hero{grid-template-columns:1.25fr 1fr;padding:44px 0 56px}
+  .steps{grid-template-columns:repeat(3,1fr)}
+  .two{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="../"><svg width="34" height="34" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="30" fill="#17132B"/><circle cx="40" cy="50" r="22" fill="#7C3AED"/><circle cx="58" cy="44" r="22" fill="#EC4899" fill-opacity=".9"/></svg>sway <small>for business</small></a>
+    <span class="grow"></span>
+    <a class="btn ghost sm" href="../?business" id="loginTop">Log in</a>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1>Groups are deciding where to go. <em>Be the place they pick.</em></h1>
+      <p>When friends on Sway are choosing between your place and others, you get a request. Send them an offer, and win the table.</p>
+      <div class="cta"><a class="btn primary" href="#apply">Apply, it’s free</a><a class="btn ghost" href="#how">How it works</a></div>
+    </div>
+    <div class="phone" aria-hidden="true">
+      <span class="top">Your request</span>
+      <div class="req"><b>A group of 6 is choosing</b><span>You and 2 other places · decides in 2h</span><span class="send">Send: 15% off the bill</span></div>
+      <span class="top">What the group sees</span>
+      <div class="answer">Your place<span class="ofr">🎁 15% off the bill · groups of 4+</span></div>
+      <span class="top">They picked you</span>
+      <div class="code">SWAY-7K3P2A</div>
+    </div>
+  </div>
+
+  <section id="how">
+    <h2>How it works</h2>
+    <p class="lead">No ads, no feeds. Only real groups who are already considering you.</p>
+    <div class="steps">
+      <div class="card"><span class="n">1</span><h3>A group lists your place</h3><p>Friends ask each other “where should we go?” and type the places they’re thinking of. If yours is one, and they’ve asked for offers, you’re in.</p></div>
+      <div class="card"><span class="n">2</span><h3>You get a request</h3><p>“A group of 6 is choosing between you and 2 other places.” Send an offer in one tap, or write one for them. Or skip it, no obligation.</p></div>
+      <div class="card"><span class="n">3</span><h3>They pick you, and show a code</h3><p>If they choose your place, the group gets one code. You check it in one tap when they arrive. It works once.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Fair for you, private for them</h2>
+    <div class="two">
+      <div class="card"><h3>You get</h3><ul class="list"><li>Groups who already have you on their shortlist</li><li>The group’s size, how many places you’re up against, and when they decide</li><li>Full control: you choose every offer, minimum group and minimum spend</li><li>Simple totals: requests, groups won, codes used</li></ul></div>
+      <div class="card"><h3>You never see</h3><ul class="list no"><li>Who’s in the group or what they wrote</li><li>How anyone voted</li><li>Which other places they’re considering</li></ul></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="price"><span>Pricing</span><b>Free during launch</b><span>After launch: a small fee only when a group actually uses your code. No monthly fees, no setup costs, cancel any time.</span></div>
+  </section>
+
+  <section id="apply">
+    <div class="apply" id="applyBox">
+      <h2>Apply for your place</h2>
+      <p class="note">Takes 2 minutes. We check every place before it can receive requests, so groups can trust the offers.</p>
+      <div id="loading" class="note">Loading…</div>
+      <form id="form" hidden novalidate>
+        <p class="note" id="asWho" hidden></p>
+        <label class="lbl" for="bName">Business name, as customers write it</label>
+        <input class="in" id="bName" maxlength="60" autocomplete="organization" placeholder="e.g. Luigi’s Trattoria">
+        <span class="lbl">Type of place</span>
+        <div class="chips" id="cats"></div>
+        <div class="grid2">
+          <div><label class="lbl" for="bCity">City</label><input class="in" id="bCity" maxlength="40" autocomplete="address-level2"></div>
+          <div><label class="lbl" for="bAddr">Address</label><input class="in" id="bAddr" maxlength="120" autocomplete="street-address"></div>
+          <div><label class="lbl" for="bWeb">Website or Instagram</label><input class="in" id="bWeb" maxlength="120" placeholder="optional" autocomplete="url"></div>
+          <div><label class="lbl" for="bPhone">Phone</label><input class="in" id="bPhone" maxlength="30" type="tel" autocomplete="tel"></div>
+          <div><label class="lbl" for="cName">Your name</label><input class="in" id="cName" maxlength="60" autocomplete="name"></div>
+        </div>
+        <div id="acct" class="grid2">
+          <div><label class="lbl" for="cEmail">Email</label><input class="in" id="cEmail" type="email" maxlength="120" autocomplete="email"></div>
+          <div><label class="lbl" for="cPw">Password</label><input class="in" id="cPw" type="password" autocomplete="new-password" placeholder="8 or more characters"></div>
+        </div>
+        <p class="err" id="err" role="alert" hidden></p>
+        <button class="btn primary" type="submit" id="go" style="margin-top:6px">Send application</button>
+        <p class="note" id="haveAcct">Already applied? <a href="../?business">Log in to your business page</a></p>
+      </form>
+      <div class="done" id="done" hidden></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Questions</h2>
+    <details><summary>Do I have to send an offer every time?</summary><p>No. You decide for each group. Skip any request you don’t want.</p></details>
+    <details><summary>How do groups find my place?</summary><p>They type the places they’re considering. If they type your name and ask for offers, you get a request, so use the name your customers know you by.</p></details>
+    <details><summary>Who sees my offer?</summary><p>Only that group, on your answer in their question. Other places never see your offers.</p></details>
+    <details><summary>What does it cost?</summary><p>Nothing during launch. Later, a small fee only when a group uses your code. You’ll be told well in advance, and you can stop any time.</p></details>
+    <details><summary>How do I check a code?</summary><p>On your business page: type the code a group shows you and tap Check. Each code works once.</p></details>
+  </section>
+
+  <footer>
+    <span>© Sway</span><a href="../">For friends</a><button class="btn ghost sm" id="share" type="button">Share this page with a business</button>
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+var CFG=window.SWAY_CONFIG||{},LIVE=!!(CFG.url&&CFG.key&&window.supabase&&window.supabase.createClient);
+var sb=LIVE?window.supabase.createClient(CFG.url,CFG.key):null;
+var $=function(id){return document.getElementById(id)};
+var esc=function(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var CATS=[['food','Restaurant'],['cafe','Cafe'],['bar','Bar'],['shop','Shop'],['fun','Fun & activities'],['beauty','Beauty'],['other','Other']],cat='food',user=null,busy=false;
+var PAL=['#FFD3C4','#D9D0FF','#FFE79E','#C3EFD8','#FFCFE6','#CFE4FF','#E7DFD3','#D9F1F4'];
+try{ var th=JSON.parse(localStorage.getItem('sway.theme2')); if(th&&th!=='auto') document.documentElement.setAttribute('data-theme',th) }catch(e){}
+
+function chips(){ $('cats').innerHTML=CATS.map(function(c){return '<button type="button" class="chip" aria-pressed="'+(cat===c[0])+'" data-c="'+c[0]+'">'+c[1]+'</button>'}).join('') }
+$('cats').addEventListener('click',function(e){ var b=e.target.closest('[data-c]'); if(!b) return; cat=b.dataset.c; chips() });
+function v(id){ return ($(id).value||'').trim() }
+function err(m){ $('err').textContent=m; $('err').hidden=!m; if(m) $('err').scrollIntoView({behavior:'smooth',block:'center'}) }
+
+function showDone(b,justNow){
+  $('form').hidden=true; $('loading').hidden=true; var d=$('done'); d.hidden=false;
+  d.innerHTML=(justNow?'<h3 style="font-size:22px;font-weight:800">Application received</h3>':'<h3 style="font-size:22px;font-weight:800">'+esc(b.name)+'</h3>')+
+    (b.verified?'<span class="badge ok">Approved · you can receive requests</span>':'<span class="badge wait">Waiting for approval</span>')+
+    '<p class="note">'+(b.verified?'Groups that list your place and ask for offers will reach you. Keep your saved offers ready on your business page.':'We’ll review your place, usually within 1–2 days. Meanwhile, set up your go-to offers so you can answer groups in one tap.')+'</p>'+
+    '<a class="btn primary" href="../?business">Open your business page</a>'+
+    '<p class="note">Tip: open it on your phone and switch on notifications (You tab), so you hear about requests right away.</p>';
+}
+function showForm(){
+  $('loading').hidden=true; $('form').hidden=false; chips();
+  if(user){ $('acct').hidden=true; $('haveAcct').hidden=true; $('asWho').hidden=false;
+    $('asWho').innerHTML='Applying as <b>'+esc(user.email||'your account')+'</b>. <a href="#" id="out">Not you?</a>';
+    var o=$('out'); if(o) o.addEventListener('click',function(e){ e.preventDefault(); sb.auth.signOut().then(function(){ user=null; $('acct').hidden=false; $('haveAcct').hidden=false; $('asWho').hidden=true }) });
+    var nm=user.user_metadata&&user.user_metadata.name; if(nm&&!v('cName')) $('cName').value=nm;
+  }
+}
+function boot(){
+  if(!LIVE){ $('loading').textContent='Applications open on the live site.'; return }
+  sb.auth.getSession().then(function(r){
+    var s=r.data&&r.data.session; user=s&&!s.user.is_anonymous?s.user:null;
+    if(!user) return showForm();
+    return sb.from('businesses').select('*').eq('owner',user.id).maybeSingle().then(function(b){ if(b.data) showDone(b.data,false); else showForm() });
+  },function(){ showForm() });
+}
+
+$('form').addEventListener('submit',function(e){
+  e.preventDefault(); if(busy) return; err('');
+  var name=v('bName'),city=v('bCity'),contact=v('cName'),email=v('cEmail'),pw=$('cPw').value||'';
+  if(name.length<2) return err('Enter your business name.');
+  if(city.length<2) return err('Enter your city.');
+  if(contact.length<2) return err('Enter your name, so we know who to contact.');
+  if(!user){ if(!/^\S+@\S+\.\S+$/.test(email)) return err('Enter a valid email address.'); if(pw.length<8) return err('Use a password of at least 8 characters.') }
+  busy=true; $('go').disabled=true; $('go').textContent='Sending…';
+  var step=user?Promise.resolve({data:{user:user,session:true}}):sb.auth.signUp({email:email,password:pw,options:{data:{name:contact}}});
+  step.then(function(r){
+    if(r.error){ throw new Error(/registered|exists/i.test(r.error.message)?'This email already has an account. Log in at the bottom of this form, then come back to apply.':r.error.message) }
+    if(!r.data||!r.data.session) throw new Error('Check your email to confirm your account, then come back to finish applying.');
+    user=r.data.user;
+    return sb.from('profiles').select('id').eq('id',user.id).maybeSingle().then(function(p){
+      if(p.data) return; return sb.from('profiles').insert({id:user.id,name:contact,color:PAL[Math.floor(Math.random()*PAL.length)]});
+    });
+  }).then(function(){
+    return sb.from('businesses').insert({name:name,category:cat,city:city,address:v('bAddr')||null,website:v('bWeb')||null,phone:v('bPhone')||null,contact_name:contact,contact_email:(user&&user.email)||email||null}).select('*').maybeSingle();
+  }).then(function(r){
+    if(r&&r.error) throw new Error(/duplicate|unique/i.test(r.error.message)?'This account already has a business. Log in to your business page to see it.':'That didn’t go through. Please try again.');
+    showDone(r.data||{name:name,verified:false},true); $('applyBox').scrollIntoView({behavior:'smooth',block:'start'});
+  }).catch(function(x){ err(x&&x.message?x.message:'That didn’t go through. Please try again.') })
+  .then(function(){ busy=false; $('go').disabled=false; $('go').textContent='Send application' });
+});
+
+$('share').addEventListener('click',function(){
+  var url=location.origin+location.pathname,text='Groups are choosing where to go on Sway. Get a request when they’re deciding between you and other places, and send an offer to win them. Free during launch.';
+  if(navigator.share) navigator.share({title:'Sway for Business',text:text,url:url}).catch(function(){});
+  else try{ navigator.clipboard.writeText(text+' '+url).then(function(){ $('share').textContent='Link copied' }) }catch(e){}
+});
+boot();
+})();
+</script>
+</body>
+</html>

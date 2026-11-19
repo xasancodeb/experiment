@@ -22,7 +22,8 @@
   --accent:#A78BFA; --accent-soft:#2A2148; --accent-ink:#D8CCFF; --hot:#FB7185; --hot-soft:#3A1622; --ok:#6EE7B7; --ok-soft:#10301F;
   --lift:0 14px 30px -18px rgba(0,0,0,.8); --tabbar:rgba(26,23,39,.9); --outer:#07060C; color-scheme:dark }
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{position:fixed;inset:0}
 body{margin:0;background:var(--outer);color:var(--ink);font:500 16px/1.45 var(--font);-webkit-font-smoothing:antialiased}
 h1,h2,h3,p{margin:0}
 h1,h2,h3{letter-spacing:-.03em;text-wrap:balance}
@@ -39,6 +40,7 @@ button{cursor:pointer;border:0;background:none;padding:0;text-align:left}
 .page{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;
   padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(110px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .page>*{flex-shrink:0}
+.page,.land{overscroll-behavior:none}
 .page.in{animation:in .24s cubic-bezier(.2,.8,.2,1)}
 .page.back{animation:out .24s cubic-bezier(.2,.8,.2,1)}
 @keyframes in{from{transform:translateX(22px);opacity:.3}}
@@ -190,9 +192,19 @@ button{cursor:pointer;border:0;background:none;padding:0;text-align:left}
 .person{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
 .person:first-child{border-top:0}
 .person b{flex:1;min-width:0;font-weight:700;font-size:15px;overflow-wrap:anywhere}
-.bubble{display:flex;gap:10px}
-.bubble .av{width:32px;height:32px;font-size:11px}
-.bubble p{background:var(--surface);padding:10px 14px;border-radius:6px 20px 20px 20px;font-size:15px;box-shadow:var(--lift);overflow-wrap:anywhere;min-width:0}
+.cmts{display:flex;flex-direction:column;gap:4px}
+.cmt{display:flex;gap:8px;align-items:flex-end;margin-top:8px}
+.cmt.cont{margin-top:0}
+.cmt .av{width:30px;height:30px;font-size:10.5px}
+.cmt.cont .av{visibility:hidden}
+.cmt .cb{display:flex;flex-direction:column;gap:3px;min-width:0;max-width:80%}
+.cmt .cn{font-size:12px;font-weight:700;color:var(--ink2);padding:0 8px}
+.cmt .cn i{font-style:normal;font-weight:600;opacity:.8}
+.cmt p{background:var(--surface);padding:9px 14px;border-radius:20px 20px 20px 6px;font-size:15px;line-height:1.4;box-shadow:var(--lift);overflow-wrap:anywhere}
+.cmt.mine{justify-content:flex-end}
+.cmt.mine .cb{align-items:flex-end}
+.cmt.mine p{background:linear-gradient(120deg,#7C3AED,#C026D3);color:#fff;border-radius:20px 20px 6px 20px;box-shadow:none}
+.cmts .none{font-size:14px;color:var(--ink2);font-weight:600}
 .say{display:flex;gap:8px}
 .say input{flex:1;min-width:0;height:48px;padding:0 18px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -415,7 +427,7 @@ function demo(){
     {id:'fam',name:'The Fam',owner:'priya',code:'DEMO5678',members:['priya','ana'],star:true,used:1},
     {id:'work',name:'Studio 4B',owner:'leo',code:'DEMO9012',members:['leo','jonah'],used:2},
     {id:'gym',name:'Gym Buddies',owner:'me',code:'DEMO3456',members:['leo','priya','jonah'],used:0}];
-  var P=function(x){return Object.assign({note:'',type:'choice',created:t-HR,votes:{},voted:null,nVoted:null,counts:null,comments:[],nudgedTo:[],nudgedBy:null,anon:false,live:false,who:true,early:false,hideAsker:false,hidV:{}},x)};
+  var P=function(x){return Object.assign({note:'',type:'choice',created:t-HR,votes:{},voted:null,nVoted:null,counts:null,comments:[],nudgedTo:[],nudgedBy:null,anon:false,live:false,who:true,early:false,hideAsker:false,hidV:{},allowPrivate:true},x)};
   s.polls=[
     P({id:'q1',by:'jonah',circles:['inner'],anon:true,q:'Should I tell her I’m in love with her?',opts:[{t:'Yes, tell her'},{t:'Wait a little longer'}],closes:t+2*HR,votes:{maya:0,priya:0,ana:1},comments:[{by:'maya',text:'Do it. Life is short.',t:t-20*MIN}]}),
     P({id:'q2',by:'maya',circles:['inner'],type:'photo',q:'Which dress for Saturday’s wedding?',note:'Outdoor, golden hour. Be brutal.',opts:[{t:'Sage slip',img:dress('#E3EEDC','#7F9E78')},{t:'Terracotta wrap',img:dress('#FBE1D6','#C8664A')},{t:'Navy midi',img:dress('#DCE3F5','#2E3F72')}],closes:t+5*HR,votes:{jonah:0,priya:1,leo:2}}),
@@ -433,7 +445,7 @@ function demo(){
 var tab='vote',stack=[],draft=null,WHOWARN=false,ANONME={},PK={},BUSY=false,FOCUS=null,YT='me';
 function go(page,arg){stack.push([page,arg]);draw('nav')}
 function back(){stack.pop();CRENAME=null;draw('back')}
-function newDraft(){return {q:'',type:'Yes / No',o:['Yes','No'],ph:[],who:[],more:false,live:false,hide:false,anon:false,early:false,dl:'3h',allc:false}}
+function newDraft(){return {q:'',type:'Yes / No',o:['Yes','No'],ph:[],who:[],more:false,live:false,hide:false,anon:false,early:false,priv:true,dl:'3h',allc:false}}
 function setTab(t){
   if(LIVE&&ME) liveSoon();
   if(t==='mine'&&S&&S.seenV){ MINEBASE={}; S.polls.forEach(function(p){ if(p.by==='me') MINEBASE[p.id]=S.seenV[p.id]||0 }) }
@@ -471,7 +483,7 @@ function photoGrid(p,o){
       '<span class="cap"><span class="k" style="background:'+c0+'">'+LET[k]+'</span><span class="c">'+esc(x.t)+'</span>'+(o.show?'<span class="p">'+t.pct[k]+'%</span>':'')+'</span>'+(sel&&!o.show?'<span class="tickc">'+I.check+'</span>':'')+'</button>'}).join('')+'</div>';
 }
 function anonToggle(p){
-  if(p.anon||isClosed(p)||p.by==='me'||p.votes.me!=null||isOpen(p)) return '';
+  if(p.anon||p.allowPrivate===false||isClosed(p)||p.by==='me'||p.votes.me!=null||isOpen(p)) return '';
   var on=!!ANONME[p.id];
   return '<button class="anonv" data-a="anonme" data-id="'+p.id+'" aria-pressed="'+on+'"><span class="box2">'+(on?I.checks:'')+'</span>Vote anonymously</button>';
 }
@@ -516,7 +528,7 @@ function pMine(){
     return '<div class="mcard" data-row="'+p.id+'"><button class="top" style="background:'+grad(p.id)+'" data-a="q" data-id="'+p.id+'"><small>'+esc(cname(p))+' · <span data-closes="'+p.closes+'">'+left(p.closes-now())+'</span>'+(p.hideAsker?' · asked anonymously':'')+'</small><b>'+esc(p.q)+'</b>'+(nw?'<span class="newv">+'+nw+' new '+vb+'</span>':'')+'</button><div class="body">'+
       '<div class="bar2"><i style="width:'+pct+'%;background:'+grad(p.id)+'"></i></div>'+
       '<div class="ppl"><span class="faces">'+(p.hideAsker?'':yes.map(function(v){return av(v)}).join('')+no.map(function(v){return av(v,'out')}).join(''))+'</span><span class="t">'+tu.n+' of '+tu.total+(isOpen(p)?' replied':' voted')+'</span>'+
-      (canNudge(p)?(todo.length?'<button class="btn primary sm" data-a="nudge" data-id="'+p.id+'">Nudge '+(todo.length===1?esc(first(todo[0])):todo.length)+'</button>':no.length?'<span class="pill">Nudged</span>':'<span class="pill ok">All in</span>'):'')+'</div></div></div>'}).join('')+'</div>';
+      (canNudge(p)?(todo.length?'<button class="btn primary sm" data-a="nudge" data-id="'+p.id+'">Nudge '+(todo.length===1?esc(first(todo[0])):todo.length)+'</button>':no.length?'<span class="pill">Nudged</span>':''):'')+(tu.total&&tu.n>=tu.total?'<button class="btn primary sm" data-a="close" data-id="'+p.id+'">End now</button>':'')+'</div></div></div>'}).join('')+'</div>';
   if(done.length) h+='<div class="label"><i style="background:#7C3AED"></i>Finished <span class="n">'+done.length+'</span></div><div class="carousel">'+done.map(function(p){var t=tally(p);
       return '<button class="rcard" style="background:'+grad(p.id)+'" data-a="'+(S.seen[p.id]?'q':'reveal')+'" data-id="'+p.id+'"><small>'+(isOpen(p)?p.comments.length+' replies':t.t+' votes')+'</small><b>'+esc(p.q)+'</b>'+(S.seen[p.id]?'<span class="win">'+esc(verdict(p))+(t.win>=0&&!isOpen(p)?' · '+t.pct[t.win]+'%':'')+'</span>':'<span class="seal">'+I.lock+' Tap to reveal</span>')+'</button>'}).join('')+'</div>';
   return h;
@@ -597,6 +609,7 @@ function pQuestion(id){
     if(!closed&&mine) h+='<p class="status">'+(p.live?I.check+' Your circle sees the results as they vote.':I.lock+' Results stay hidden until voting closes.')+'</p>';
   }
   if(closed&&!S.seen[p.id]&&involved(p)) h+='<button class="btn primary wide" data-a="reveal" data-id="'+p.id+'">Reveal the result</button>';
+  if(mine&&!closed&&tu.total&&tu.n>=tu.total) h+='<button class="btn primary wide" data-a="close" data-id="'+p.id+'" style="min-height:56px">Everyone has '+(open?'replied':'voted')+' · End now and see the result</button>';
   if(mine&&!closed){
     var todo=canNudge(p)?vs.filter(function(v){return v!=='me'&&!hasVoted(p,v)&&p.nudgedTo.indexOf(v)<0}):[];
     h+='<div class="chips">'+(todo.length?'<button class="btn primary sm" data-a="nudge" data-id="'+p.id+'">Nudge '+(todo.length===1?esc(first(todo[0])):todo.length+' who haven’t '+(open?'replied':'voted'))+'</button>':'')+
@@ -614,7 +627,9 @@ function pQuestion(id){
     else if(closed&&S.seen[p.id]&&p.votes[v]!=null&&p.opts[p.votes[v]]) txt=p.opts[p.votes[v]].t;
     else txt='Voted';
     return '<div class="person">'+av(v)+'<b>'+esc(v==='me'?'You':person(v).n)+'</b><span class="pill '+(d?'ok':closed?'':'hot')+'">'+esc(txt)+'</span></div>'}).join('')+'</div></div>';
-  h+='<div class="sec" id="comments"><h3>'+(open?'Replies':'Comments')+' · '+p.comments.length+'</h3>'+p.comments.map(function(c){return '<div class="bubble">'+av(c.by)+'<p><b>'+esc(c.by==='me'?'You':first(c.by))+'</b> '+esc(c.text)+'</p></div>'}).join('')+
+  h+='<div class="sec" id="comments"><h3>'+(open?'Replies':'Comments')+' · '+p.comments.length+'</h3>'+'<div class="cmts">'+(p.comments.length?'':'<p class="none">'+(open?'No replies yet.':'No comments yet. Say what you think.')+'</p>')+p.comments.map(function(c,i){
+      var prev=p.comments[i-1],cont=prev&&prev.by===c.by&&c.t-prev.t<10*MIN,me=c.by==='me';
+      return '<div class="cmt'+(me?' mine':'')+(cont?' cont':'')+'">'+(me?'':av(c.by))+'<div class="cb">'+(cont?'':'<span class="cn">'+esc(me?'You':name(c.by))+' <i>· '+ago(c.t)+'</i></span>')+'<p>'+esc(c.text)+'</p></div></div>'}).join('')+'</div>'+
     (closed&&!open?'':'<form class="say" data-f="com" data-id="'+p.id+'"><label class="sr" for="cm">'+(open?'Your reply':'Add a comment')+'</label><input id="cm" maxlength="300" placeholder="'+(open?'Write your reply':'Add a comment')+'" autocomplete="off"><button class="btn sm" type="submit">Send</button></form>')+'</div>';
   return h;
 }
@@ -637,7 +652,11 @@ function pAsk(){
         (!fixed&&d.o.length>2?'<button class="rm" data-a="rmopt" data-i="'+i+'" aria-label="Remove answer '+(i+1)+'">'+I.x+'</button>':'')+'</div>'}).join('')+'</div>';
     if(!fixed&&d.o.length<MAXA) h+=photos?'<label class="addbtn">+ Add photos<input class="sr" type="file" accept="image/*" multiple data-many="1" aria-label="Add photos"></label>':'<button class="addbtn" data-a="addopt">+ Add answer</button>';
     h+='<p class="hint">'+(fixed?'Tap an answer to rename it, for example “Do it” and “Don’t”.':d.o.length+' of up to '+MAXA+' answers'+(photos?' · you can pick several photos at once':''))+'</p>';
-    h+='<div class="box"><div class="tog"><div class="tx"><b>Anonymous voting</b><span>For the uncomfortable ones. Friends answer without anyone seeing who picked what.</span></div><button class="sw" role="switch" aria-label="Anonymous voting" aria-checked="'+(d.anon||(d.hide&&hideOk()))+'" data-a="dtog" data-k="anon"'+(d.hide&&hideOk()?' disabled':'')+'></button></div></div>';
+    var allAnon=d.anon||(d.hide&&hideOk());
+    h+='<div class="label"><i style="background:#0EA5E9"></i>How friends vote</div><div class="box">'+
+      '<div class="tog"><div class="tx"><b>Anonymous voting</b><span>For the uncomfortable ones. Nobody sees who picked what.</span></div><button class="sw" role="switch" aria-label="Anonymous voting" aria-checked="'+allAnon+'" data-a="dtog" data-k="anon"'+(d.hide&&hideOk()?' disabled':'')+'></button></div>'+
+      (allAnon?'':'<div class="tog"><div class="tx"><b>Let friends vote privately</b><span>'+(d.priv?'Each friend can choose to hide their pick':'Everyone’s pick is shown when it closes')+'</span></div><button class="sw" role="switch" aria-label="Let friends vote privately" aria-checked="'+d.priv+'" data-a="dtog" data-k="priv"></button></div>')+
+      (NUDGES?'<div class="tog"><div class="tx"><b>End once everyone has voted</b><span>'+(d.early?'Closes 30 seconds after the last vote is in':'Runs until the deadline')+'</span></div><button class="sw" role="switch" aria-label="End once everyone has voted" aria-checked="'+d.early+'" data-a="dtog" data-k="early"></button></div>':'')+'</div>';
   }
   var ks=circleOrder(),top=ks.filter(function(c){return c.star}),rest=ks.filter(function(c){return !c.star});
   var chip=function(c){return '<button class="chip" aria-pressed="'+(d.who.indexOf(c.id)>=0)+'" data-a="who" data-id="'+c.id+'">'+(c.star?'<span class="st">'+I.star+'</span>':'')+esc(c.name)+'</button>'};
@@ -648,12 +667,12 @@ function pAsk(){
   var ppl={}; d.who.forEach(function(k){var c=circle(k); if(c) c.members.forEach(function(m){ppl[m]=1})}); var pn=Object.keys(ppl);
   h+=d.who.length?'<p class="hint">'+(pn.length?pn.length+(pn.length===1?' person':' people')+' will see this: '+esc(pn.map(first).join(', ')):'Nobody else is in this circle yet. Invite friends from the circle’s page.')+'</p>':'<p class="hint">Nobody will see this until you choose a circle.</p>';
   var dln=(DL.filter(function(x){return x[0]===d.dl})[0]||DL[1])[1],sum=['Closes '+(d.dl==='tonight'?'tonight at 9pm':'in '+dln.toLowerCase()),d.type==='Open'?'replies visible to the circle':d.live?'results show while voting':'results hidden until the end'];
+  if(d.type!=='Open'&&d.early) sum.push('ends when all have voted');
   if(d.hide&&hideOk()) sum.push('nobody sees you asked');
   h+='<button class="more" data-a="more" aria-expanded="'+d.more+'"><span>'+esc(sum.join(' · '))+'</span><b>'+(d.more?'Hide options':'Options')+'</b></button>';
   if(d.more){
     h+='<div class="sec"><span class="sublabel">Voting closes</span><div class="chips">'+DL.map(function(x){return '<button class="chip" aria-pressed="'+(d.dl===x[0])+'" data-a="dl" data-d="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div></div><div class="box">'+
       (d.type!=='Open'?'<div class="tog"><div class="tx"><b>Show results while voting</b><span>Otherwise they’re revealed when it closes</span></div><button class="sw" role="switch" aria-label="Show results while voting" aria-checked="'+d.live+'" data-a="dtog" data-k="live"></button></div>':'')+
-      (d.type!=='Open'&&NUDGES?'<div class="tog"><div class="tx"><b>End early when everyone has voted</b><span>Otherwise it runs to the deadline, so late joiners can still vote</span></div><button class="sw" role="switch" aria-label="End early when everyone has voted" aria-checked="'+d.early+'" data-a="dtog" data-k="early"></button></div>':'')+
       (HAS3&&d.type!=='Open'?'<div class="tog"><div class="tx"><b>Hide that I asked</b><span>'+(hideOk()?'Your circle sees “Someone in your circle”':'Needs circles of 5 or more people, so you can’t be guessed')+'</span></div><button class="sw" role="switch" aria-label="Hide that I asked" aria-checked="'+(d.hide&&hideOk())+'" data-a="dtog" data-k="hide"'+(hideOk()?'':' disabled')+'></button></div>':'')+'</div>';
   }
   h+='<button class="btn primary wide'+(d.who.length?'':' off')+'" data-a="post" style="min-height:58px;font-size:17px;margin-top:4px"'+(POSTING?' disabled':'')+'>'+(POSTING?'Asking…':d.who.length?'Ask '+esc(d.who.map(function(k){var c=circle(k);return c?c.name:''}).join(' + ')):'Choose who to ask')+'</button>';
@@ -721,7 +740,8 @@ function isField(el){ return !!el&&(el.tagName==='TEXTAREA'||(el.tagName==='INPU
 var VV=window.visualViewport,kbT=null;
 function fitScreen(){
   var r=document.documentElement.style;
-  if(!VV||VV.scale>1.01){ r.removeProperty('--vvh'); r.removeProperty('--vvt'); return }
+  /* only while typing: otherwise the screen keeps its normal size and never shifts */
+  if(!VV||VV.scale>1.01||!document.body.classList.contains('kb')){ r.removeProperty('--vvh'); r.removeProperty('--vvt'); return }
   r.setProperty('--vvh',Math.round(VV.height)+'px'); r.setProperty('--vvt',Math.round(VV.offsetTop)+'px');
 }
 function showField(el){
@@ -731,7 +751,7 @@ function showField(el){
   sc.scrollTop=Math.max(0,sc.scrollTop+(r.top-b.top)-Math.max(pad,(b.height-r.height)/3));
 }
 if(VV){ VV.addEventListener('resize',function(){ fitScreen(); var a=document.activeElement; if(isField(a)) setTimeout(function(){showField(a)},30) }); VV.addEventListener('scroll',fitScreen); fitScreen() }
-document.addEventListener('focusin',function(e){ if(!isField(e.target)) return; clearTimeout(kbT); document.body.classList.add('kb');
+document.addEventListener('focusin',function(e){ if(!isField(e.target)) return; clearTimeout(kbT); document.body.classList.add('kb'); fitScreen();
   var el=e.target; [60,320,650].forEach(function(t){ setTimeout(function(){ if(document.activeElement===el) showField(el) },t) }) });
 document.addEventListener('focusout',function(){ clearTimeout(kbT); kbT=setTimeout(function(){
   if(isField(document.activeElement)) return; document.body.classList.remove('kb'); fitScreen();
@@ -756,7 +776,7 @@ var POSTING=false,NUDGES=!LIVE,HAS3=!LIVE,HAS4=false,STARS=!LIVE;
 function vote(id,i){
   var p=poll(id); if(!p||isClosed(p)||p.by==='me') return false;
   var prev=p.votes.me; p.votes.me=i; p.votedAt=now();
-  var hid=!!ANONME[id]||(prev!=null&&(p.myHidden||(p.hidV&&p.hidV.me)));
+  var hid=(!!ANONME[id]&&p.allowPrivate!==false)||(prev!=null&&(p.myHidden||(p.hidV&&p.hidV.me)));
   if(hid){ p.hidV=p.hidV||{}; p.hidV.me=true; p.myHidden=true }
   if(p.voted&&p.voted.indexOf('me')<0) p.voted.push('me');
   if(p.counts&&p.counts.length){ if(prev!=null&&p.counts[prev]>0) p.counts[prev]--; p.counts[i]=(p.counts[i]||0)+1 }
@@ -787,12 +807,12 @@ function post(){
   if(!d.who.length){ WHOWARN=true; draw('stay'); var ws=$('#whoStep'); if(ws) ws.scrollIntoView({behavior:'smooth',block:'center'}); return }
   var hid=HAS3&&d.type!=='Open'&&d.hide&&hideOk();
   var p={id:newId(),by:'me',circles:d.who.slice(),q:t,note:'',type:d.type==='Photos'?'photo':d.type==='Open'?'open':'choice',opts:opts,created:now(),closes:now()+dlMs(d.dl),
-    anon:d.type!=='Open'&&(d.anon||hid),live:d.type!=='Open'&&d.live,who:true,early:d.type!=='Open'&&d.early,hideAsker:hid,votes:{},voted:LIVE?[]:null,nVoted:null,counts:null,comments:[],nudgedTo:[],nudgedBy:null,hidV:{},pendingAt:now()};
+    anon:d.type!=='Open'&&(d.anon||hid),live:d.type!=='Open'&&d.live,who:true,early:d.type!=='Open'&&d.early,allowPrivate:d.type!=='Open'&&!(d.anon||hid)?!!d.priv:true,hideAsker:hid,votes:{},voted:LIVE?[]:null,nVoted:null,counts:null,comments:[],nudgedTo:[],nudgedBy:null,hidV:{},pendingAt:now()};
   var mx=Math.max.apply(null,S.circles.map(function(c){return c.used||0}).concat([0])); d.who.forEach(function(k){var c=circle(k); if(c) c.used=mx+1});
   if(!LIVE){ S.polls.unshift(p); draft=null; tab='mine'; stack=[]; draw('nav'); return toast('Asked. Your circle can vote now.') }
   POSTING=true; draw('stay');
   var row={id:p.id,author:ME,q:p.q,note:'',type:p.type,opts:p.opts,closes_at:new Date(p.closes).toISOString(),anon:p.anon,live:p.live,who:true};
-  if(p.early) row.early=true; if(p.hideAsker) row.hide_asker=true;
+  if(p.early) row.early=true; if(p.hideAsker) row.hide_asker=true; if(!p.allowPrivate) row.allow_private=false;
   sb.from('polls').insert(row).then(function(r){ if(r.error) throw r.error; return sb.from('poll_circles').insert(p.circles.map(function(c){return {poll_id:p.id,circle_id:c}})) })
     .then(function(r){ if(r.error) throw r.error;
       POSTING=false; S.polls.unshift(p); draft=null; notify('asked',p.id); ping(p.circles); liveSoon();
@@ -1016,7 +1036,7 @@ function liveRefresh(){
     var next=rows.map(function(x){
       var r=x.row,o=old[r.id],mine=r.mine===true||r.author===who;
       var p={id:r.id,by:mine?'me':(r.author?mapId(r.author):'anon'),circles:x.circles,q:r.q,note:r.note||'',type:r.type==='match'?'choice':r.type,opts:(r.opts||[]).map(function(o){return typeof o==='string'?{t:o}:o}),
-        created:Date.parse(r.created_at),closes:Date.parse(r.closes_at),anon:!!r.anon,live:!!r.live,who:r.who!==false,early:!!r.early,hideAsker:!!r.hide_asker,
+        created:Date.parse(r.created_at),closes:Date.parse(r.closes_at),anon:!!r.anon,live:!!r.live,who:r.who!==false,early:!!r.early,allowPrivate:r.allow_private!==false,hideAsker:!!r.hide_asker,
         votes:{},voted:[],nVoted:null,counts:null,comments:cm[r.id]||[],nudgedTo:nt[r.id]||[],nudgedBy:nb[r.id]||null,hidV:{},myHidden:false};
       if(st[r.id]) applyState(p,st[r.id]);
       /* a vote made a moment ago must not be undone by a load that started before it */

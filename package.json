@@ -1,0 +1,12 @@
+{
+  "name": "sway",
+  "private": true,
+  "description": "Sway: ask your trusted friends before you decide.",
+  "scripts": {
+    "test": "node tests/demo.js",
+    "test:live": "for f in tests/live/*.js; do node \"$f\" || exit 1; done"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

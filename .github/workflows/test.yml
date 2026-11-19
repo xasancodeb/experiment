@@ -1,0 +1,20 @@
+# Runs the automatic checks (demo mode, no database) on every push and pull request.
+name: Tests
+on:
+  push:
+  pull_request:
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      # Demo mode: an empty config, so nothing touches the real database.
+      - run: echo 'window.SWAY_CONFIG={};' > config.js
+      - run: python3 -m http.server 8080 >/dev/null 2>&1 &
+      - run: sleep 1 && BASE=http://localhost:8080/ node tests/demo.js

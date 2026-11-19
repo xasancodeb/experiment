@@ -22,6 +22,10 @@ post a dilemma to a circle of friends, they vote in one tap, and you get a verdi
 | `supabase/upgrade-11.sql` | Offers only from the places a group listed, when the group asks |
 | `supabase/upgrade-12.sql` | Contact details on business applications |
 | `business/` | The page businesses apply on (send this link to places) |
+| `supabase/upgrade-13.sql` | Delete account, reports, blocks, usage numbers and error logs |
+| `supabase/maintenance.sql` | Daily clean-up of old usage data, and removal of test accounts |
+| `privacy/`, `terms/` | Privacy policy and terms of use (drafts: have them checked) |
+| `tests/`, `.github/workflows/test.yml` | Automatic checks that GitHub runs on every push |
 | `supabase/functions/notify/` | The notification sender (a Supabase Edge Function, no libraries) |
 | `sw.js` | Shows notifications on a device and opens the question when one is tapped |
 | `manifest.json`, `icon-*.png`, `apple-touch-icon.png` | Lets people add Sway to their phone's home screen |
@@ -138,6 +142,25 @@ Places compete for a group's choice, only when the group asks for it:
   group decides. Never the question, names, votes or the other places.
 - **Earning:** free during launch. Each used code is recorded (`claims`, with an empty
   `fee_cents`) so a fee per group that uses a code can be charged later.
+
+## Safety, numbers and legal
+
+- **Delete account:** You tab → Delete account. Everything of theirs goes; circles they made pass
+  to the member who joined first.
+- **Report and block:** "Report" on any question or comment by someone else, with an option to
+  block them. Blocked people's questions and comments are hidden; they aren't told. Reports
+  arrive in Supabase → Table Editor → `reports` (mark `resolved` when handled).
+- **Usage numbers and errors** are stored in this database only, never sent to another
+  company, and readable only by you. In Supabase → SQL editor:
+  `select * from metrics_daily;` (activity per day), `select * from metrics_retention;`
+  (how many new people came back the next day and in week 2), `select * from metrics_errors;`
+  (what broke on people's devices).
+- **Legal:** `privacy/` and `terms/` describe how the app actually works. They're drafts, not
+  legal advice; have a lawyer check them before a big launch.
+- **Support email:** put one in `config.js` as `support: "you@example.com"`. It appears in the
+  app (You tab) and on the legal pages. App stores require a way to contact you.
+- **Maintenance:** run part 1 of `supabase/maintenance.sql` once, so old usage data is deleted
+  as the privacy policy promises. Part 2 removes the test accounts.
 
 ## Privacy rules enforced by the database
 

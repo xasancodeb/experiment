@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Sway</title><meta name="description" content="Sway: ask your trusted friends before you decide."><meta name="theme-color" content="#F6F5FB"><link rel="manifest" href="manifest.json"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Sway"><meta property="og:title" content="Sway"><meta property="og:description" content="Ask your trusted friends before you decide."><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="config.js"></script><script>if(window.SWAY_CONFIG&&SWAY_CONFIG.url&&SWAY_CONFIG.key)document.write('<script src="vendor/supabase.js"><\/script>')</script></head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><title>Sway</title><meta name="description" content="Sway: ask your trusted friends before you decide."><meta name="theme-color" content="#F6F5FB"><link rel="manifest" href="manifest.json"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Sway"><meta property="og:title" content="Sway"><meta property="og:description" content="Ask your trusted friends before you decide."><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="config.js"></script><script>if(window.SWAY_CONFIG&&SWAY_CONFIG.url&&SWAY_CONFIG.key)document.write('<script src="vendor/supabase.js"><\/script>')</script></head><body>
 <title>Sway</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500..800&display=swap">
 <style>
@@ -32,7 +32,7 @@ button{cursor:pointer;border:0;background:none;padding:0;text-align:left}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 [hidden]{display:none!important}
 
-.app{position:relative;max-width:560px;height:100%;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;isolation:isolate}
+.app{position:fixed;left:0;right:0;top:var(--vvt,0px);height:var(--vvh,100%);max-width:560px;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;isolation:isolate}
 @media (min-width:600px){.app{box-shadow:0 0 0 1px var(--line),0 30px 80px -40px rgba(76,29,149,.5)}}
 .app::before{content:"";position:absolute;inset:-120px -80px auto;height:340px;z-index:-1;pointer-events:none;
   background:radial-gradient(closest-side at 22% 55%,rgba(124,58,237,.26),transparent),radial-gradient(closest-side at 72% 40%,rgba(236,72,153,.2),transparent),radial-gradient(closest-side at 95% 75%,rgba(249,115,22,.16),transparent)}
@@ -279,6 +279,9 @@ button{cursor:pointer;border:0;background:none;padding:0;text-align:left}
 .trust span{font-size:12.5px;font-weight:700;color:var(--ink2);background:var(--surface);border-radius:99px;padding:7px 12px;box-shadow:var(--lift)}
 .loading{flex:1;display:flex;align-items:center;justify-content:center}
 
+body.kb .tabs{display:none}
+body.kb .page{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+body.kb .toast{bottom:12px}
 .toast{position:absolute;left:14px;right:14px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;align-items:center;gap:10px;background:#17132B;color:#fff;border-radius:18px;padding:12px 12px 12px 16px;font-weight:700;font-size:14.5px;animation:in .2s ease;box-shadow:0 12px 30px -12px rgba(0,0,0,.5)}
 .toast span{flex:1;min-width:0}
 .toast button{min-height:34px;padding:0 12px;border-radius:99px;background:rgba(255,255,255,.16);font-weight:800;font-size:13px;color:#fff}
@@ -661,6 +664,8 @@ function draw(mode){
   var top=stack[stack.length-1],page=$('#page'),h;
   if(!top) h=tab==='vote'?pVote():tab==='mine'?pMine():tab==='circles'?pCircles():pYou();
   else{ var k=top[0]; h=k==='q'?pQuestion(top[1]):k==='ask'?pAsk():k==='circle'?pCircle(top[1]):k==='newcircle'?pNewCircle():k==='shared'?pShared(top[1]):k==='newpw'?pNewPw():k==='saveacct'?pSaveAcct():pActivity() }
+  if(mode==='stay'&&h===LASTH&&page.innerHTML){ if(FOCUS){ var f0=page.querySelector(FOCUS); if(f0) try{f0.focus({preventScroll:true})}catch(e){} FOCUS=null } drawTabs(); return }
+  LASTH=h;
   var keep=mode!=='nav'&&mode!=='back'?page.scrollTop:0;
   var fv=null,fa=document.activeElement; if(fa&&page.contains(fa)&&fa.id&&/INPUT|TEXTAREA/.test(fa.tagName)) fv={id:fa.id,v:fa.value,s:fa.selectionStart};
   page.innerHTML=h;
@@ -668,6 +673,9 @@ function draw(mode){
   page.scrollTop=keep;
   if(fv){ var fe=document.getElementById(fv.id); if(fe){ fe.value=fv.v; try{fe.focus({preventScroll:true}); fe.setSelectionRange(fv.s,fv.s)}catch(e){} } }
   if(FOCUS){ var ff=page.querySelector(FOCUS); if(ff) try{ff.focus({preventScroll:true})}catch(e){} FOCUS=null }
+  drawTabs();
+}
+function drawTabs(){
   var n=toVote().length+ready().length;
   $('#tabs').innerHTML=[['vote','Vote',I.vote,n],['mine','Mine',I.mine,0],['ask','Ask',I.plus,0],['circles','Circles',I.circles,0],['you','You',I.you,0]].map(function(t){
     if(t[0]==='ask') return '<button class="tab ask" data-a="tab" data-t="ask" aria-label="Ask a question"><span class="plus">'+t[2]+'</span></button>';
@@ -675,10 +683,11 @@ function draw(mode){
   try{document.title=(n?'('+n+') ':'')+'Sway'}catch(e){}
 }
 /* redraw only if what's on screen changed, so nothing flickers while you read */
-var LASTH='';
-function refresh(){ if(!S||!S.me) return; var page=$('#page'); if($('#reveal')) return;
-  var a=document.activeElement; if(a&&page.contains(a)&&/INPUT|TEXTAREA/.test(a.tagName)&&stack.length&&stack[stack.length-1][0]==='ask') return;
-  var before=page.innerHTML; draw('stay'); if(page.innerHTML===before) return }
+var LASTH='',LATER=false;
+function typing(){ var a=document.activeElement; return !!(a&&$('#page').contains(a)&&isField(a)) }
+function refresh(){ if(!S||!S.me) return; if($('#reveal')) return;
+  if(typing()){ LATER=true; drawTabs(); return }   /* redraw after the keyboard closes, not while typing */
+  draw('stay') }
 function toast(t,action,fn){
   var old=$('.toast'); if(old) old.parentNode.removeChild(old);
   var el=document.createElement('div'); el.className='toast'; el.setAttribute('role','status');
@@ -687,6 +696,27 @@ function toast(t,action,fn){
   $('#app').appendChild(el); setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el) },action?6000:2800);
 }
 function buzz(){try{if(navigator.vibrate) navigator.vibrate(12)}catch(e){}}
+
+/* ---------- phone keyboard: fit above it, keep the field in view ---------- */
+function isField(el){ return !!el&&(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&!/^(checkbox|radio|file|button|submit|range|color)$/i.test(el.type||''))) }
+var VV=window.visualViewport,kbT=null;
+function fitScreen(){
+  var r=document.documentElement.style;
+  if(!VV||VV.scale>1.01){ r.removeProperty('--vvh'); r.removeProperty('--vvt'); return }
+  r.setProperty('--vvh',Math.round(VV.height)+'px'); r.setProperty('--vvt',Math.round(VV.offsetTop)+'px');
+}
+function showField(el){
+  if(!isField(el)) return; var sc=el.closest('.page,.land'); if(!sc) return;
+  var r=el.getBoundingClientRect(),b=sc.getBoundingClientRect(),pad=16;
+  if(r.top>=b.top+pad&&r.bottom<=b.bottom-pad) return;
+  sc.scrollTop=Math.max(0,sc.scrollTop+(r.top-b.top)-Math.max(pad,(b.height-r.height)/3));
+}
+if(VV){ VV.addEventListener('resize',function(){ fitScreen(); var a=document.activeElement; if(isField(a)) setTimeout(function(){showField(a)},30) }); VV.addEventListener('scroll',fitScreen); fitScreen() }
+document.addEventListener('focusin',function(e){ if(!isField(e.target)) return; clearTimeout(kbT); document.body.classList.add('kb');
+  var el=e.target; [60,320,650].forEach(function(t){ setTimeout(function(){ if(document.activeElement===el) showField(el) },t) }) });
+document.addEventListener('focusout',function(){ clearTimeout(kbT); kbT=setTimeout(function(){
+  if(isField(document.activeElement)) return; document.body.classList.remove('kb'); fitScreen();
+  if(LATER){ LATER=false; refresh() } },180) });
 
 /* ---------- reveal ---------- */
 function reveal(id){

@@ -11,5 +11,7 @@ window.SWAY_CONFIG = {
   // match mode, anonymous asking, awards, recap, streak).
   extras: true,
   // Public key for push notifications. Its private half lives only in the project's secrets.
+  // Offers from places: false hides it. Turn on once businesses have signed up.
+  offers: false,
   vapid: "BPg6FcHqY79WPp2YrSWOAEusgZtk2ZCnchvLYO2G2vp4Tp1_zx-BUKiPxO6dtVqaZxf481J3WJwb1w_xLdT3Pjc"
 };

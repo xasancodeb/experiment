@@ -88,7 +88,7 @@ async function db(path: string, init: RequestInit = {}) {
   if (!res.ok) throw new Error(`db ${path.split("?")[0]} ${res.status} ${(await res.text()).slice(0, 200)}`);
   return init.method && init.method !== "GET" ? null : await res.json();
 }
-const POLL_COLS = "id,q,author,hide_asker,type,closes_at,created_at,notified,plan,tb_user,early";
+const POLL_COLS = "id,q,author,hide_asker,type,closes_at,created_at,notified,plan,tb_user,early,opts";
 declare const EdgeRuntime: { waitUntil(p: Promise<unknown>): void } | undefined;
 const later = (p: Promise<unknown>) => { try { if (typeof EdgeRuntime !== "undefined") return EdgeRuntime.waitUntil(p); } catch (_) { /* fall through */ } return p; };
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -235,6 +235,16 @@ async function event(uid: string, b: { kind?: string; poll_id?: string; to?: str
     case "plan":
       if (!poll.plan?.when) return { error: "no plan" };
       return push("plan", others, poll, `Plan locked in: ${poll.plan.when}`, `${poll.q} · are you in?`, by(poll));
+    case "offers": {                             // the asker invited the listed places to make an offer
+      const reqs: { business_id: string; businesses: { owner: string } }[] =
+        await db(`offer_requests?poll_id=eq.${poll.id}&select=business_id,businesses(owner)`);
+      const owners = [...new Set(reqs.map((r) => r.businesses?.owner).filter(Boolean))] as string[];
+      const n = Math.max((poll as unknown as { opts?: unknown[] }).opts?.length ?? 1, 1) - 1;
+      const mins = Math.max(1, Math.round((Date.parse(poll.closes_at) - Date.now()) / 60e3));
+      const left = mins >= 120 ? `${Math.round(mins / 60)} hours` : `${mins} minutes`;
+      return push("offers", owners, poll, "A group is choosing where to go",
+        `${a.users.length} people · you and ${n} other place${n === 1 ? "" : "s"} · make an offer in the next ${left}`, undefined, true);
+    }
     case "closed":                               // the asker ended it early
       return announceVerdict(poll);
     case "outcome":

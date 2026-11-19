@@ -62,11 +62,17 @@ invite link can vote straight away as a guest and add an email later.
 People switch them on per device (on iPhone the site has to be added to the Home Screen
 first). The asker's browser tells the sender when they ask, nudge, lock in a plan, hand
 over a tiebreak or share what happened next; the sender checks the caller really is the
-asker and sends to the rest of the circle. A voter's browser tells it about a new vote, and it
-tells the asker (who voted and how many are in, never what anyone picked); the last vote
-tells everyone. A verdict goes out the moment a question is ended early. A once-a-minute
-timer announces verdicts for questions that reach their deadline and gives a last call
-15 minutes before a question closes. Anyone can mute circles (on the circle's page) and choose
+asker and sends to the rest of the circle. Notifications are kept few on purpose:
+
+- Friends: "X asked", then the verdict, but only for questions they voted on. Friends who
+  haven't voted get one last call 15 minutes before it closes (and any nudge).
+- The asker: the first vote at once, then at most one roundup every 30 minutes, then
+  "Everyone has voted" (skipped when the question ends itself, since the verdict follows).
+- Never what anyone picked. Between 10pm and 8am on the phone's own clock they arrive
+  silently where the phone allows it.
+
+A verdict goes out the moment a question is ended early; a once-a-minute timer handles
+deadlines, roundups and last calls. Anyone can mute circles (on the circle's page) and choose
 to hear only from certain friends (You → Notifications); nudges and results of their own
 questions always come through.
 

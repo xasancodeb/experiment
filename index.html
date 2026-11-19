@@ -150,6 +150,8 @@ button{cursor:pointer;border:0;background:none;padding:0;text-align:left}
 .pill.v{background:var(--accent-soft);color:var(--accent-ink)}
 .av{width:38px;height:38px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;color:#17132B}
 .av.out{opacity:.35;filter:grayscale(1)}
+.keep{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:22px;background:var(--accent-soft);color:var(--accent-ink)}
+.keep .tx{display:flex;flex-direction:column;gap:2px}.keep b{font-weight:800;font-size:15.5px}.keep span{font-size:13.5px;font-weight:600}
 .empty{background:var(--surface);border-radius:24px;padding:26px;text-align:center;color:var(--ink2);box-shadow:var(--lift)}
 .empty b{display:block;color:var(--ink);font-size:19px;font-weight:800;margin-bottom:4px}
 .empty .btn{margin-top:14px}
@@ -464,6 +466,7 @@ function setTab(t){
   if(t==='mine'&&S&&S.seenV){ MINEBASE={}; S.polls.forEach(function(p){ if(p.by==='me') MINEBASE[p.id]=S.seenV[p.id]||0 }) }
   if(t==='ask'&&draft&&stack.length&&stack[stack.length-1][0]==='ask') return;
   tab=t;stack=[];
+  if(t==='ask'&&LIVE&&GUEST){ AFTER='ask'; stack=[['saveacct']]; return draw('nav') }
   if(t==='ask'){ if(!S.circles.length){ toast('Create a circle first, so there’s someone to ask.'); tab='circles'; stack=[['newcircle']]; return draw('nav') }
     draft=newDraft();WHOWARN=false;stack=[['ask']] }
   draw('nav');
@@ -519,6 +522,9 @@ function pVote(){
   var h='<div class="hello"><div class="tx"><h1>Hey '+esc(String(S.me.name).split(' ')[0])+'</h1><p>'+line+'</p></div>'+bell()+'</div>';
   if(LIVE&&!S.loaded) return h+'<div class="empty"><b>Loading your circles…</b></div>';
   if(!S.circles.length) return h+'<div class="empty"><b>Start with a circle</b>Make a private group, invite a few friends with a link, then ask your first question.<br><button class="btn primary" data-a="newcircle">Create a circle</button></div>'+joinBox();
+  var votedOnce=S.polls.some(function(p){return p.by!=='me'&&hasVoted(p,'me')});
+  if(LIVE&&GUEST&&votedOnce&&now()-(store.get('sway.keepLater.'+ME)||0)>3*DAY)
+    h+='<div class="keep"><div class="tx"><b>Keep your account</b><span>You’re voting as a guest. Add an email so you don’t lose your circles if you change phones.</span></div><div class="chips"><button class="btn primary sm" data-a="saveacct">Add email</button><button class="btn ghost sm" data-a="keeplater">Later</button></div></div>';
   h+=friendsStrip();
   if(a.length) h+=bigCard(a[0],0,a.length);
   else h+='<div class="empty"><b>Nothing waiting on you</b>Ask something of your own and see what your friends say.<br><button class="btn primary" data-a="tab" data-t="ask">Ask a question</button></div>';
@@ -736,7 +742,12 @@ function sendOnly(){
     ONLY.busy=false; if(ONLY.again){ ONLY.again=false; sendOnly() } });
 }
 function pNewPw(){return bar('New password')+'<form class="sec" data-f="newpw"><label class="label" for="npw">Choose a new password</label><input class="plain" id="npw" type="password" autocomplete="new-password" placeholder="8 or more characters"><p class="err" id="npwErr" hidden></p><button class="btn primary wide" type="submit">Save new password</button></form>'}
-function pSaveAcct(){return bar('Keep your account')+'<p class="hint" style="font-size:15px">Add an email and password so you can log in on any device and keep your circles.</p><form class="authf" data-f="saveacct"><label class="sr" for="se">Email</label><input class="plain" id="se" type="email" autocomplete="email" placeholder="Email"><label class="sr" for="sp">Password</label><input class="plain" id="sp" type="password" autocomplete="new-password" placeholder="Password (8 or more characters)"><p class="err" id="seErr" hidden></p><button class="btn primary wide" type="submit">Save</button></form>'}
+var AFTER=null;
+function pSaveAcct(){
+  var why=AFTER==='ask'?'Add an email to ask your first question. It keeps your questions and circles safe if you change phones or clear your browser.'
+    :AFTER==='newcircle'?'Add an email to create a circle. It keeps your circles safe if you change phones or clear your browser.'
+    :'Add an email and password so you can log in on any device and keep your circles.';
+  return bar(AFTER?'One quick step':'Keep your account')+'<p class="hint" style="font-size:15px">'+why+'</p><form class="authf" data-f="saveacct"><label class="sr" for="se">Email</label><input class="plain" id="se" type="email" autocomplete="email" placeholder="Email"><label class="sr" for="sp">Password</label><input class="plain" id="sp" type="password" autocomplete="new-password" placeholder="Password (8 or more characters)"><p class="err" id="seErr" hidden></p><button class="btn primary wide" type="submit">'+(AFTER==='ask'?'Save and ask':AFTER==='newcircle'?'Save and create a circle':'Save')+'</button></form><p class="hint">Your name, circles and votes stay as they are.</p>'}
 
 /* ---------- drawing ---------- */
 function draw(mode){
@@ -919,7 +930,7 @@ document.addEventListener('click',function(e){
   if(a==='activity') return go('activity');
   if(a==='act'){ var it=S.act.filter(function(x){return x.id===id})[0]; if(!it) return; it.unread=false; saveLocal(); var p0=poll(it.pid); if(!p0) return toast('That question is no longer available.'); if(isClosed(p0)&&involved(p0)&&!S.seen[p0.id]) { draw('stay'); return reveal(p0.id) } return go('q',it.pid) }
   if(a==='circle') return go('circle',id);
-  if(a==='newcircle') return go('newcircle');
+  if(a==='newcircle'){ if(LIVE&&GUEST){ AFTER='newcircle'; return go('saveacct') } return go('newcircle') }
   if(a==='toast') return toast(el.dataset.t);
   if(a==='invite'){ var c0=circleOrder()[0]; if(!c0) return go('newcircle'); return go('circle',c0.id) }
   if(a==='star') return toggleStar(id);
@@ -948,7 +959,8 @@ document.addEventListener('click',function(e){
   if(a==='savename') return saveName();
   if(a==='push') return pushOn()?disablePush():enablePush();
   if(a==='logout') return logout();
-  if(a==='saveacct') return go('saveacct');
+  if(a==='saveacct'){ AFTER=null; return go('saveacct') }
+  if(a==='keeplater'){ store.set('sway.keepLater.'+ME,now()); return draw('stay') }
   if(a==='notifyppl') return go('notifyppl');
   if(a==='mutec'){ var mi=S.muted.indexOf(id),mcn=circle(id); if(mi>=0) S.muted.splice(mi,1); else S.muted.push(id);
     if(mcn) toast(mi>=0?'You’ll hear about '+mcn.name+' again.':mcn.name+' is muted. Nudges still come through.'); return saveOnly() }
@@ -1235,7 +1247,12 @@ function logout(){
 function doNewPw(){ var pw=$('#npw').value,er=$('#npwErr'); if(pw.length<8){ er.textContent='Use at least 8 characters.'; er.hidden=false; return }
   sb.auth.updateUser({password:pw}).then(function(r){ if(r.error){ er.textContent=r.error.message||'That didn’t work.'; er.hidden=false; return } stack=[]; draw('back'); toast('Your password is changed.') }) }
 function doSaveAcct(){ var em=val('se'),pw=($('#sp')||{}).value||'',er=$('#seErr'); var bad=!/^\S+@\S+\.\S+$/.test(em)?'Enter a valid email address.':pw.length<8?'Use a password of at least 8 characters.':''; if(bad){ er.textContent=bad; er.hidden=false; return }
-  sb.auth.updateUser({email:em,password:pw}).then(function(r){ if(r.error){ er.textContent=r.error.message||'That didn’t work.'; er.hidden=false; return } GUEST=!!(r.data&&r.data.user&&r.data.user.is_anonymous); stack=[]; draw('back'); toast(GUEST?'Check your email to confirm it.':'Your account is saved.') }) }
+  sb.auth.updateUser({email:em,password:pw}).then(function(r){ if(r.error){ er.textContent=r.error.message||'That didn’t work.'; er.hidden=false; return } GUEST=!!(r.data&&r.data.user&&r.data.user.is_anonymous); var next=AFTER; AFTER=null;
+    if(GUEST){ stack=[]; draw('back'); return toast('Check your email to confirm it.') }
+    toast('Your account is saved.');
+    if(next==='ask'){ stack=[]; return setTab('ask') }
+    if(next==='newcircle'){ stack=[['newcircle']]; tab='circles'; return draw('nav') }
+    stack=[]; draw('back') }) }
 
 /* ---------- clocks: tick the countdowns, and notice when a question closes ---------- */
 function pad2(n){return (n<10?'0':'')+n}

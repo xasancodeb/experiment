@@ -6,12 +6,16 @@ self.addEventListener('activate', function (e) { e.waitUntil(self.clients.claim(
 self.addEventListener('push', function (e) {
   var d = {};
   try { d = e.data ? e.data.json() : {}; } catch (x) {}
+  // Quiet hours on this phone's own clock: between 10pm and 8am notifications arrive without
+  // sound or vibration (where the phone allows it).
+  var hr = new Date().getHours(), night = hr >= 22 || hr < 8;
   e.waitUntil(self.registration.showNotification(d.title || 'Sway', {
     body: d.body || '',
+    silent: night,
     icon: 'icon-192.png',
     badge: 'icon-192.png',
     tag: d.tag || undefined,
-    renotify: !!d.tag,
+    renotify: !!d.tag && !night,
     data: { url: d.url || './', q: d.tag || null }
   }));
 });

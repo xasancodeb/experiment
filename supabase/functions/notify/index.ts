@@ -1,7 +1,9 @@
 // Sway notification sender (Supabase Edge Function).
 // - A voter's browser calls it with {kind:"voted"} so the asker hears that a vote came in
 //   (who voted and how many are in, never what anyone picked).
-//   When the last vote is in, everyone hears it, and an early close announces the verdict.
+//   The asker hears the first vote at once, then at most a roundup every 30 minutes, then
+//   "Everyone has voted". An early close announces the verdict. Verdicts go to the asker and
+//   the people who voted, not to those who ignored the question.
 // - A signed-in asker calls it after asking, ending a question early,, nudging, locking in a plan, handing over a
 //   tiebreak or sharing what happened next.
 // - A once-a-minute database timer calls it with {kind:"tick"} to announce verdicts and
@@ -152,45 +154,50 @@ async function push(kind: string, users: string[], poll: Poll, title: string, bo
   return { sent: statuses.filter((x) => x >= 200 && x < 300).length, statuses };
 }
 
-// ---------- a friend just voted: tell the asker ----------
+// ---------- a friend just voted: tell the asker, softly ----------
+// The first vote is announced at once. After that, at most one roundup every 30 minutes
+// (sent by the timer if no new vote triggers it), then "Everyone has voted". When the
+// question ends itself once everyone has voted, the verdict 30 seconds later is the only ping.
+const ROUNDUP = 30 * 60e3;
+async function doneBy(poll: Poll) {
+  const rows: { user_id: string }[] = poll.type === "open"
+    ? await db(`comments?poll_id=eq.${poll.id}&select=user_id`)
+    : await db(`votes?poll_id=eq.${poll.id}&select=user_id`);
+  return [...new Set(rows.map((r) => r.user_id))].filter((u) => u !== poll.author);
+}
+const votesWord = (open: boolean, k: number) => open ? (k === 1 ? "reply" : "replies") : (k === 1 ? "vote" : "votes");
 async function voted(uid: string, poll: Poll) {
   if (poll.author === uid) return { skipped: "own question" };
   if (Date.parse(poll.closes_at) <= Date.now()) return { skipped: "closed" };
   const open = poll.type === "open";
-  const rows: { user_id: string }[] = open
-    ? await db(`comments?poll_id=eq.${poll.id}&select=user_id`)
-    : await db(`votes?poll_id=eq.${poll.id}&select=user_id`);
-  const done = [...new Set(rows.map((r) => r.user_id))].filter((u) => u !== poll.author);
+  const done = await doneBy(poll);
   if (!done.includes(uid)) return { error: "forbidden" };           // only someone who really voted can trigger it
   const a = await audience(poll);
   const total = a.users.filter((u) => u !== poll.author).length;
   const n = done.length, last = Number(poll.notified?.vote_n ?? 0);
   if (n <= last) return { skipped: "nothing new" };                  // changing a vote, or a repeat call, sends nothing
-  const fresh = n - last, all = n >= total;
+  const fresh = n - last, all = n >= total, first = last === 0;
+  const at = Date.parse(String(poll.notified?.vote_at ?? "")) || 0;
+  if (!all && !first && Date.now() - at < ROUNDUP) return { held: "roundup later" };
   let who = "Someone";
   if (!poll.hide_asker) { const pr = await db(`profiles?id=eq.${uid}&select=name`); who = String(pr[0]?.name ?? "A friend").split(" ")[0]; }
   const verb = open ? "replied" : "voted";
-  const title = all ? `Everyone has ${verb}` : fresh === 1 ? `${who} ${verb}` : `${who} and ${fresh - 1} other${fresh > 2 ? "s" : ""} ${verb}`;
+  const title = all ? `Everyone has ${verb}`
+    : first ? `${who} ${verb} · first ${votesWord(open, 1)} in`
+    : fresh === 1 ? `${who} ${verb}` : `${fresh} more ${votesWord(open, fresh)}`;
   const notified = { ...(poll.notified ?? {}), vote_n: n, vote_at: new Date().toISOString() };
   await db(`polls?id=eq.${poll.id}`, { method: "PATCH", body: JSON.stringify({ notified }) });
   poll.notified = notified;
+  if (all && poll.early && !open) { later(verdictWhenClosed(poll.id)); return { verdict: "scheduled" }; }
   const asker = await push("voted", [poll.author], poll, title, `${poll.q} · ${n} of ${total} in`, all ? undefined : by(poll, uid));
-  if (!all) return { asker };
-  // The last vote is in: everyone else hears it too.
-  const others = a.users.filter((u) => u !== poll.author);
-  const next = poll.early ? "The result is in 30 seconds" : open ? "Go read what everyone said" : "The result comes when it closes";
-  const rest = await push("allin", others, poll, `Everyone has ${verb}`, `${poll.q} · ${next}`, by(poll));
-  // A question set to end once everyone has voted closes about 30 seconds later: announce the verdict then.
-  if (poll.early) later(verdictWhenClosed(poll.id));
-  return { asker, rest, verdict: poll.early ? "scheduled" : "at close" };
+  return { asker };
 }
 
 // ---------- the verdict, sent the moment a question closes ----------
 async function announceVerdict(poll: Poll) {
   if (poll.notified?.verdict || Date.parse(poll.closes_at) > Date.now()) return { skipped: true };
   await mark(poll, "verdict");
-  const a = await audience(poll);
-  return push("verdict", a.users, poll, "The verdict is in", poll.q, by(poll));
+  return push("verdict", [poll.author, ...(await doneBy(poll))], poll, "The verdict is in", poll.q, by(poll));
 }
 async function verdictWhenClosed(id: string) {
   for (let i = 0; i < 3; i++) {
@@ -239,13 +246,24 @@ async function event(uid: string, b: { kind?: string; poll_id?: string; to?: str
 // ---------- once a minute: verdicts and last calls ----------
 async function tick() {
   const now = Date.now(), iso = (ms: number) => new Date(ms).toISOString();
-  const out = { verdicts: 0, soon: 0 };
+  const out = { verdicts: 0, soon: 0, roundups: 0 };
   const closed: Poll[] = await db(`polls?closes_at=lte.${iso(now)}&closes_at=gte.${iso(now - 3600e3)}&notified->>verdict=is.null&select=${POLL_COLS}&limit=50`);
   for (const p of closed) {
-    await mark(p, "verdict");
-    const a = await audience(p);
-    await push("verdict", a.users, p, "The verdict is in", p.q, by(p));
+    await announceVerdict(p);   // the asker and the people who voted; not those who ignored it
     out.verdicts++;
+  }
+  // Vote roundups for askers: new votes that came in since the last ping, at most every 30 minutes.
+  const pend: Poll[] = await db(`polls?closes_at=gt.${iso(now)}&notified->>vote_at=lt.${iso(now - ROUNDUP)}&select=${POLL_COLS}&limit=50`);
+  for (const p of pend) {
+    const done = await doneBy(p), last = Number(p.notified?.vote_n ?? 0);
+    if (done.length <= last) continue;
+    const a = await audience(p), total = a.users.filter((u) => u !== p.author).length, all = done.length >= total, open = p.type === "open";
+    if (all && p.early && !open) continue;
+    const notified = { ...(p.notified ?? {}), vote_n: done.length, vote_at: new Date().toISOString() };
+    await db(`polls?id=eq.${p.id}`, { method: "PATCH", body: JSON.stringify({ notified }) });
+    const k = done.length - last;
+    await push("voted", [p.author], p, all ? `Everyone has ${open ? "replied" : "voted"}` : `${k} more ${votesWord(open, k)}`, `${p.q} · ${done.length} of ${total} in`);
+    out.roundups++;
   }
   // Last call: closing within 15 minutes, and only for questions that ran longer than half an hour.
   const closing: Poll[] = await db(`polls?closes_at=gt.${iso(now)}&closes_at=lte.${iso(now + 15 * 60e3)}&created_at=lte.${iso(now - 30 * 60e3)}&notified->>soon=is.null&select=${POLL_COLS}&limit=50`);

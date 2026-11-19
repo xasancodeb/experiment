@@ -415,7 +415,7 @@ function demo(){
 /* ---------- navigation ---------- */
 var tab='vote',stack=[],draft=null,WHOWARN=false,ANONME={},PK={},BUSY=false,FOCUS=null,YT='me';
 function go(page,arg){stack.push([page,arg]);draw('nav')}
-function back(){stack.pop();draw('back')}
+function back(){stack.pop();CRENAME=null;draw('back')}
 function newDraft(){return {q:'',type:'Yes / No',o:['Yes','No'],ph:[],who:[],more:false,live:false,hide:false,anon:false,early:false,dl:'3h',allc:false}}
 function setTab(t){
   if(LIVE&&ME) liveSoon();
@@ -524,6 +524,9 @@ function pCircle(id){
   h+='<div class="label"><i style="background:#7C3AED"></i>People <span class="n">'+(c.members.length+1)+'</span></div><div class="box">'+['me'].concat(c.members).map(function(m){
     var owner=m==='me'?mine:c.owner===m;
     return '<div class="person">'+av(m)+'<b>'+esc(m==='me'?S.me.name+' (you)':person(m).n)+'</b>'+(mine&&m!=='me'?'<button class="linkbtn" data-a="kick" data-id="'+c.id+'" data-u="'+m+'">Remove</button>':'')+'<span class="pill">'+(owner?'Owner':'Member')+'</span></div>'}).join('')+'</div>';
+  if(mine&&CRENAME===c.id) h+='<form class="sec" data-f="crename" data-id="'+c.id+'"><div class="field"><label class="sr" for="crn">Circle name</label><input id="crn" maxlength="28" value="'+esc(c.name)+'" autocomplete="off"></div><div class="chips"><button class="btn primary sm" type="submit">Save name</button><button class="btn ghost sm" type="button" data-a="crenamecancel">Cancel</button></div></form>';
+  else if(mine) h+='<button class="btn ghost wide" data-a="crename" data-id="'+c.id+'">Rename circle</button>';
+  if(!mine) h+='<p class="hint">Only '+esc(person(c.owner).n)+', who made this circle, can rename it.</p>';
   h+='<button class="btn danger wide" data-a="leave" data-id="'+c.id+'">'+(mine?'Delete this circle':'Leave this circle')+'</button>';
   return h;
 }
@@ -550,7 +553,7 @@ function pYou(){
 }
 
 /* ---------- question page ---------- */
-var DELARM=null;
+var DELARM=null,CRENAME=null;
 function pQuestion(id){
   var p=poll(id); if(!p) return bar('Question')+'<div class="empty"><b>This question is gone</b>It was deleted, or you’re no longer in its circle.</div>';
   var mine=p.by==='me',closed=isClosed(p),t=tally(p),you=p.votes.me,vs=voters(p),g=grad(p.id),c0=solid(p.id),open=isOpen(p),tu=turn(p);
@@ -824,6 +827,8 @@ document.addEventListener('click',function(e){
     var kc=circle(id),ku=el.dataset.u; if(!kc) return; if(LIVE) save(sb.from('members').delete().eq('circle_id',id).eq('user_id',ku),[id]);
     kc.members=kc.members.filter(function(x){return x!==ku}); toast(first(ku)+' was removed.'); return draw('stay') }
   if(a==='leave') return leave(id);
+  if(a==='crename'){ CRENAME=id; FOCUS='#crn'; return draw('stay') }
+  if(a==='crenamecancel'){ CRENAME=null; return draw('stay') }
   if(a==='theme'){ THEME=el.dataset.t; store.set('sway.theme2',THEME); applyTheme(); return draw('stay') }
   if(a==='editname'){ NAMEEDIT=true; FOCUS='#nm'; return draw('stay') }
   if(a==='savename') return saveName();
@@ -869,6 +874,7 @@ document.addEventListener('submit',function(e){
     if(k==='reply'){ toast('Reply sent.'); return draw('nav') } return draw('stay') }
   if(k==='name') return saveName();
   if(k==='newcircle') return createCircle($('#cName').value.trim());
+  if(k==='crename') return renameCircle(f.dataset.id,$('#crn').value.trim());
   if(k==='join') return joinCode($('#joinCode').value.trim());
   if(k==='auth') return doAuth();
   if(k==='newpw') return doNewPw();
@@ -887,6 +893,13 @@ function createCircle(nm){
   if(!LIVE){ c.code='DEMO'+Math.floor(Math.random()*9000+1000); S.circles.push(c); stack=[['circle',c.id]]; tab='circles'; draw('nav'); return toast(nm+' is ready. Invite your friends.') }
   sb.from('circles').insert({id:c.id,name:nm,owner:ME}).then(function(r){ if(r.error) throw r.error; S.circles.push(c); stack=[['circle',c.id]]; tab='circles'; draw('nav'); toast(nm+' is ready. Invite your friends.'); return liveRefresh() })
     .catch(function(){ toast('That didn’t save. Check your connection and try again.') });
+}
+function renameCircle(cid,nm){
+  var c=circle(cid); if(!c) return;
+  if(!nm){ toast('Give the circle a name.'); FOCUS='#crn'; return draw('stay') }
+  CRENAME=null; if(nm===c.name) return draw('stay');
+  var old=c.name; c.name=nm; draw('stay'); toast('Renamed to '+nm+'.');
+  if(LIVE) save(sb.from('circles').update({name:nm}).eq('id',cid).select('id'),[cid]).then(function(r){ if(r&&!r.error&&(!r.data||!r.data.length)){ c.name=old; draw('stay'); toast('Only the owner can rename this circle.') } });
 }
 function joinCode(code){
   if(!code) return; if(!LIVE) return toast('Joining by code works on the live site.');

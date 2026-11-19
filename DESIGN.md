@@ -8,10 +8,12 @@ and the words "Sway" change; the mark, colours and type stay.
 
 **Idea:** your people weigh in, and you get your answer.
 
-**Mark:** a white speech bubble with a check, on the brand gradient (`brand/mark.svg`). The
-bubble is your friends talking; the check is the verdict. App icons are in the repo root
-(`icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `favicon.png`), and the 1024px App Store
-icon is `brand/app-store-icon-1024.png`. Don't add text to the icon or recolour the mark.
+**Mark:** "the circle": five friends in a ring around one lit-up choice, white on the brand
+gradient (`brand/mark.svg`). It says "a private circle deciding together", and doesn't look like
+a chat or to-do app. App icons are in the repo root (`icon-192.png`, `icon-512.png`,
+`apple-touch-icon.png`, `favicon.png`), and the 1024px App Store icon is
+`brand/app-store-icon-1024.png`. Don't add text to the icon or recolour the mark. The other
+options that were considered are in `brand/logo-options.png`.
 
 **Wordmark:** the name in lowercase, Plus Jakarta Sans ExtraBold (800), tight letter-spacing,
 next to the mark.
@@ -67,6 +69,12 @@ Exceptions: initials inside small avatars (10–11px) and the reveal percentage 
   button only.
 
 ## Layout and navigation
+
+- **Signed out:** a website. Navigation bar, hero with the sign-up form, phone previews,
+  how it works, examples, features, questions, a closing call to action, footer. Invite and
+  question links skip the website and show a focused screen, so a friend can vote fast.
+- **Signed in on a phone:** the app with the bottom tab bar. **On a computer (960px and up):** a
+  sidebar with the same five places and an "Ask a question" button; content up to 680px wide.
 
 - Five labelled tabs: Vote, Mine, Ask (centre, gradient), Circles, You. Every question,
   circle or form opens as its own page with a back arrow.

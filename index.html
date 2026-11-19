@@ -343,6 +343,78 @@ button{cursor:pointer;border:0;background:none;padding:0;text-align:left}
 body.kb .tabs{display:none}
 body.kb .page{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
 body.kb .toast{bottom:12px}
+/* ---- the website (signed out) ---- */
+body.site .app{max-width:none;box-shadow:none}
+.land.sitemode{padding:0;gap:0;scroll-behavior:smooth;display:block}
+.swrap{width:100%;max-width:1120px;margin:0 auto;padding:0 20px}
+.snav{position:sticky;top:0;z-index:5;background:var(--tabbar);-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);border-bottom:1px solid var(--line)}
+.navin{display:flex;align-items:center;gap:20px;min-height:64px;padding-top:env(safe-area-inset-top,0px)}
+.navin .brand{text-decoration:none;color:var(--ink)}.navin .grow{flex:1}
+.sl{color:var(--ink2);font-weight:700;text-decoration:none;font-size:16px}.sl:hover{color:var(--ink)}.sl.strong{color:var(--ink)}
+.shero{display:grid;gap:32px;padding:40px 0 32px}
+.eyebrow{display:inline-block;font-size:14px;font-weight:800;color:var(--accent-ink);background:var(--accent-soft);border-radius:999px;padding:6px 12px;margin-bottom:16px}
+.shero h1{font-size:clamp(36px,6.2vw,64px);line-height:1.02;font-weight:800;letter-spacing:-.045em}
+.shero h1 em{font-style:normal;background:var(--brand);-webkit-background-clip:text;background-clip:text;color:transparent}
+.shero .lede{color:var(--ink2);font-size:18px;font-weight:600;margin:16px 0 20px;max-width:540px}
+.sjoin{background:var(--surface);border-radius:32px;padding:24px;box-shadow:0 30px 60px -34px rgba(76,29,149,.55);display:flex;flex-direction:column;gap:12px;scroll-margin-top:96px}
+.sjoin h3{font-size:22px;font-weight:800}
+.sshow{overflow-x:auto;scrollbar-width:none;padding:16px 0 24px}.sshow::-webkit-scrollbar{display:none}
+.phones{display:flex;gap:24px;justify-content:center;min-width:max-content;padding:0 20px}
+.phone{width:264px;height:520px;border-radius:44px;background:#17132B;padding:10px;box-shadow:0 40px 70px -36px rgba(76,29,149,.6);flex:none}
+.pscreen{height:100%;border-radius:36px;background:var(--bg);overflow:hidden;padding:24px 12px 12px;display:flex;flex-direction:column;gap:12px}
+.pscreen .big{min-height:0;flex:1;padding:16px;gap:12px;animation:none;border-radius:28px}
+.pscreen .big h2{font-size:22px}.pscreen .big .ans button{min-height:48px;font-size:16px;pointer-events:none}
+.pscreen .big .who .av{width:40px;height:40px}
+.pscreen.reveal{color:#fff;align-items:center;justify-content:center;text-align:center;gap:12px}
+.pscreen.reveal small{font-weight:800;letter-spacing:.07em;font-size:12px;text-transform:uppercase;opacity:.92}
+.pscreen.reveal h2{font-size:28px;font-weight:800}.pscreen.reveal .bigp{font-weight:800;font-size:72px;line-height:1;letter-spacing:-.05em}
+.ptitle{font-size:28px;font-weight:800;padding:0 4px}
+.pscreen .ctile{padding:12%}.pscreen .ctile b{font-size:14px;overflow-wrap:normal}.pscreen .ctile span{font-size:12px}
+.pscreen .big .who .wt{font-size:12px}.pscreen .big .who .wt b{font-size:16px}
+.land a.btn{text-decoration:none}
+.ssec{padding:48px 0;scroll-margin-top:64px}
+.ssec h2,.scta h2{font-size:clamp(28px,4vw,36px);font-weight:800;line-height:1.1}
+.slede{color:var(--ink2);font-weight:600;font-size:18px;margin-top:8px}
+.sgrid3{display:grid;gap:16px;margin-top:24px}
+.scard{background:var(--surface);border-radius:24px;padding:24px;box-shadow:var(--lift);display:flex;flex-direction:column;gap:8px}
+.scard h3{font-size:18px;font-weight:800}.scard p{color:var(--ink2);font-weight:600;font-size:16px}
+.snum,.sicon{width:40px;height:40px;border-radius:12px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.sq{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.sq span{background:var(--surface);border-radius:999px;padding:12px 18px;font-weight:700;font-size:16px;box-shadow:var(--lift)}
+.sfaq{display:flex;flex-direction:column;gap:12px;margin-top:24px;max-width:760px}
+.sfaq details{background:var(--surface);border-radius:16px;padding:16px 20px;box-shadow:var(--lift)}
+.sfaq summary{font-weight:800;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.sfaq summary::after{content:"+";color:var(--accent);font-weight:800}.sfaq details[open] summary::after{content:"–"}
+.sfaq p{color:var(--ink2);font-weight:600;margin-top:8px}
+.scta{margin:24px 0 48px;border-radius:32px;padding:40px 24px;text-align:center;color:#fff;background:var(--brand);display:flex;flex-direction:column;align-items:center;gap:12px}
+.scta p{font-size:18px;font-weight:600;opacity:.95}.scta .btn{background:#fff;color:#17132B;margin-top:8px}
+.sfoot{display:flex;flex-wrap:wrap;gap:20px;padding:24px 0 calc(40px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);color:var(--ink2);font-weight:600;font-size:14px}
+.sfoot a{color:var(--ink2);font-weight:700}
+@media (max-width:719px){ .sl{display:none} .sl.strong{display:inline} }
+@media (min-width:900px){
+  .shero{grid-template-columns:1.1fr .9fr;align-items:center;padding:80px 0 48px;gap:56px}
+  .sgrid3{grid-template-columns:repeat(3,1fr)}
+}
+/* ---- the app on a computer: a sidebar instead of the bottom bar ---- */
+.tabbrand{display:none}
+@media (min-width:960px){
+  body:not(.site) .app{max-width:none;box-shadow:none}
+  body:not(.site) .page{padding:32px max(24px,calc((100vw - 1080px)/2 + 24px)) 48px calc(max(24px,(100vw - 1080px)/2) + 272px)}
+  body:not(.site) .page>*{max-width:680px;width:100%}
+  .tabs{position:fixed;left:max(24px,calc((100vw - 1080px)/2));top:24px;bottom:auto;right:auto;width:240px;display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:16px 12px;border-radius:28px}
+  body.kb .tabs{display:flex}
+  .tabbrand{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:800;letter-spacing:-.04em;padding:4px 8px 16px}
+  .tab{flex-direction:row;justify-content:flex-start;gap:12px;min-height:48px;padding:0 12px;font-size:16px;border-radius:16px}
+  .tab:hover{background:var(--sunk)}
+  .tab[aria-current="page"]{background:var(--accent-soft)}
+  .tab .badge{position:static;margin-left:auto;border:0}
+  .tab.ask{order:9;margin-top:8px;background:var(--brand);color:#fff;justify-content:center;min-height:52px;box-shadow:0 12px 24px -12px rgba(219,39,119,.7)}
+  .tab.ask:hover{background:var(--brand)}
+  .tab.ask span.plus{background:none;box-shadow:none;width:auto;height:auto}
+  .tab.ask::after{content:"Ask a question";font-weight:800;font-size:16px}
+  .toast{left:50%;right:auto;transform:translateX(-50%);width:440px;bottom:24px}
+  body.kb .toast{bottom:24px}
+}
 .toast{position:absolute;left:14px;right:14px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;align-items:center;gap:12px;background:#17132B;color:#fff;border-radius:16px;padding:12px 12px 12px 16px;font-weight:700;font-size:14px;animation:in .2s ease;box-shadow:0 12px 30px -12px rgba(0,0,0,.5)}
 .toast span{flex:1;min-width:0}
 .toast button{min-height:34px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.16);font-weight:800;font-size:14px;color:#fff}
@@ -359,7 +431,7 @@ body.kb .toast{bottom:12px}
 </style>
 
 <div class="app" id="app">
-  <div class="loading" id="boot"><div class="brand"><svg width="38" height="38" viewBox="0 0 96 96" aria-hidden="true"><defs><linearGradient id="swgboot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6D28D9"/><stop offset=".62" stop-color="#DB2777"/><stop offset="1" stop-color="#EA580C"/></linearGradient></defs><rect width="96" height="96" rx="28" fill="url(#swgboot)"/><path d="M38 22h20c10.5 0 19 8.5 19 19s-8.5 19-19 19H44l-11.5 10.2c-1.3 1.1-3.3.2-3.3-1.5V58.2C23 54.9 19 48.4 19 41c0-10.5 8.5-19 19-19z" fill="#fff"/><path d="M37 41.5l7.5 7.5L60 33.5" fill="none" stroke="#6D28D9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>sway</div></div>
+  <div class="loading" id="boot"><div class="brand"><svg width="38" height="38" viewBox="0 0 96 96" aria-hidden="true"><defs><linearGradient id="swgboot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6D28D9"/><stop offset=".62" stop-color="#DB2777"/><stop offset="1" stop-color="#EA580C"/></linearGradient></defs><rect width="96" height="96" rx="28" fill="url(#swgboot)"/><g fill="#fff" fill-opacity=".55"><circle cx="48" cy="22" r="7"/><circle cx="72.7" cy="40" r="7"/><circle cx="63.3" cy="69" r="7"/><circle cx="32.7" cy="69" r="7"/><circle cx="23.3" cy="40" r="7"/></g><circle cx="48" cy="48" r="11" fill="#fff"/></svg>sway</div></div>
   <div class="land" id="land" hidden></div>
   <div class="page" id="page" hidden></div>
   <nav class="tabs" id="tabs" aria-label="Main" hidden></nav>
@@ -398,7 +470,7 @@ var I={
   staro:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.8l-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></svg>',
   gift:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4.5" rx="1"/><path d="M5 12.5V20h14v-7.5M12 8v12M12 8c-1.5-3.5-5.5-4-5.5-1.5S10 8 12 8zm0 0c1.5-3.5 5.5-4 5.5-1.5S14 8 12 8z"/></svg>',
   img:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5L6 19.5"/></svg>',
-  logoT:'<svg width="34" height="34" viewBox="0 0 96 96" aria-hidden="true"><defs><linearGradient id="swg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6D28D9"/><stop offset=".62" stop-color="#DB2777"/><stop offset="1" stop-color="#EA580C"/></linearGradient></defs><rect width="96" height="96" rx="28" fill="url(#swg)"/><path d="M38 22h20c10.5 0 19 8.5 19 19s-8.5 19-19 19H44l-11.5 10.2c-1.3 1.1-3.3.2-3.3-1.5V58.2C23 54.9 19 48.4 19 41c0-10.5 8.5-19 19-19z" fill="#fff"/><path d="M37 41.5l7.5 7.5L60 33.5" fill="none" stroke="#6D28D9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  logoT:'<svg width="34" height="34" viewBox="0 0 96 96" aria-hidden="true"><defs><linearGradient id="swg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6D28D9"/><stop offset=".62" stop-color="#DB2777"/><stop offset="1" stop-color="#EA580C"/></linearGradient></defs><rect width="96" height="96" rx="28" fill="url(#swg)"/><g fill="#fff" fill-opacity=".55"><circle cx="48" cy="22" r="7"/><circle cx="72.7" cy="40" r="7"/><circle cx="63.3" cy="69" r="7"/><circle cx="32.7" cy="69" r="7"/><circle cx="23.3" cy="40" r="7"/></g><circle cx="48" cy="48" r="11" fill="#fff"/></svg>'
 };
 
 /* ---------- usage numbers and error reports, stored in our own database only ---------- */
@@ -998,7 +1070,7 @@ function draw(mode){
 function drawTabs(){
   var n=toVote().length+ready().length;
   var nv=0; S.polls.forEach(function(p){ nv+=newVotes(p) });
-  $('#tabs').innerHTML=[['vote','Vote',I.vote,n],['mine','Mine',I.mine,nv],['ask','Ask',I.plus,0],['circles','Circles',I.circles,0],['you','You',I.you,0]].map(function(t){
+  $('#tabs').innerHTML='<div class="tabbrand">'+logo(30)+'sway</div>'+[['vote','Vote',I.vote,n],['mine','Mine',I.mine,nv],['ask','Ask',I.plus,0],['circles','Circles',I.circles,0],['you','You',I.you,0]].map(function(t){
     if(t[0]==='ask') return '<button class="tab ask" data-a="tab" data-t="ask" aria-label="Ask a question"><span class="plus">'+t[2]+'</span></button>';
     return '<button class="tab" data-a="tab" data-t="'+t[0]+'"'+(tab===t[0]&&!(stack.length&&stack[0][0]==='ask')?' aria-current="page"':'')+'>'+t[2]+t[1]+(t[3]?'<span class="badge">'+t[3]+'</span>':'')+'</button>'}).join('');
   try{document.title=(n?'('+n+') ':'')+'Sway'}catch(e){}
@@ -1430,35 +1502,70 @@ function refreshPush(){ if(!PUSH_OK||!HAS4||!pushOn()) return; navigator.service
 
 /* ================= accounts and landing ================= */
 var AUTH={tab:'signup',err:'',msg:'',busy:false,invite:null,poll:null,pick:null},PENDING=null,PENDQ=null,ONLOAD=null;
+function authBlock(){
+  var h='';
+  if(!LIVE){ return '<form class="authf" data-f="auth"><label class="sr" for="auName">Your first name</label><input class="plain" id="auName" maxlength="24" autocomplete="given-name" placeholder="Your first name"><button class="btn primary wide" type="submit" style="min-height:56px">Try the demo</button></form><p class="hint">This is the demo: example friends, saved nowhere.</p>' }
+  var tabs=(AUTH.invite||AUTH.poll?[['guest','Just vote']]:[]).concat([['signup','Sign up'],['login','Log in']]);
+  h+='<div class="seg" role="tablist">'+tabs.map(function(t){return '<button type="button" role="tab" aria-selected="'+(AUTH.tab===t[0])+'" data-auth="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>';
+  h+='<form class="authf" data-f="auth">'+(AUTH.tab!=='login'?'<label class="sr" for="auName">Your first name</label><input class="plain" id="auName" maxlength="24" autocomplete="given-name" placeholder="Your first name">':'')+
+    (AUTH.tab!=='guest'?'<label class="sr" for="auEmail">Email</label><input class="plain" id="auEmail" type="email" autocomplete="email" placeholder="Email"><label class="sr" for="auPw">Password</label><input class="plain" id="auPw" type="password" autocomplete="'+(AUTH.tab==='signup'?'new-password':'current-password')+'" placeholder="Password'+(AUTH.tab==='signup'?' (8 or more characters)':'')+'">':'')+
+    (AUTH.err?'<p class="err" role="alert">'+esc(AUTH.err)+'</p>':'')+(AUTH.msg?'<p class="okmsg" role="status">'+esc(AUTH.msg)+'</p>':'')+
+    '<button class="btn primary wide" type="submit" style="min-height:56px"'+(AUTH.busy?' disabled':'')+'>'+(AUTH.busy?'One moment…':AUTH.tab==='guest'?(AUTH.pick!=null?'Send my vote':'Join and vote'):AUTH.tab==='signup'?'Create my account':'Log in')+'</button>'+
+    (AUTH.tab==='login'?'<button type="button" class="linkbtn" data-forgot="1" style="align-self:flex-start">Forgot your password?</button>':'')+'</form>';
+  h+='<p class="hint" style="text-align:center">By '+(AUTH.poll?'voting':'continuing')+' you agree to the <a href="terms/" style="color:var(--accent)">Terms</a> and <a href="privacy/" style="color:var(--accent)">Privacy Policy</a>.</p>';
+  return h;
+}
+function siteHtml(){
+  var mockCard='<div class="phone" aria-hidden="true"><div class="pscreen"><div class="big mock" style="background:linear-gradient(135deg,#6D28D9,#DB2777)"><div class="who"><span class="av" style="background:#FFD3C4">MC</span><span class="wt"><b>Maya needs you</b>Best friends</span></div>'+
+    '<span class="cd cdrow"><span class="rg" style="--p:.7"></span><b class="cdn">1:59:58</b> left to vote</span><h2>Should I text him back?</h2><div class="ans"><button tabindex="-1"><span class="k" style="background:#6D28D9">A</span>Yes, today</button><button tabindex="-1"><span class="k" style="background:#6D28D9">B</span>Make him wait</button></div>'+
+    '<div class="foot"><span class="faces"><span class="av" style="background:#D9D0FF">JR</span><span class="av" style="background:#FFE79E">PN</span></span><span style="margin-left:6px">3 of 5 voted</span></div></div></div></div>';
+  var mockReveal='<div class="phone" aria-hidden="true"><div class="pscreen reveal" style="background:linear-gradient(135deg,#047857,#0369A1)"><small>Should I take the job?</small><h2>Take it wins.</h2><span class="bigp">80%</span><span>4 of 5 friends said yes</span></div></div>';
+  var mockCircles='<div class="phone" aria-hidden="true"><div class="pscreen"><h3 class="ptitle">Circles</h3><div class="cgrid">'+
+    [['Best friends','6 people','linear-gradient(135deg,#6D28D9,#DB2777)'],['Family','4 people','linear-gradient(135deg,#C2410C,#DB2777)'],['Roommates','3 people','linear-gradient(135deg,#0369A1,#6D28D9)'],['Work crew','8 people','linear-gradient(135deg,#047857,#0369A1)']].map(function(c){return '<div class="ctile" style="background:'+c[2]+'"><b>'+c[0]+'</b><span>'+c[1]+'</span></div>'}).join('')+'</div></div></div>';
+  var feat=[[I.circles,'Private circles','Only the people you invite. No followers, no strangers, no public feed.'],[I.mask,'Anonymous when it matters','For the awkward ones: friends vote without anyone seeing who picked what.'],[I.img,'Photo questions','Which outfit, which flat, which haircut: up to 10 photos, one tap to vote.'],
+    [I.check,'A real verdict','Votes stay sealed until it closes, then everyone sees the result together.'],[I.bell,'Notifications that respect you','The first vote, the verdict, a gentle nudge. Quiet at night. Mute any circle.'],[I.lock,'Yours to delete','Your data stays in the app. Delete your account and everything goes.']];
+  var qs=['Should I text him back?','Which dress for Saturday?','Take the job or stay?','Where should we eat tonight?','Is this haircut a mistake?','Should I tell her the truth?','Which flat should I rent?','Am I overreacting?'];
+  var faq=[['Is it free?','Yes. Making circles, asking and voting are free.'],['Who sees my questions?','Only the members of the circles you choose for that question. Nothing is public.'],['Do my friends need to sign up?','No. They can vote from your link with just their first name, and add an email later to keep their account.'],['Can I ask anonymously?','You can make voting anonymous, so nobody sees who picked what. In bigger circles you can also hide that you asked.'],['Is there an app?','It works in your phone’s browser right now. Add it to your Home Screen to get notifications.']];
+  return '<div class="site">'+
+    '<nav class="snav"><div class="swrap navin"><a class="brand" href="#top">'+logo(32)+'sway</a><span class="grow"></span><a class="sl" href="#how">How it works</a><a class="sl" href="business/">For businesses</a>'+(LIVE?'<a class="sl strong" href="#join" data-auth-go="login">Log in</a>':'')+'<a class="btn primary sm" href="#join">'+(LIVE?'Get started':'Try the demo')+'</a></div></nav>'+
+    '<div class="swrap"><section class="shero" id="top"><div class="stext"><span class="eyebrow">For friends who overthink</span><h1>Ask your people <em>before</em> you decide.</h1>'+
+      '<p class="lede">Post the dilemma. Your closest friends vote in one tap. You get a verdict in minutes, not a group chat that goes nowhere.</p>'+
+      '<div class="trust"><span>Private circles only</span><span>No followers, no likes</span><span>Free</span></div></div>'+
+      '<div class="sjoin" id="join"><h3>'+(LIVE?'Start in 30 seconds':'Try it now')+'</h3>'+authBlock()+'</div></section></div>'+
+    '<section class="sshow"><div class="phones">'+mockCard+mockReveal+mockCircles+'</div></section>'+
+    '<div class="swrap"><section id="how" class="ssec"><h2>How it works</h2><p class="slede">Three steps, a few minutes, no endless group chat.</p><div class="sgrid3">'+
+      [['1','Ask your circle','The decision you’re stuck on, big or small. Add options or photos.'],['2','Friends vote in one tap','From a link, even without an account. Anonymously, if you want.'],['3','Get the verdict','Votes stay sealed until the end, then the result is revealed to everyone.']].map(function(x){return '<div class="scard"><span class="snum">'+x[0]+'</span><h3>'+x[1]+'</h3><p>'+x[2]+'</p></div>'}).join('')+'</div></section>'+
+    '<section class="ssec"><h2>Built for the decisions you actually make</h2><div class="sq">'+qs.map(function(q){return '<span>'+esc(q)+'</span>'}).join('')+'</div></section>'+
+    '<section class="ssec"><h2>Everything a friend’s opinion needs</h2><div class="sgrid3">'+feat.map(function(f){return '<div class="scard"><span class="sicon">'+f[0]+'</span><h3>'+f[1]+'</h3><p>'+f[2]+'</p></div>'}).join('')+'</div></section>'+
+    '<section class="ssec"><h2>Questions</h2><div class="sfaq">'+faq.map(function(f){return '<details><summary>'+f[0]+'</summary><p>'+f[1]+'</p></details>'}).join('')+'</div></section>'+
+    '<section class="scta"><h2>Stop overthinking alone.</h2><p>Make a circle, invite your people, ask your first question.</p><a class="btn" href="#join">'+(LIVE?'Get started, it’s free':'Try the demo')+'</a></section>'+
+    '<footer class="sfoot"><span>© sway</span><a href="privacy/">Privacy</a><a href="terms/">Terms</a><a href="business/">For businesses</a></footer></div></div>';
+}
 function landing(){
-  var land=$('#land'),h='<div class="brand">'+logo(34)+'sway</div>';
-  if(AUTH.poll){
-    var P=AUTH.poll,ms=Date.parse(P.closes_at)-now(),g=grad(PENDQ||'x');
-    h+='<div class="big" style="background:'+g+';min-height:0"><div class="who"><span class="av" style="background:#fff">'+esc((P.asker_name||'?').slice(0,2).toUpperCase())+'</span><span class="wt"><b>'+esc(P.asker_name)+' wants your vote</b>'+esc(P.circle_name)+' · '+left(ms)+'</span></div><h2>'+esc(P.question)+'</h2>'+
-      ((P.options||[]).length&&ms>0?'<div class="ans">'+P.options.map(function(o,i){return '<button data-pick="'+i+'" style="'+(AUTH.pick===i?'outline:3px solid #17132B;outline-offset:2px':'')+'"><span class="k" style="background:'+solid(PENDQ||'x')+'">'+LET[i]+'</span>'+esc(o)+(AUTH.pick===i?'<span style="margin-left:auto">'+I.check+'</span>':'')+'</button>'}).join('')+'</div>':'')+
-      '</div><p class="hint" style="font-size:16px">'+(ms<=0?'Voting has closed. Join to see the result.':AUTH.pick!=null?'Got it. Add your first name and your vote is in.':'Tap your answer, add your first name, done. No password needed.')+'</p>';
-  } else {
-    h+='<h1>Ask your people <em>before</em> you decide.</h1><p class="lede">Post the dilemma. Your closest friends vote in one tap. You get a verdict in minutes, not a group chat that goes nowhere.</p>';
-    if(AUTH.invite) h+='<div class="banner">'+I.circles+'<span><b>'+esc(AUTH.invite.owner_name)+'</b> invited you to <b>'+esc(AUTH.invite.name)+'</b>. Join to vote on their questions.</span></div>';
-  }
-  if(!LIVE){ h+='<form class="authf" data-f="auth"><label class="sr" for="auName">Your first name</label><input class="plain" id="auName" maxlength="24" autocomplete="given-name" placeholder="Your first name"><button class="btn primary wide" type="submit" style="min-height:56px">Try the demo</button></form><p class="hint">This is the demo: example friends, saved nowhere.</p>' }
+  var land=$('#land'),h,site=!AUTH.poll&&!AUTH.invite&&!(LIVE&&ISBIZ);
+  document.body.classList.toggle('site',site); land.classList.toggle('sitemode',site);
+  if(site){ h=siteHtml() }
   else {
-    var tabs=(AUTH.invite||AUTH.poll?[['guest','Just vote']]:[]).concat([['signup','Sign up'],['login','Log in']]);
-    h+='<div class="seg" role="tablist">'+tabs.map(function(t){return '<button type="button" role="tab" aria-selected="'+(AUTH.tab===t[0])+'" data-auth="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>';
-    h+='<form class="authf" data-f="auth">'+(AUTH.tab!=='login'?'<label class="sr" for="auName">Your first name</label><input class="plain" id="auName" maxlength="24" autocomplete="given-name" placeholder="Your first name">':'')+
-      (AUTH.tab!=='guest'?'<label class="sr" for="auEmail">Email</label><input class="plain" id="auEmail" type="email" autocomplete="email" placeholder="Email"><label class="sr" for="auPw">Password</label><input class="plain" id="auPw" type="password" autocomplete="'+(AUTH.tab==='signup'?'new-password':'current-password')+'" placeholder="Password'+(AUTH.tab==='signup'?' (8 or more characters)':'')+'">':'')+
-      (AUTH.err?'<p class="err" role="alert">'+esc(AUTH.err)+'</p>':'')+(AUTH.msg?'<p class="okmsg" role="status">'+esc(AUTH.msg)+'</p>':'')+
-      '<button class="btn primary wide" type="submit" style="min-height:56px"'+(AUTH.busy?' disabled':'')+'>'+(AUTH.busy?'One moment…':AUTH.tab==='guest'?(AUTH.pick!=null?'Send my vote':'Join and vote'):AUTH.tab==='signup'?'Create my account':'Log in')+'</button>'+
-      (AUTH.tab==='login'?'<button type="button" class="linkbtn" data-forgot="1" style="align-self:flex-start">Forgot your password?</button>':'')+'</form>';
+    h='<div class="brand">'+logo(34)+'sway</div>';
+    if(AUTH.poll){
+      var P=AUTH.poll,ms=Date.parse(P.closes_at)-now(),g=grad(PENDQ||'x');
+      h+='<div class="big" style="background:'+g+';min-height:0"><div class="who"><span class="av" style="background:#fff">'+esc((P.asker_name||'?').slice(0,2).toUpperCase())+'</span><span class="wt"><b>'+esc(P.asker_name)+' wants your vote</b>'+esc(P.circle_name)+' · '+left(ms)+'</span></div><h2>'+esc(P.question)+'</h2>'+
+        ((P.options||[]).length&&ms>0?'<div class="ans">'+P.options.map(function(o,i){return '<button data-pick="'+i+'" style="'+(AUTH.pick===i?'outline:3px solid #17132B;outline-offset:2px':'')+'"><span class="k" style="background:'+solid(PENDQ||'x')+'">'+LET[i]+'</span>'+esc(o)+(AUTH.pick===i?'<span style="margin-left:auto">'+I.check+'</span>':'')+'</button>'}).join('')+'</div>':'')+
+        '</div><p class="hint" style="font-size:16px">'+(ms<=0?'Voting has closed. Join to see the result.':AUTH.pick!=null?'Got it. Add your first name and your vote is in.':'Tap your answer, add your first name, done. No password needed.')+'</p>';
+    } else {
+      h+='<h1>Ask your people <em>before</em> you decide.</h1><p class="lede">Post the dilemma. Your closest friends vote in one tap. You get a verdict in minutes, not a group chat that goes nowhere.</p>';
+      if(AUTH.invite) h+='<div class="banner">'+I.circles+'<span><b>'+esc(AUTH.invite.owner_name)+'</b> invited you to <b>'+esc(AUTH.invite.name)+'</b>. Join to vote on their questions.</span></div>';
+    }
+    h+=authBlock()+'<div class="trust"><span>Private circles only</span><span>No followers, no likes</span><span>A feed that ends</span></div>';
+    if(LIVE) h+='<p class="hint" style="text-align:center">'+(ISBIZ?'Log in to manage your business. New here? <a href="business/#apply" style="color:var(--accent);font-weight:800">Apply for your place</a>':'Own a restaurant, cafe or shop? <a href="business/" style="color:var(--accent);font-weight:800">Sway for businesses</a>')+'</p>';
   }
-  if(LIVE&&!AUTH.poll) h+='<p class="hint" style="text-align:center">By continuing you agree to the <a href="terms/" style="color:var(--accent)">Terms</a> and <a href="privacy/" style="color:var(--accent)">Privacy Policy</a>.</p>';
-  if(LIVE&&AUTH.poll) h+='<p class="hint" style="text-align:center">By voting you agree to the <a href="terms/" style="color:var(--accent)">Terms</a> and <a href="privacy/" style="color:var(--accent)">Privacy Policy</a>.</p>';
-  h+='<div class="trust"><span>Private circles only</span><span>No followers, no likes</span><span>A feed that ends</span></div>';
-  if(LIVE) h+='<p class="hint" style="text-align:center">'+(ISBIZ?'Log in to manage your business. New here? <a href="business/#apply" style="color:var(--accent);font-weight:800">Apply for your place</a>':'Own a restaurant, cafe or shop? <a href="business/" style="color:var(--accent);font-weight:800">Sway for businesses</a>')+'</p>';
   var keep={}; land.querySelectorAll('input').forEach(function(i){keep[i.id]=i.value});
   land.innerHTML=h; land.querySelectorAll('input').forEach(function(i){ if(keep[i.id]!=null) i.value=keep[i.id] });
 }
 document.addEventListener('click',function(e){
+  var jg=e.target.closest('#land a[href="#join"]');
+  if(jg){ e.preventDefault(); if(jg.dataset.authGo&&AUTH.tab!==jg.dataset.authGo){ AUTH.tab=jg.dataset.authGo; AUTH.err=''; AUTH.msg=''; landing() }
+    var jn=$('#join'); if(jn) jn.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(function(){ var f=$('#auName')||$('#auEmail'); if(f) try{f.focus({preventScroll:true})}catch(x){} },450); return }
   var t=e.target.closest('[data-auth],[data-pick],[data-forgot]'); if(!t||!$('#land').contains(t)) return;
   if(t.dataset.auth){ AUTH.tab=t.dataset.auth; AUTH.err=''; AUTH.msg=''; return landing() }
   if(t.dataset.pick!=null){ AUTH.pick=+t.dataset.pick; AUTH.tab='guest'; buzz(); landing(); var n=$('#auName'); if(n) n.focus(); return }
@@ -1504,6 +1611,7 @@ function enter(user){
   }).then(liveRefresh,liveRefresh);
 }
 function enterApp(){
+  document.body.classList.remove('site'); $('#land').innerHTML=''; $('#land').classList.remove('sitemode');
   $('#boot').hidden=true; $('#land').hidden=true; $('#page').hidden=false; $('#tabs').hidden=false;
   tab='vote'; stack=[]; draw('nav');
   if(LIVE&&ISBIZ&&/[?&]business/.test(location.search)){ tab='you'; stack=GUEST?[]:[['biz']]; draw('nav'); if(!GUEST) setTimeout(loadBiz,600); try{ history.replaceState(null,'',location.pathname) }catch(e){} }

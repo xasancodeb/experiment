@@ -16,7 +16,7 @@ const sql = (q) => execSync('curl -sS -m 30 -X POST https://api.supabase.com/v1/
   const step = async (name, fn) => { try { await fn(); log.push('OK   ' + name); } catch (e) { log.push('FAIL ' + name + ' :: ' + String(e.message).split('\n')[0].slice(0, 220)); } };
   const P = await mk('Phone'), D = await mk('Desk', 1280, 900), U = await mk('User');
   await step('the app landing links to the business page', async () => {
-    await P.goto(base + 'index.html'); await P.waitForSelector('a[href="business/"]', { timeout: 20000 }); await P.click('a[href="business/"]'); await P.waitForSelector('#form:not([hidden])', { timeout: 20000 });
+    await P.goto(base + 'index.html'); await P.waitForSelector('.site', { timeout: 20000 }); await P.click('a[href="business/"]:visible >> nth=0'); await P.waitForSelector('#form:not([hidden])', { timeout: 20000 });
     await P.screenshot({ path: require('os').tmpdir() + '/bp-phone-top.png' }); });
   await step('desktop layout', async () => { await D.goto(base + 'business/'); await D.waitForSelector('#form:not([hidden])', { timeout: 20000 }); await D.screenshot({ path: require('os').tmpdir() + '/bp-desk.png', fullPage: true }); });
   await step('a new owner applies (new account)', async () => {

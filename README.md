@@ -16,6 +16,7 @@ post a dilemma to a circle of friends, they vote in one tap, and you get a verdi
 | `supabase/upgrade-5.sql` | Adds starred circles (up to 3 each) and voting anonymously on any question |
 | `supabase/upgrade-6.sql` | Lets the asker switch private votes off for a question (enforced by the database) |
 | `supabase/upgrade-7.sql` | Lets each person choose whose questions and votes notify them |
+| `supabase/upgrade-8.sql` | Lets each person mute circles they aren't interested in |
 | `supabase/functions/notify/` | The notification sender (a Supabase Edge Function, no libraries) |
 | `sw.js` | Shows notifications on a device and opens the question when one is tapped |
 | `manifest.json`, `icon-*.png`, `apple-touch-icon.png` | Lets people add Sway to their phone's home screen |
@@ -44,7 +45,8 @@ invite link can vote straight away as a guest and add an email later.
    Then run `supabase/upgrade-5.sql`. It adds starred circles and lets each voter choose to vote
    anonymously; a private vote is counted in the totals but its choice never leaves the database.
    Then run `supabase/upgrade-6.sql`, which lets the asker switch private votes off per question,
-   and `supabase/upgrade-7.sql`, which lets each person choose whose activity notifies them.
+   then `supabase/upgrade-7.sql` and `supabase/upgrade-8.sql`, which let each person choose whose
+   activity and which circles notify them.
 3. In the project's authentication settings, allow anonymous sign-ins (this is
    what lets invited friends vote as guests). For quick testing you can also
    turn off email confirmation.
@@ -64,8 +66,9 @@ asker and sends to the rest of the circle. A voter's browser tells it about a ne
 tells the asker (who voted and how many are in, never what anyone picked); the last vote
 tells everyone. A verdict goes out the moment a question is ended early. A once-a-minute
 timer announces verdicts for questions that reach their deadline and gives a last call
-15 minutes before a question closes. Anyone can choose to hear only from certain friends
-(You → Notifications); nudges and results of their own questions always come through.
+15 minutes before a question closes. Anyone can mute circles (on the circle's page) and choose
+to hear only from certain friends (You → Notifications); nudges and results of their own
+questions always come through.
 
 Set up, once per project:
 

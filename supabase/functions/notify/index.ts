@@ -111,16 +111,33 @@ async function mark(poll: Poll, flag: string) {
 // Whose action this is, for people who chose to hear only from certain friends. Undefined when
 // the asker is hidden: filtering by a hidden person would reveal who they are.
 const by = (p: Poll, u?: string) => (p.hide_asker ? undefined : (u ?? p.author));
-async function onlyChosen(users: string[], poll: Poll, from?: string) {
-  if (!from || !users.length) return users;
-  const prefs: { user_id: string; only_from: string[] }[] =
-    await db(`notify_prefs?user_id=in.(${users.join(",")})&only_from=not.is.null&select=user_id,only_from`).catch(() => []);
-  const only = new Map(prefs.map((p) => [p.user_id, p.only_from]));
-  // Your own question always reaches you; otherwise the person must be on your list.
-  return users.filter((u) => !only.has(u) || u === poll.author || u === from || only.get(u)!.includes(from));
+// Each person's choices: whose activity they hear about, and which circles they muted.
+// Your own question always reaches you.
+async function wanted(users: string[], poll: Poll, from?: string) {
+  if (!users.length) return users;
+  const prefs: { user_id: string; only_from: string[] | null; muted_circles: string[] | null }[] =
+    await db(`notify_prefs?user_id=in.(${users.join(",")})&select=user_id,only_from,muted_circles`).catch(() => []);
+  const only = new Map(prefs.filter((p) => p.only_from).map((p) => [p.user_id, p.only_from!]));
+  const muted = new Map(prefs.filter((p) => p.muted_circles?.length).map((p) => [p.user_id, p.muted_circles!]));
+  // Which of this question's circles each muting person belongs to: muted only if all of them are muted.
+  let inCircles = new Map<string, string[]>();
+  if (muted.size) {
+    const pcs: { circle_id: string }[] = await db(`poll_circles?poll_id=eq.${poll.id}&select=circle_id`);
+    const ids = pcs.map((x) => x.circle_id);
+    const ms: { circle_id: string; user_id: string }[] = ids.length
+      ? await db(`members?circle_id=in.(${ids.join(",")})&user_id=in.(${[...muted.keys()].join(",")})&select=circle_id,user_id`) : [];
+    for (const m of ms) inCircles.set(m.user_id, [...(inCircles.get(m.user_id) ?? []), m.circle_id]);
+  }
+  return users.filter((u) => {
+    if (u === poll.author) return true;
+    if (from && only.has(u) && u !== from && !only.get(u)!.includes(from)) return false;
+    const mine = inCircles.get(u), mu = muted.get(u);
+    if (mu && mine && mine.length && mine.every((c) => mu.includes(c))) return false;
+    return true;
+  });
 }
-async function push(kind: string, users: string[], poll: Poll, title: string, body: string, from?: string) {
-  users = await onlyChosen(users, poll, from);
+async function push(kind: string, users: string[], poll: Poll, title: string, body: string, from?: string, direct = false) {
+  if (!direct) users = await wanted(users, poll, from);   // nudges and tiebreaks are personal: always delivered
   if (!users.length) return { sent: 0, statuses: [] as number[] };
   const subs: Sub[] = await db(`push_subs?user_id=in.(${users.join(",")})&select=endpoint,p256dh,auth,user_id`);
   const statuses: number[] = [];
@@ -204,10 +221,10 @@ async function event(uid: string, b: { kind?: string; poll_id?: string; to?: str
       return push("asked", others, poll, `${a.asker} asked ${a.circle}`, poll.q, by(poll));
     case "nudge":
       if (poll.hide_asker) return { error: "forbidden" };
-      return push("nudge", one, poll, `${a.asker} is waiting on you`, poll.q);
+      return push("nudge", one, poll, `${a.asker} is waiting on you`, poll.q, undefined, true);
     case "tiebreak":
       if (!b.to || b.to !== poll.tb_user) return { error: "forbidden" };
-      return push("tiebreak", one, poll, `${a.asker} gave you the deciding vote`, poll.q);
+      return push("tiebreak", one, poll, `${a.asker} gave you the deciding vote`, poll.q, undefined, true);
     case "plan":
       if (!poll.plan?.when) return { error: "no plan" };
       return push("plan", others, poll, `Plan locked in: ${poll.plan.when}`, `${poll.q} · are you in?`, by(poll));

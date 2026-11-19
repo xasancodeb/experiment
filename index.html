@@ -366,7 +366,7 @@ function solid(id){return GR[hash(id)%GR.length][0]}
 
 /* ---------- state ---------- */
 var S=null,ME=null,GUEST=false;
-function blank(){return {me:null,friends:{},circles:[],polls:[],act:[],seen:{},seenV:{},only:null,loaded:false}}
+function blank(){return {me:null,friends:{},circles:[],polls:[],act:[],seen:{},seenV:{},only:null,muted:[],loaded:false}}
 function person(id){ if(id==='me') return {n:(S.me&&S.me.name)||'You',c:'#E4E0F2'}; if(id==='anon') return {n:'Someone',c:'#E7E3F1'}; return S.friends[id]||{n:'A friend',c:'#E7DFD3'} }
 function name(id){return id==='me'?'You':person(id).n}
 function first(id){return id==='me'?'You':String(person(id).n).split(' ')[0]}
@@ -540,7 +540,7 @@ function pCircles(){
   var ks=circleOrder();
   return bar('Circles')+(ks.length?'<p class="hint" style="margin-top:-6px">Star up to '+MAXSTAR+' circles you ask most. They show first when you ask, but are never chosen for you.</p>':'')+
     '<div class="cgrid">'+ks.map(function(c){
-      return '<div class="cwrap"><button class="ctile" style="background:'+grad(c.id+'x')+'" data-a="circle" data-id="'+c.id+'"><b>'+esc(c.name)+'</b><span>'+(c.members.length+1)+(c.members.length?' people':' person')+'</span></button>'+
+      return '<div class="cwrap"><button class="ctile" style="background:'+grad(c.id+'x')+'" data-a="circle" data-id="'+c.id+'"><b>'+esc(c.name)+'</b><span>'+(c.members.length+1)+(c.members.length?' people':' person')+(S.muted.indexOf(c.id)>=0?' · muted':'')+'</span></button>'+
         '<button class="starbtn" data-a="star" data-id="'+c.id+'" aria-pressed="'+!!c.star+'" aria-label="'+(c.star?'Unstar ':'Star ')+esc(c.name)+'">'+(c.star?I.star:I.staro)+'</button></div>'}).join('')+
     '<button class="ctile new" data-a="newcircle"><b style="font-size:16px">+ New circle</b></button></div>'+joinBox();
 }
@@ -550,6 +550,8 @@ function pCircle(id){
   var mine=c.owner==='me',h=bar(c.name);
   h+='<button class="btn ghost wide" data-a="star" data-id="'+c.id+'" aria-pressed="'+!!c.star+'"><span style="color:#F59E0B;display:inline-flex">'+(c.star?I.star:I.staro)+'</span>'+(c.star?'Starred · shows first when you ask':'Star this circle')+'</button>';
   h+='<button class="btn primary wide" data-a="askcircle" data-id="'+c.id+'">Ask this circle</button>';
+  if(!LIVE||HAS4){ var non=S.muted.indexOf(c.id)<0;
+    h+='<div class="box"><div class="tog"><div class="tx"><b>Notify me about this circle</b><span>'+(non?'New questions, votes and results':'Muted · nudges still come through')+'</span></div><button class="sw" role="switch" aria-label="Notify me about this circle" aria-checked="'+non+'" data-a="mutec" data-id="'+c.id+'"></button></div></div>' }
   if(c.code) h+='<div class="label"><i style="background:#EC4899"></i>Invite friends</div><div class="invite"><code>'+esc(inviteLink(c))+'</code><button class="btn sm" data-a="copy" data-text="'+esc(inviteLink(c))+'">Copy</button></div>'+
     (navigator.share?'<button class="btn ghost wide" data-a="share" data-text="'+esc(inviteLink(c))+'" data-msg="'+esc(S.me.name+' invited you to '+c.name+' on Sway.')+'">Send the link in a chat</button>':'')+
     '<p class="hint">Anyone with this link can join '+esc(c.name)+' and vote. They can start as a guest, no password needed.</p>';
@@ -578,8 +580,8 @@ function pYou(){
   h+='<div class="tog"><div class="tx"><b>Appearance</b><span>'+(THEME==='auto'?'Follows your device':THEME==='dark'?'Always dark':'Always light')+'</span></div></div><div class="seg" role="tablist" aria-label="Appearance" style="margin-bottom:10px">'+[['auto','Auto'],['light','Light'],['dark','Dark']].map(function(t){return '<button role="tab" aria-selected="'+(THEME===t[0])+'" data-a="theme" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>';
   if(LIVE&&HAS4&&PUSH_OK) h+='<div class="tog"><div class="tx"><b>Notifications on this device</b><span>'+(pushDenied()?'Blocked in your browser’s settings for this site':'When a friend asks, nudges you, or a result is in')+'</span></div><button class="sw" role="switch" aria-label="Notifications on this device" aria-checked="'+pushOn()+'" data-a="push"'+(pushDenied()?' disabled':'')+'></button></div>';
   else if(LIVE&&HAS4&&IOS&&!STANDALONE) h+='<div class="tog"><div class="tx"><b>Notifications on iPhone</b><span>Add Sway to your Home Screen first: tap Share, then “Add to Home Screen”. Open it from there and switch notifications on here.</span></div></div>';
-  if(!LIVE||HAS4){ var oc=S.only?S.only.filter(function(u){return S.friends[u]}).length:0;
-    h+='<button class="tog" data-a="notifyppl" style="width:100%"><span class="tx"><b>Whose questions and votes notify you</b><span>'+(S.only?(oc?oc+(oc===1?' person you chose':' people you chose'):'Nobody yet: choose people'):'Everyone in your circles')+'</span></span><span class="linkbtn">Change</span></button>' }
+  if(!LIVE||HAS4){ var oc=S.only?S.only.filter(function(u){return S.friends[u]}).length:0,mc=S.circles.filter(function(c){return S.muted.indexOf(c.id)>=0}).length;
+    h+='<button class="tog" data-a="notifyppl" style="width:100%"><span class="tx"><b>What notifies you</b><span>'+(mc?(S.circles.length-mc)+' of '+S.circles.length+' circles':'All circles')+' · '+(S.only?(oc===1?'1 person':oc+' people'):'everyone')+'</span></span><span class="linkbtn">Change</span></button>' }
   if(LIVE&&GUEST) h+='<div class="tog"><div class="tx"><b>Keep your account</b><span>Add an email so you can log in on any device</span></div><button class="btn sm" data-a="saveacct">Add email</button></div>';
   if(LIVE) h+='<div class="tog"><div class="tx"><b>Log out</b><span>'+(GUEST?'A guest account can’t be recovered after logging out':'You can log back in with your email')+'</span></div><button class="btn ghost sm" data-a="logout">Log out</button></div>';
   else h+='<div class="tog"><div class="tx"><b>Demo</b><span>Example friends and questions, saved nowhere</span></div><button class="btn ghost sm" data-a="resetdemo">Start over</button></div>';
@@ -697,13 +699,16 @@ function pActivity(){
 }
 function pNotifyPpl(){
   var some=!!S.only,ids=Object.keys(S.friends).sort(function(a,b){return name(a).localeCompare(name(b))});
-  var h=bar('Notifications')+'<p class="hint" style="font-size:15px;margin-top:-4px">Choose whose new questions, votes and results send a notification to this phone.</p>'+
-    '<div class="seg" role="tablist" aria-label="Who notifies you"><button role="tab" aria-selected="'+!some+'" data-a="onlymode" data-t="all">Everyone</button><button role="tab" aria-selected="'+some+'" data-a="onlymode" data-t="some">People I choose</button></div>';
-  if(!some) return h+'<p class="privacy">'+I.bell+'<span>You hear about everyone in your circles. Pick “People I choose” to hear only from certain friends.</span></p>';
+  var h=bar('Notifications')+'<p class="hint" style="font-size:15px;margin-top:-4px">Pick the circles and people you want to hear about: new questions, votes and results.</p>';
+  if(S.circles.length) h+='<div class="label"><i style="background:#7C3AED"></i>Circles <span class="n">'+S.circles.filter(function(c){return S.muted.indexOf(c.id)<0}).length+' of '+S.circles.length+' on</span></div><div class="box">'+circleOrder().map(function(c){var on=S.muted.indexOf(c.id)<0;
+      return '<div class="person"><span class="tile" style="width:38px;height:38px;border-radius:50%;background:'+grad(c.id+'x')+'" aria-hidden="true"></span><b>'+esc(c.name)+'</b><button class="sw" role="switch" aria-label="Notifications from '+esc(c.name)+'" aria-checked="'+on+'" data-a="mutec" data-id="'+c.id+'"></button></div>'}).join('')+'</div>';
+  h+='<div class="label"><i style="background:#EC4899"></i>People</div><div class="seg" role="tablist" aria-label="Who notifies you"><button role="tab" aria-selected="'+!some+'" data-a="onlymode" data-t="all">Everyone</button><button role="tab" aria-selected="'+some+'" data-a="onlymode" data-t="some">People I choose</button></div>';
+  var always='<p class="privacy">'+I.lock+'<span>Nudges, and results of your own questions, always come through. Questions asked anonymously aren’t filtered by person, so nobody can work out who asked.</span></p>';
+  if(!some) return h+'<p class="hint">You hear about everyone in the circles that are on. Pick “People I choose” to hear only from certain friends.</p>'+always;
   if(!ids.length) return h+'<div class="empty"><b>No friends yet</b>Invite people to a circle first.</div>';
-  h+='<div class="label"><i style="background:#EC4899"></i>Notify me about <span class="n">'+S.only.filter(function(u){return S.friends[u]}).length+' of '+ids.length+'</span></div><div class="box">'+ids.map(function(u){var on=S.only.indexOf(u)>=0;
+  h+='<div class="sublabel">Notify me about <span class="n">'+S.only.filter(function(u){return S.friends[u]}).length+' of '+ids.length+'</span></div><div class="box">'+ids.map(function(u){var on=S.only.indexOf(u)>=0;
     return '<div class="person">'+av(u)+'<b>'+esc(person(u).n)+'</b><button class="sw" role="switch" aria-label="Notifications from '+esc(person(u).n)+'" aria-checked="'+on+'" data-a="onlyp" data-u="'+u+'"></button></div>'}).join('')+'</div>';
-  return h+'<p class="privacy">'+I.lock+'<span>Nudges, and results of your own questions, always come through. Questions asked anonymously always notify you, so nobody can work out who asked.</span></p>';
+  return h+always;
 }
 /* quick taps send one save, always the latest choice, never two racing each other */
 var ONLY={t:null,busy:false,again:false};
@@ -713,7 +718,7 @@ function saveOnly(){
 }
 function sendOnly(){
   ONLY.t=null; if(ONLY.busy){ ONLY.again=true; return } ONLY.busy=true;
-  save(sb.from('notify_prefs').upsert({user_id:ME,only_from:S.only&&S.only.slice(),updated_at:new Date().toISOString()})).then(function(){
+  save(sb.from('notify_prefs').upsert({user_id:ME,only_from:S.only&&S.only.slice(),muted_circles:S.muted.slice(),updated_at:new Date().toISOString()})).then(function(){
     ONLY.busy=false; if(ONLY.again){ ONLY.again=false; sendOnly() } });
 }
 function pNewPw(){return bar('New password')+'<form class="sec" data-f="newpw"><label class="label" for="npw">Choose a new password</label><input class="plain" id="npw" type="password" autocomplete="new-password" placeholder="8 or more characters"><p class="err" id="npwErr" hidden></p><button class="btn primary wide" type="submit">Save new password</button></form>'}
@@ -931,6 +936,8 @@ document.addEventListener('click',function(e){
   if(a==='logout') return logout();
   if(a==='saveacct') return go('saveacct');
   if(a==='notifyppl') return go('notifyppl');
+  if(a==='mutec'){ var mi=S.muted.indexOf(id),mcn=circle(id); if(mi>=0) S.muted.splice(mi,1); else S.muted.push(id);
+    if(mcn) toast(mi>=0?'You’ll hear about '+mcn.name+' again.':mcn.name+' is muted. Nudges still come through.'); return saveOnly() }
   if(a==='onlymode'){ var want=el.dataset.t==='some'; if(want===!!S.only) return; S.only=want?[]:null; return saveOnly() }
   if(a==='onlyp'){ var u0=el.dataset.u; if(!S.only) S.only=[]; var ix0=S.only.indexOf(u0); if(ix0>=0) S.only.splice(ix0,1); else S.only.push(u0); return saveOnly() }
   if(a==='resetdemo'){ S=demo(); stack=[]; tab='vote'; ANONME={}; return draw('nav') }
@@ -1044,7 +1051,7 @@ function liveRefresh(){
     cids=Object.keys(cmap); ids[who]=1;
     return Promise.all([sb.from('profiles').select('id,name,color').in('id',Object.keys(ids)),
       cids.length?(NOMY?sb.from('poll_circles').select('circle_id,polls(*)').in('circle_id',cids):sb.rpc('my_polls')):{data:[]},
-      soft(sb.from('circle_stars').select('circle_id')),soft(sb.from('notify_prefs').select('only_from').eq('user_id',who))]);
+      soft(sb.from('circle_stars').select('circle_id')),soft(sb.from('notify_prefs').select('only_from,muted_circles').eq('user_id',who))]);
   }).then(function(rs){
     must(rs[0]).forEach(function(p){ if(p.id===who) myName=p.name; else friends[p.id]={n:p.name||'A friend',c:p.color||PAL[hash(p.id)%PAL.length]} });
     if(rs[1].error&&!NOMY){ NOMY=true; throw new Error('retry') }
@@ -1052,7 +1059,7 @@ function liveRefresh(){
     if(d.length&&d[0].poll) d.forEach(function(x){ var cs=(x.circles||[]).filter(function(c){return cmap[c]}); if(x.poll&&cs.length){ pm[x.poll.id]={row:x.poll,circles:cs}; rows.push(pm[x.poll.id]) } });
     else d.forEach(function(x){ if(!x.polls) return; var p=pm[x.polls.id]; if(!p){ p=pm[x.polls.id]={row:x.polls,circles:[]}; rows.push(p) } p.circles.push(x.circle_id) });
     if(!rs[2].error){ STARS=true; must(rs[2]).forEach(function(s){stars[s.circle_id]=1}) }
-    var np=(rs[3]&&rs[3].data)||[]; if(!(stack.length&&stack[stack.length-1][0]==='notifyppl')&&!ONLY.busy&&!ONLY.t) S.only=np.length?np[0].only_from:null;
+    var np=(rs[3]&&rs[3].data)||[]; if(!(stack.length&&stack[stack.length-1][0]==='notifyppl')&&!ONLY.busy&&!ONLY.t){ S.only=np.length?np[0].only_from:null; S.muted=(np.length&&np[0].muted_circles)||[] }
     var pids=rows.map(function(p){return p.row.id});
     return Promise.all([pids.length?sb.rpc('poll_states',{ids:pids}):{data:[]},pids.length?sb.from('comments').select('poll_id,user_id,body,created_at').in('poll_id',pids).order('created_at'):{data:[]},
       NUDGES?soft(sb.from('nudges').select('poll_id,to_user,from_user')):{data:[]}]);

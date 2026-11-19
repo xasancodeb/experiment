@@ -98,6 +98,19 @@ button{cursor:pointer;border:0;background:none;padding:0;text-align:left}
 .big .reply{display:flex;gap:8px}
 .big .reply input{flex:1;min-width:0;height:54px;border-radius:18px;border:0;padding:0 16px;background:#fff;color:#17132B;font-weight:600}
 .big .reply button{height:54px;padding:0 18px;border-radius:18px;background:#17132B;color:#fff;font-weight:800}
+.cd{display:inline-flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cd .rg{width:20px;height:20px;border-radius:50%;flex:none;background:conic-gradient(currentColor calc(var(--p,1)*360deg),rgba(255,255,255,.3) 0);
+  -webkit-mask:radial-gradient(circle,transparent 5.5px,#000 6px);mask:radial-gradient(circle,transparent 5.5px,#000 6px)}
+.cdrow{align-self:flex-start;background:rgba(255,255,255,.22);border-radius:99px;padding:6px 14px 6px 8px;font-size:14px;font-weight:700}
+.cdrow b{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.cd.hot.cdrow,.qhero .cd.hot{background:#fff;color:#E11D48;animation:tickp 1s ease-in-out infinite}
+.cd.hot .rg{background:conic-gradient(#E11D48 calc(var(--p,1)*360deg),rgba(225,29,72,.18) 0)}
+@keyframes tickp{50%{transform:scale(1.04)}}
+.qhero .cd{background:rgba(255,255,255,.22);border-radius:99px;padding:5px 11px 5px 6px;font-size:13px;font-weight:800}
+.qhero .cd .rg{width:18px;height:18px}
+.pill.cdt.hot{background:var(--hot-soft);color:var(--hot)}
+.mcard .top .cdt.hot{background:#fff;color:#E11D48;border-radius:99px;padding:1px 8px}
+.cdt .cdn{font-weight:inherit;font-variant-numeric:tabular-nums}
 .mask{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:rgba(255,255,255,.22);border-radius:99px;padding:6px 11px;font-size:12px;font-weight:800}
 .anonv{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;min-height:40px;padding:0 14px;border-radius:99px;font-weight:800;font-size:13.5px}
 .big .anonv{background:rgba(255,255,255,.2);color:#fff}
@@ -460,8 +473,9 @@ function bar(title){
   return '<div class="bar"><h1>'+esc(title)+'</h1>'+bell()+'</div>';
 }
 function bell(){return '<button class="ib" data-a="activity" aria-label="Activity">'+I.bell+(S.act.some(function(a){return a.unread})?'<span class="dot"></span>':'')+'</button>'}
+function cdSpan(p,cls){ return '<span class="cd '+(cls||'')+'" data-cd="'+p.closes+'" data-start="'+(p.created||p.closes-3*HR)+'">'+(cls&&cls.indexOf('cdrow')>=0||cls&&cls.indexOf('ring')>=0?'<span class="rg" aria-hidden="true"></span>':'')+'<b class="cdn"></b>'+(cls&&cls.indexOf('cdrow')>=0?' left to vote':'')+'</span>' }
 function row(p,sub,pill,cls){
-  return '<button class="row" data-a="q" data-id="'+p.id+'"><span class="tile" style="background:'+grad(p.id)+'" aria-hidden="true">'+esc(initials(p.by))+'</span><span class="tx"><b>'+esc(p.q)+'</b><span>'+esc(sub)+'</span></span>'+(pill?'<span class="pill '+(cls||'')+'"'+(cls==='hot'?' data-closes="'+p.closes+'"':'')+'>'+esc(pill)+'</span>':'')+'</button>';
+  return '<button class="row" data-a="q" data-id="'+p.id+'"><span class="tile" style="background:'+grad(p.id)+'" aria-hidden="true">'+esc(initials(p.by))+'</span><span class="tx"><b>'+esc(p.q)+'</b><span>'+esc(sub)+'</span></span>'+(pill==='CLOCK'?'<span class="pill cdt" data-cd="'+p.closes+'" data-suffix=" left"><b class="cdn"></b></span>':pill?'<span class="pill '+(cls||'')+'"'+(cls==='hot'?' data-closes="'+p.closes+'"':'')+'>'+esc(pill)+'</span>':'')+'</button>';
 }
 function section(label,dot,items){return items.length?'<div class="label"><i style="background:'+dot+'"></i>'+label+' <span class="n">'+items.length+'</span></div><div class="stack">'+items.join('')+'</div>':''}
 
@@ -493,7 +507,7 @@ function bigCard(p,i,n){
   var body=isOpen(p)?'<form class="reply" data-f="reply" data-id="'+p.id+'"><label class="sr" for="rp'+p.id+'">Your reply</label><input id="rp'+p.id+'" maxlength="200" autocomplete="off" placeholder="Write your answer"><button type="submit">Send</button></form>'
     :p.type==='photo'?photoGrid(p):'<div class="ans">'+p.opts.map(function(o,k){return '<button data-a="vote" data-id="'+p.id+'" data-i="'+k+'"><span class="k" style="background:'+c0+'">'+LET[k]+'</span>'+esc(o.t)+'</button>'}).join('')+'</div>';
   return '<article class="big" style="background:'+grad(p.id)+'" aria-label="Question from '+esc(who)+'">'+
-    '<div class="who">'+av(p.by)+'<span class="wt"><b>'+esc(who)+' needs you</b>'+esc(cname(p))+' · <span data-closes="'+p.closes+'">'+left(p.closes-now())+'</span></span><span class="count">'+(i+1)+' of '+n+'</span></div>'+
+    '<div class="who">'+av(p.by)+'<span class="wt"><b>'+esc(who)+' needs you</b>'+esc(cname(p))+'</span><span class="count">'+(i+1)+' of '+n+'</span></div>'+cdSpan(p,'cdrow')+
     (p.anon?'<span class="mask">'+I.mask+' Anonymous: nobody sees your answer</span>':'')+
     '<h2>'+esc(p.q)+'</h2>'+(p.note?'<p class="note">'+esc(p.note)+'</p>':'')+body+anonToggle(p)+
     '<div class="foot"><span class="faces">'+(p.anon||p.hideAsker?'':done.slice(0,4).map(function(v){return av(v)}).join(''))+'</span><span style="margin-left:'+(p.anon||p.hideAsker||!done.length?0:6)+'px">'+tu.n+' of '+tu.total+(isOpen(p)?' replied':' voted')+'</span><button class="go" data-a="q" data-id="'+p.id+'">Comments · '+p.comments.length+'</button></div>'+
@@ -510,7 +524,7 @@ function pVote(){
   else h+='<div class="empty"><b>Nothing waiting on you</b>Ask something of your own and see what your friends say.<br><button class="btn primary" data-a="tab" data-t="ask">Ask a question</button></div>';
   if(r.length) h+='<div class="label"><i style="background:#7C3AED"></i>Results are in <span class="n">'+r.length+'</span></div><div class="carousel">'+r.map(function(p){
       return '<button class="rcard" style="background:'+grad(p.id)+'" data-a="reveal" data-id="'+p.id+'"><small>'+(p.by==='me'?'Your question':esc(first(p.by))+' asked')+'</small><b>'+esc(p.q)+'</b><span class="seal">'+I.lock+' Tap to reveal</span></button>'}).join('')+'</div>';
-  if(w.length) h+=section('You voted · results soon','#0EA5E9',w.map(function(p){return row(p,isOpen(p)?'You replied':p.votes.me!=null&&p.opts[p.votes.me]?'You picked '+p.opts[p.votes.me].t:'You voted',left(p.closes-now()))}));
+  if(w.length) h+=section('You voted · results soon','#0EA5E9',w.map(function(p){return row(p,isOpen(p)?'You replied':p.votes.me!=null&&p.opts[p.votes.me]?'You picked '+p.opts[p.votes.me].t:'You voted','CLOCK')}));
   return h;
 }
 
@@ -525,7 +539,7 @@ function pMine(){
     var tu=turn(p),pct=tu.total?Math.round(tu.n/tu.total*100):0;
     var nw=Math.max(0,tu.n-(MINEBASE[p.id]!=null?MINEBASE[p.id]:((S.seenV&&S.seenV[p.id])||0))); if(!stack.length&&tab==='mine') lookedAt(p);
     var vb=isOpen(p)?(nw===1?'reply':'replies'):(nw===1?'vote':'votes');
-    return '<div class="mcard" data-row="'+p.id+'"><button class="top" style="background:'+grad(p.id)+'" data-a="q" data-id="'+p.id+'"><small>'+esc(cname(p))+' · <span data-closes="'+p.closes+'">'+left(p.closes-now())+'</span>'+(p.hideAsker?' · asked anonymously':'')+'</small><b>'+esc(p.q)+'</b>'+(nw?'<span class="newv">+'+nw+' new '+vb+'</span>':'')+'</button><div class="body">'+
+    return '<div class="mcard" data-row="'+p.id+'"><button class="top" style="background:'+grad(p.id)+'" data-a="q" data-id="'+p.id+'"><small>'+esc(cname(p))+' · <span class="cdt" data-cd="'+p.closes+'" data-suffix=" left"><b class="cdn"></b></span>'+(p.hideAsker?' · asked anonymously':'')+'</small><b>'+esc(p.q)+'</b>'+(nw?'<span class="newv">+'+nw+' new '+vb+'</span>':'')+'</button><div class="body">'+
       '<div class="bar2"><i style="width:'+pct+'%;background:'+grad(p.id)+'"></i></div>'+
       '<div class="ppl"><span class="faces">'+(p.hideAsker?'':yes.map(function(v){return av(v)}).join('')+no.map(function(v){return av(v,'out')}).join(''))+'</span><span class="t">'+tu.n+' of '+tu.total+(isOpen(p)?' replied':' voted')+'</span>'+
       (canNudge(p)?(todo.length?'<button class="btn primary sm" data-a="nudge" data-id="'+p.id+'">Nudge '+(todo.length===1?esc(first(todo[0])):todo.length)+'</button>':no.length?'<span class="pill">Nudged</span>':''):'')+(tu.total&&tu.n>=tu.total?'<button class="btn primary sm" data-a="close" data-id="'+p.id+'">End now</button>':'')+'</div></div></div>'}).join('')+'</div>';
@@ -595,7 +609,7 @@ function pQuestion(id){
   lookedAt(p);
   var mine=p.by==='me',closed=isClosed(p),t=tally(p),you=p.votes.me,vs=voters(p),g=grad(p.id),c0=solid(p.id),open=isOpen(p),tu=turn(p);
   var h=bar(mine?'Your question':'Question');
-  h+='<div class="qhero" style="background:'+g+'"><div class="who">'+av(p.by)+'<span class="wt">'+(mine?(p.hideAsker?'You asked anonymously':'You asked'):(p.by==='anon'?'Someone':esc(first(p.by)))+' asked')+'<br>'+esc(cname(p))+'</span><span class="t"'+(closed?'':' data-closes="'+p.closes+'"')+'>'+left(p.closes-now())+'</span></div><h1>'+esc(p.q)+'</h1>'+(p.note?'<p class="note">'+esc(p.note)+'</p>':'')+
+  h+='<div class="qhero" style="background:'+g+'"><div class="who">'+av(p.by)+'<span class="wt">'+(mine?(p.hideAsker?'You asked anonymously':'You asked'):(p.by==='anon'?'Someone':esc(first(p.by)))+' asked')+'<br>'+esc(cname(p))+'</span>'+(closed?'<span class="t">Closed</span>':cdSpan(p,'ring'))+'</div><h1>'+esc(p.q)+'</h1>'+(p.note?'<p class="note">'+esc(p.note)+'</p>':'')+
     (closed&&S.seen[p.id]?'<div class="verdict">'+I.check+' '+esc(verdict(p))+(t.win>=0&&!open?' · '+t.c[t.win]+' of '+t.t+' votes':'')+'</div>':'')+'</div>';
   if(p.anon) h+='<p class="privacy">'+I.mask+'<span>Anonymous question. Everyone sees the totals, nobody sees who picked what.</span></p>';
   var show=canSee(p)&&(!closed||S.seen[p.id]);
@@ -738,7 +752,7 @@ function draw(mode){
   page.scrollTop=keep;
   if(fv){ var fe=document.getElementById(fv.id); if(fe){ fe.value=fv.v; try{fe.focus({preventScroll:true}); fe.setSelectionRange(fv.s,fv.s)}catch(e){} } }
   if(FOCUS){ var ff=page.querySelector(FOCUS); if(ff) try{ff.focus({preventScroll:true})}catch(e){} FOCUS=null }
-  drawTabs();
+  drawTabs(); tickClocks();
 }
 function drawTabs(){
   var n=toVote().length+ready().length;
@@ -1224,9 +1238,21 @@ function doSaveAcct(){ var em=val('se'),pw=($('#sp')||{}).value||'',er=$('#seErr
   sb.auth.updateUser({email:em,password:pw}).then(function(r){ if(r.error){ er.textContent=r.error.message||'That didn’t work.'; er.hidden=false; return } GUEST=!!(r.data&&r.data.user&&r.data.user.is_anonymous); stack=[]; draw('back'); toast(GUEST?'Check your email to confirm it.':'Your account is saved.') }) }
 
 /* ---------- clocks: tick the countdowns, and notice when a question closes ---------- */
+function pad2(n){return (n<10?'0':'')+n}
+function clock(ms){ if(ms<=0) return 'Closed'; var s=Math.ceil(ms/1000),d=Math.floor(s/86400),h=Math.floor(s/3600)%24,m=Math.floor(s/60)%60,x=s%60;
+  if(d>=1) return d+'d '+h+'h '+pad2(m)+'m'; return (h?h+':'+pad2(m):String(m))+':'+pad2(x) }
+function tickClocks(){
+  document.querySelectorAll('[data-cd]').forEach(function(el){
+    var end=+el.dataset.cd,ms=end-now(),n=el.querySelector('.cdn')||el,st=+el.dataset.start||0;
+    n.textContent=clock(ms)+(ms>0&&el.dataset.suffix?el.dataset.suffix:'');
+    if(st&&end>st) el.style.setProperty('--p',Math.max(0,Math.min(1,ms/(end-st))).toFixed(4));
+    el.classList.toggle('hot',ms>0&&ms<10*MIN);
+  });
+}
 setInterval(function(){
   if(!S||!S.me) return;
   document.querySelectorAll('[data-closes]').forEach(function(el){ el.textContent=left(+el.dataset.closes-now()) });
+  tickClocks();
   var justClosed=S.polls.some(function(p){ return p.closes<=now()&&p.closes>now()-1500 });
   if(justClosed){ if(LIVE) liveSoon(); else refresh() }
 },1000);

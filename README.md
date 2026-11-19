@@ -17,6 +17,7 @@ post a dilemma to a circle of friends, they vote in one tap, and you get a verdi
 | `supabase/upgrade-6.sql` | Lets the asker switch private votes off for a question (enforced by the database) |
 | `supabase/upgrade-7.sql` | Lets each person choose whose questions and votes notify them |
 | `supabase/upgrade-8.sql` | Lets each person mute circles they aren't interested in |
+| `supabase/upgrade-9.sql` | Private votes are off unless the asker switches them on |
 | `supabase/functions/notify/` | The notification sender (a Supabase Edge Function, no libraries) |
 | `sw.js` | Shows notifications on a device and opens the question when one is tapped |
 | `manifest.json`, `icon-*.png`, `apple-touch-icon.png` | Lets people add Sway to their phone's home screen |
@@ -47,6 +48,7 @@ invite link can vote straight away as a guest and add an email later.
    Then run `supabase/upgrade-6.sql`, which lets the asker switch private votes off per question,
    then `supabase/upgrade-7.sql` and `supabase/upgrade-8.sql`, which let each person choose whose
    activity and which circles notify them.
+   Finally `supabase/upgrade-9.sql`: private votes are off unless the asker switches them on.
 3. In the project's authentication settings, allow anonymous sign-ins (this is
    what lets invited friends vote as guests). For quick testing you can also
    turn off email confirmation.

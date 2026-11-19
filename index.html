@@ -442,10 +442,10 @@ function demo(){
     {id:'fam',name:'The Fam',owner:'priya',code:'DEMO5678',members:['priya','ana'],star:true,used:1},
     {id:'work',name:'Studio 4B',owner:'leo',code:'DEMO9012',members:['leo','jonah'],used:2},
     {id:'gym',name:'Gym Buddies',owner:'me',code:'DEMO3456',members:['leo','priya','jonah'],used:0}];
-  var P=function(x){return Object.assign({note:'',type:'choice',created:t-HR,votes:{},voted:null,nVoted:null,counts:null,comments:[],nudgedTo:[],nudgedBy:null,anon:false,live:false,who:true,early:false,hideAsker:false,hidV:{},allowPrivate:true},x)};
+  var P=function(x){return Object.assign({note:'',type:'choice',created:t-HR,votes:{},voted:null,nVoted:null,counts:null,comments:[],nudgedTo:[],nudgedBy:null,anon:false,live:false,who:true,early:false,hideAsker:false,hidV:{},allowPrivate:false},x)};
   s.polls=[
     P({id:'q1',by:'jonah',circles:['inner'],anon:true,q:'Should I tell her I’m in love with her?',opts:[{t:'Yes, tell her'},{t:'Wait a little longer'}],closes:t+2*HR,votes:{maya:0,priya:0,ana:1},comments:[{by:'maya',text:'Do it. Life is short.',t:t-20*MIN}]}),
-    P({id:'q2',by:'maya',circles:['inner'],type:'photo',q:'Which dress for Saturday’s wedding?',note:'Outdoor, golden hour. Be brutal.',opts:[{t:'Sage slip',img:dress('#E3EEDC','#7F9E78')},{t:'Terracotta wrap',img:dress('#FBE1D6','#C8664A')},{t:'Navy midi',img:dress('#DCE3F5','#2E3F72')}],closes:t+5*HR,votes:{jonah:0,priya:1,leo:2}}),
+    P({id:'q2',by:'maya',circles:['inner'],type:'photo',allowPrivate:true,q:'Which dress for Saturday’s wedding?',note:'Outdoor, golden hour. Be brutal.',opts:[{t:'Sage slip',img:dress('#E3EEDC','#7F9E78')},{t:'Terracotta wrap',img:dress('#FBE1D6','#C8664A')},{t:'Navy midi',img:dress('#DCE3F5','#2E3F72')}],closes:t+5*HR,votes:{jonah:0,priya:1,leo:2}}),
     P({id:'q3',by:'priya',circles:['fam'],q:'What should we get Mom for her 60th?',opts:[{t:'Weekend away'},{t:'Pottery class'},{t:'Photo book'}],closes:t+DAY,votes:{ana:0,me:0}}),
     P({id:'q4',by:'ana',circles:['inner'],q:'Tattoo: wrist or ankle?',opts:[{t:'Wrist'},{t:'Ankle'}],closes:t-2*HR,created:t-DAY,votes:{maya:1,jonah:1,priya:0,leo:1,me:1},comments:[{by:'jonah',text:'Ankle. Easier to hide at work.',t:t-3*HR}]}),
     P({id:'m1',by:'me',circles:['inner'],q:'Should I get the fringe?',opts:[{t:'Yes'},{t:'No'}],closes:t+3*HR,votes:{maya:0,jonah:0}}),
@@ -460,7 +460,7 @@ function demo(){
 var tab='vote',stack=[],draft=null,WHOWARN=false,ANONME={},PK={},BUSY=false,FOCUS=null,YT='me';
 function go(page,arg){stack.push([page,arg]);draw('nav')}
 function back(){stack.pop();CRENAME=null;draw('back')}
-function newDraft(){return {q:'',type:'Yes / No',o:['Yes','No'],ph:[],who:[],more:false,live:false,hide:false,anon:false,early:false,priv:true,dl:'3h',allc:false}}
+function newDraft(){return {q:'',type:'Yes / No',o:['Yes','No'],ph:[],who:[],more:false,live:false,hide:false,anon:false,early:false,priv:false,dl:'3h',allc:false}}
 function setTab(t){
   if(LIVE&&ME) liveSoon();
   if(t==='mine'&&S&&S.seenV){ MINEBASE={}; S.polls.forEach(function(p){ if(p.by==='me') MINEBASE[p.id]=S.seenV[p.id]||0 }) }
@@ -862,12 +862,12 @@ function post(){
   if(!d.who.length){ WHOWARN=true; draw('stay'); var ws=$('#whoStep'); if(ws) ws.scrollIntoView({behavior:'smooth',block:'center'}); return }
   var hid=HAS3&&d.type!=='Open'&&d.hide&&hideOk();
   var p={id:newId(),by:'me',circles:d.who.slice(),q:t,note:'',type:d.type==='Photos'?'photo':d.type==='Open'?'open':'choice',opts:opts,created:now(),closes:now()+dlMs(d.dl),
-    anon:d.type!=='Open'&&(d.anon||hid),live:d.type!=='Open'&&d.live,who:true,early:d.type!=='Open'&&d.early,allowPrivate:d.type!=='Open'&&!(d.anon||hid)?!!d.priv:true,hideAsker:hid,votes:{},voted:LIVE?[]:null,nVoted:null,counts:null,comments:[],nudgedTo:[],nudgedBy:null,hidV:{},pendingAt:now()};
+    anon:d.type!=='Open'&&(d.anon||hid),live:d.type!=='Open'&&d.live,who:true,early:d.type!=='Open'&&d.early,allowPrivate:d.type!=='Open'&&!(d.anon||hid)&&!!d.priv,hideAsker:hid,votes:{},voted:LIVE?[]:null,nVoted:null,counts:null,comments:[],nudgedTo:[],nudgedBy:null,hidV:{},pendingAt:now()};
   var mx=Math.max.apply(null,S.circles.map(function(c){return c.used||0}).concat([0])); d.who.forEach(function(k){var c=circle(k); if(c) c.used=mx+1});
   if(!LIVE){ S.polls.unshift(p); draft=null; tab='mine'; stack=[]; draw('nav'); return toast('Asked. Your circle can vote now.') }
   POSTING=true; draw('stay');
   var row={id:p.id,author:ME,q:p.q,note:'',type:p.type,opts:p.opts,closes_at:new Date(p.closes).toISOString(),anon:p.anon,live:p.live,who:true};
-  if(p.early) row.early=true; if(p.hideAsker) row.hide_asker=true; if(!p.allowPrivate) row.allow_private=false;
+  if(p.early) row.early=true; if(p.hideAsker) row.hide_asker=true; row.allow_private=!!p.allowPrivate;
   sb.from('polls').insert(row).then(function(r){ if(r.error) throw r.error; return sb.from('poll_circles').insert(p.circles.map(function(c){return {poll_id:p.id,circle_id:c}})) })
     .then(function(r){ if(r.error) throw r.error;
       POSTING=false; S.polls.unshift(p); draft=null; notify('asked',p.id); ping(p.circles); liveSoon();
